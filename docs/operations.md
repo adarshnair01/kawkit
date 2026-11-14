@@ -32,7 +32,7 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
 - A plain-language summary at the top of every result (what to do, how sure, how far to trust it).
 - A printable report: "Open printable report" stacks every section on one page for print or save as PDF.
 - A held-out-weeks chart: what the model predicted for the last 13 weeks when fitted without them.
-- Brand colour `#d55e00` with blue as its complement, and square corners throughout.
+- Black-and-white theme with one electric-blue accent, Space Grotesk headings, Inter body text, 4 px corners.
 
 ## Different from the design, on purpose
 
