@@ -181,8 +181,17 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
             {report && <h2>Fit</h2>}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <Tile label="Variation explained (R²)" value={fmtPct(f.r2, 1)} sub={`${f.weeks} weeks`} />
-              <Tile label="Typical error, in sample" value={`${f.mape.toFixed(1)}%`} sub="mean absolute % error" />
-              <Tile label="Typical error, unseen weeks" value={f.holdout_mape === null ? 'n/a' : `${f.holdout_mape.toFixed(1)}%`} sub={f.holdout_mape === null ? 'too few weeks to hold any out' : `last ${f.holdout_weeks} weeks held out`} />
+              {f.holdout?.wape !== undefined && f.holdout.benchmark ? (
+                <>
+                  <Tile label="Unseen quarter: total off by" value={`${Math.abs(f.holdout.total_error_pct).toFixed(1)}%`} sub={`simple forecast: ${Math.abs(f.holdout.benchmark.total_error_pct).toFixed(1)}%`} />
+                  <Tile label="Unseen weeks: typical miss" value={`${f.holdout.wape.toFixed(1)}%`} sub={`simple forecast: ${f.holdout.benchmark.wape.toFixed(1)}%`} />
+                </>
+              ) : (
+                <>
+                  <Tile label="Typical error, in sample" value={`${f.mape.toFixed(1)}%`} sub="mean absolute % error" />
+                  <Tile label="Typical error, unseen weeks" value={f.holdout_mape === null ? 'n/a' : `${f.holdout_mape.toFixed(1)}%`} sub={f.holdout_mape === null ? 'too few weeks to hold any out' : `last ${f.holdout_weeks} weeks held out`} />
+                </>
+              )}
               <Tile label="Revenue driven by media" value={fmtPct(f.media_share.median)} sub={`90% range ${fmtPct(f.media_share.low)} to ${fmtPct(f.media_share.high)}`} />
             </div>
             <ChartFrame
@@ -203,7 +212,7 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
             {f.holdout && (
               <ChartFrame
                 title="Can you trust it? Predicting weeks the model never saw"
-                note={`The last ${f.holdout.dates.length} weeks were hidden and the model was fitted again without them. Its predictions were off by ${f.holdout_mape?.toFixed(1)}% in a typical week and ${Math.abs(f.holdout.total_error_pct).toFixed(1)}% in total; ${f.holdout.inside} of ${f.holdout.dates.length} actual weeks fell inside its 90% range.`}
+                note={`The last ${f.holdout.dates.length} weeks were hidden and the model was fitted again without them. Its total for those weeks was off by ${Math.abs(f.holdout.total_error_pct).toFixed(1)}%, and a typical week by ${(f.holdout.wape ?? f.holdout_mape ?? 0).toFixed(1)}%; ${f.holdout.inside} of ${f.holdout.dates.length} actual weeks fell inside its 90% range.${f.holdout.benchmark ? ` For comparison, ${f.holdout.benchmark.method} would have been off by ${Math.abs(f.holdout.benchmark.total_error_pct).toFixed(1)}% in total and ${f.holdout.benchmark.wape.toFixed(1)}% a week.` : ''}`}
                 table={{ caption: 'Predicted and actual revenue for the held-out weeks', header: ['Week', 'Actual', 'Predicted', '90% low', '90% high', 'Inside range'], rows: f.holdout.dates.map((w, i) => [w, fmtNum(f.holdout!.actual[i]), fmtNum(f.holdout!.predicted[i]), fmtNum(f.holdout!.low[i]), fmtNum(f.holdout!.high[i]), f.holdout!.actual[i] >= f.holdout!.low[i] && f.holdout!.actual[i] <= f.holdout!.high[i] ? 'Yes' : 'No']) }}
               >
                 <LineChart

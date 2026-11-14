@@ -58,6 +58,17 @@ export default function Methodology() {
         </ul>
       </section>
       <section className="grid gap-2">
+        <h2>How to read the error</h2>
+        <p>Every run hides its last 13 weeks, fits the model again without them, and predicts them. Three numbers matter, in this order:</p>
+        <ul className="list-disc pl-5 grid gap-1">
+          <li><strong>Does it beat a simple forecast?</strong> The model is compared with the better of two forecasts that need no model: the average of the previous 13 weeks, and the same weeks a year earlier scaled for growth. A model that cannot beat these should not be used to forecast sales.</li>
+          <li><strong>The quarter’s total.</strong> Budgets are set per quarter, and a marketing mix model is built to explain sales over months, not to call each week. Weekly misses that cancel out do not change a budget decision.</li>
+          <li><strong>The typical week.</strong> Total absolute error over total sales (WAPE). Unlike the mean percentage error, it is not inflated by weeks with very low sales.</li>
+        </ul>
+        <p>Low error does not prove the channel estimates are right: a model can predict well while crediting the wrong channel. That is why the convergence check, the prior-vs-posterior view and, best of all, an experiment matter more than any accuracy figure.</p>
+        <p>Most remaining error on real data comes from a few weeks, usually events the data does not record: a large promotion, a stock-out, a price change or a site problem. Adding a <code>control_</code> column for them is the most effective way to reduce it.</p>
+      </section>
+      <section className="grid gap-2">
         <h2>The budget optimiser</h2>
         <p>The optimiser finds the steady weekly spend per channel that maximises expected revenue, averaged over 500 posterior draws, within your budget and per-channel limits. It then scores the recommended and current splits under every draw, which gives the expected change with a 90% range and the probability that the new split beats the current one. It runs in your browser, so changes are instant.</p>
         <p>Spend above 1.2× the highest week in your data is flagged, because the model has never seen the channel at that level.</p>

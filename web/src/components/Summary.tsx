@@ -41,11 +41,17 @@ export function Summary({ result }: { result: RunResult }) {
   if (wide.length) caveats.push(`the range for ${list(wide.map((c) => title(c.name)))} is wide`)
   if (conflict.length) caveats.push(`the data disagrees with the belief you gave for ${list(conflict.map((c) => title(c.name)))}`)
   if (f.media_share.median > 0.6) caveats.push(`the model credits ${Math.round(f.media_share.median * 100)}% of revenue to advertising, more than is usual, so the recommendation is likely overconfident`)
-  if (f.holdout_mape !== null && f.holdout_mape > 5) caveats.push(`predictions for unseen weeks were off by ${f.holdout_mape.toFixed(1)}% on average`)
-  const trust =
-    f.holdout_mape !== null
-      ? `Asked to predict the last ${f.holdout_weeks} weeks without seeing them, the model was off by ${f.holdout_mape.toFixed(1)}% in a typical week.`
-      : 'There were too few weeks to test the model on data it had not seen.'
+  const h = f.holdout
+  let trust: string
+  if (h?.wape !== undefined && h.benchmark) {
+    const beats = h.wape < h.benchmark.wape - 1
+    trust = `Asked to predict the last ${h.dates.length} weeks without seeing them, the model’s total was off by ${Math.abs(h.total_error_pct).toFixed(1)}% and a typical week by ${h.wape.toFixed(1)}%, against ${h.benchmark.wape.toFixed(1)}% a week for a simple forecast (${h.benchmark.method}).`
+    if (!beats) caveats.push('the model forecasts week to week no better than that simple rule, so use it to split the budget between channels, not to forecast sales')
+  } else
+    trust =
+      f.holdout_mape !== null
+        ? `Asked to predict the last ${f.holdout_weeks} weeks without seeing them, the model was off by ${f.holdout_mape.toFixed(1)}% in a typical week.`
+        : 'There were too few weeks to test the model on data it had not seen.'
   const caution = caveats.length ? `Be careful: ${caveats.join('; ')}.` : 'No channel stands out as poorly measured.'
 
   return (

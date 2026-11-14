@@ -67,6 +67,15 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   (branded-search clicks from the dataset, since the brands are anonymous) made two of three brands worse and
   takes credit from advertising, so it is not used.
 
+- Error review. Every run's held-out check now reports the quarter's total error and compares the model with
+  the better of two forecasts that need no model (previous 13 weeks' average; same weeks a year earlier scaled
+  for growth). Over three held-out quarters the model beats that benchmark week to week for four brands (home
+  15.0% vs 17.4%, skincare 30.8% vs 51.1%, apparel 20.7% vs 38.7%, food 23.3% vs 25.4%) and not for dental
+  (30.8% vs 26.9%). Two model changes aimed at the error were tested and rejected because they made it worse:
+  noise proportional to sales, and a trend that can change pace each quarter. For skincare, food and dental the
+  latest quarter came in 30-41% above forecast and the simple forecasts missed it as badly, which points to an
+  event outside the data.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

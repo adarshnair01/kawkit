@@ -210,3 +210,14 @@ def test_default_prior_gives_every_channel_the_same_plausible_roi():
     assert all(0.5 * design.roi_centre < m < 1.6 * design.roi_centre for m in medians)
     # no single channel's prior should plausibly exceed all revenue
     assert all(h * ds.spend[:, c].sum() < ds.y.sum() for c, h in enumerate(highs))
+
+
+def test_benchmark_picks_the_better_simple_forecast():
+    from kawkit_worker.pipeline import benchmark, wape
+
+    y = np.tile(np.r_[np.full(26, 100.0), np.full(26, 200.0)], 2)  # a strong yearly cycle
+    b = benchmark(y, 78)  # held-out weeks are high, the 13 before them low: only last year gets it right
+    assert b["method"].startswith("the same weeks a year earlier") and b["wape"] < 1
+    flat = np.full(70, 50.0)
+    assert benchmark(flat, 57)["method"] == "the average of the previous 13 weeks"
+    assert wape(np.array([100.0, 100.0]), np.array([90.0, 120.0])) == pytest.approx(15.0)

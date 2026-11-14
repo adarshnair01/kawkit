@@ -13,6 +13,27 @@ from .validate import validate_csv
 HOLDOUT_WEEKS = 13
 
 
+def wape(actual: np.ndarray, predicted: np.ndarray) -> float:
+    """Total absolute error over total sales, in %: not distorted by small weeks the way MAPE is."""
+    return float(np.abs(actual - predicted).sum() / actual.sum() * 100)
+
+
+def benchmark(y: np.ndarray, n_fit: int) -> dict:
+    """The better of two forecasts that need no model, for the held-out weeks.
+
+    A model is only worth its error if it beats these: the average of the last 13 weeks, and the
+    same weeks a year earlier scaled by how much the last 13 weeks grew on a year before.
+    """
+    actual = y[n_fit:n_fit + HOLDOUT_WEEKS]
+    options = {"the average of the previous 13 weeks": np.full(len(actual), y[n_fit - 13:n_fit].mean())}
+    if n_fit >= 65:
+        growth = y[n_fit - 13:n_fit].sum() / max(y[n_fit - 65:n_fit - 52].sum(), 1e-9)
+        options["the same weeks a year earlier, scaled for growth"] = y[n_fit - 52:n_fit - 52 + len(actual)] * growth
+    name, pred = min(options.items(), key=lambda kv: wape(actual, kv[1]))
+    return {"method": name, "wape": wape(actual, pred),
+            "total_error_pct": float((pred.sum() - actual.sum()) / actual.sum() * 100)}
+
+
 def run_pipeline(csv_bytes: bytes, priors: dict | None, seed: int, settings: dict | None = None,
                  on_progress: Callable[[float], None] | None = None,
                  should_stop: Callable[[], bool] | None = None, cores: int | None = None) -> dict:
@@ -64,6 +85,8 @@ def run_pipeline(csv_bytes: bytes, priors: dict | None, seed: int, settings: dic
             "high": [float(v) for v in hi],
             "inside": int(np.sum((actual >= lo) & (actual <= hi))),
             "total_error_pct": float((tail.mean(axis=0).sum() - actual.sum()) / actual.sum() * 100),
+            "wape": wape(actual, tail.mean(axis=0)),
+            "benchmark": benchmark(ds.y, hd.n_fit),
         }
     if on_progress:
         on_progress(0.94)

@@ -19,6 +19,8 @@ interface FeatureTest {
   search: Record<string, Record<string, { mape: number; wape: number; media_share?: number }>>
   search_order: string[]
   used: Record<string, string>
+  accuracy: Record<string, { model: { weekly: number; quarter: number }; simple: { name: string; weekly: number; quarter: number }; quarters: number[] }>
+  tried: { name: string; result: string }[]
   terms: Record<string, string>
 }
 const SET_LABELS: Record<string, string> = {
@@ -105,6 +107,7 @@ export default function Sample() {
   const weak = sample.result.channels.filter((c) => !(c.prior.informed ?? c.prior.shrink >= 0.2))
   const test = features?.results[key]
   const searchTest = features?.search?.[key]
+  const acc = features?.accuracy?.[key]
   return (
     <div className="grid gap-4">
       <h1>Sample result</h1>
@@ -157,6 +160,32 @@ export default function Sample() {
               <li>The five brands were chosen for their data, not their results: among series with at least 104 weeks, the one with the most steadily used, varied channels in each of five product categories.</li>
             </ul>
           </div>
+          {acc && (
+            <section className="card" aria-labelledby="acc-h">
+              <h2 id="acc-h">How accurate is it?</h2>
+              <p className="text-sm muted mt-1">
+                Three quarters (13 weeks each) were hidden in turn, and the model predicted each from the weeks before it. A marketing mix model is judged first on whether it beats a forecast that needs no model, and on the quarter’s total, which is what a budget is set against.
+              </p>
+              <div className="overflow-x-auto mt-2">
+                <table className="data num">
+                  <caption className="sr-only">Error on three unseen quarters: the model against a simple forecast</caption>
+                  <thead><tr><th scope="col">Forecast</th><th scope="col">Quarter total off by</th><th scope="col">Typical week off by</th></tr></thead>
+                  <tbody>
+                    <tr><th scope="row" style={{ fontWeight: 600 }}>This model</th><td>{acc.model.quarter.toFixed(1)}%</td><td>{acc.model.weekly.toFixed(1)}%</td></tr>
+                    <tr><th scope="row" style={{ fontWeight: 500, whiteSpace: 'normal' }}>Simple forecast: {acc.simple.name}</th><td>{acc.simple.quarter.toFixed(1)}%</td><td>{acc.simple.weekly.toFixed(1)}%</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-sm mt-2">
+                {acc.model.weekly < acc.simple.weekly - 3
+                  ? <><strong>The model clearly beats the simple forecast</strong>, cutting the weekly miss by {Math.round((1 - acc.model.weekly / acc.simple.weekly) * 100)}%. </>
+                  : acc.model.weekly < acc.simple.weekly
+                    ? <><strong>The model is only slightly better than the simple forecast.</strong> </>
+                    : <><strong>The model does not beat the simple forecast</strong> for this brand. Use it for how to split the budget between channels, not to forecast sales. </>}
+                The quarter totals were off by {acc.quarters.map((q) => `${q.toFixed(1)}%`).join(', ')} in turn{Math.max(...acc.quarters) > 25 ? ': most quarters are close, but one is far off, which points to an event the data does not record, such as a large promotion, a stock-out or a site problem' : ''}.
+              </p>
+            </section>
+          )}
           {test && (
             <details className="card">
               <summary className="font-semibold cursor-pointer">Outside factors: which ones were tested, and which reduced the error for this brand</summary>
@@ -204,6 +233,7 @@ export default function Sample() {
                 </>
               )}
               <ul className="list-disc pl-5 mt-2 text-sm muted grid gap-1">
+                <li>Also tested, to reduce the error, and rejected: {features!.tried.map((t) => `${t.name.charAt(0).toLowerCase()}${t.name.slice(1)} (${t.result.charAt(0).toLowerCase()}${t.result.slice(1)})`).join('; ')}.</li>
                 <li>Error here is total absolute error as a share of total revenue over the hidden weeks.</li>
                 <li>Category search interest gave a small gain for the skincare and dental brands and none for the others, so only those two use it. The search terms are guesses from each brand’s sub-category.</li>
                 <li>Searches for the brand itself are not used. They made predictions worse for two of the three brands that have the data, and they are partly caused by advertising, so putting them in the baseline takes credit away from the ads that prompted them.</li>

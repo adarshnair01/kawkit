@@ -300,5 +300,105 @@
     "media_share": 0.449
    }
   }
- }
+ },
+ "accuracy": {
+  "home": {
+   "model": {
+    "weekly": 15.0,
+    "quarter": 4.7
+   },
+   "simple": {
+    "name": "same weeks last year, scaled for growth",
+    "weekly": 17.4,
+    "quarter": 7.3
+   },
+   "quarters": [
+    0.9,
+    12.9,
+    0.4
+   ]
+  },
+  "beauty": {
+   "model": {
+    "weekly": 30.8,
+    "quarter": 19.6
+   },
+   "simple": {
+    "name": "average of the previous 13 weeks",
+    "weekly": 51.1,
+    "quarter": 44.1
+   },
+   "quarters": [
+    13.7,
+    4.0,
+    41.2
+   ]
+  },
+  "apparel": {
+   "model": {
+    "weekly": 20.7,
+    "quarter": 24.7
+   },
+   "simple": {
+    "name": "same weeks last year, scaled for growth",
+    "weekly": 38.7,
+    "quarter": 41.2
+   },
+   "quarters": [
+    18.1,
+    43.7,
+    12.3
+   ]
+  },
+  "food": {
+   "model": {
+    "weekly": 23.3,
+    "quarter": 14.1
+   },
+   "simple": {
+    "name": "same weeks last year, scaled for growth",
+    "weekly": 25.4,
+    "quarter": 13.6
+   },
+   "quarters": [
+    5.2,
+    7.4,
+    29.5
+   ]
+  },
+  "health": {
+   "model": {
+    "weekly": 30.8,
+    "quarter": 19.8
+   },
+   "simple": {
+    "name": "average of the previous 13 weeks",
+    "weekly": 26.9,
+    "quarter": 17.3
+   },
+   "quarters": [
+    16.8,
+    5.9,
+    36.7
+   ]
+  }
+ },
+ "tried": [
+  {
+   "name": "Error proportional to sales (a 10% miss counts the same in a small week as a big one)",
+   "result": "Worse for 4 of 5 brands (up to +8.8 pts a week)"
+  },
+  {
+   "name": "A trend that can change pace every quarter",
+   "result": "Worse for all 5 brands (+1.9 to +11.6 pts a week)"
+  },
+  {
+   "name": "Both together",
+   "result": "Worse for all 5 brands"
+  },
+  {
+   "name": "Carrying recent misses forward into the forecast",
+   "result": "Within \u00b11 pt for every brand"
+  }
+ ]
 }
