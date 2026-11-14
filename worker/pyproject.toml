@@ -29,4 +29,7 @@ markers = ["slow: known-truth model tests (minutes)", "integration: needs a live
 addopts = "-m 'not slow and not integration'"
 
 [tool.ruff]
-line-length = 110
+line-length = 190
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

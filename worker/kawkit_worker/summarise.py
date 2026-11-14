@@ -122,7 +122,6 @@ def summarise(fit: Fit, holdout_mape: float | None, seed: int) -> dict:
     design, priors = fit.design, fit.priors
     post = thin(fit.post)
     rng = np.random.default_rng(seed)
-    n = design.n_fit
     mu, contrib = predict(design, post)
     y = design.y
 
