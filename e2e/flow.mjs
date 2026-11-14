@@ -1,7 +1,7 @@
 // End-to-end flow with accessibility checks.
 //   KAWKIT_URL=http://localhost:4173/kawkit/ node flow.mjs
 // Guest sample, sign-up, upload, priors, run, results, optimise, download; axe on every page in
-// light and dark. Set KAWKIT_SERVICE_KEY (or KAWKIT_SERVICE_KEY_FILE) to delete the test user afterwards.
+// light and dark. The test user asks for its own deletion at the end; the worker's clean-up removes it.
 import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { chromium } from 'playwright'
@@ -9,7 +9,6 @@ import { chromium } from 'playwright'
 const require = createRequire(import.meta.url)
 const axeSource = readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8')
 const BASE = process.env.KAWKIT_URL ?? 'http://localhost:4173/kawkit/'
-const SUPABASE = process.env.KAWKIT_SUPABASE_URL ?? 'https://cmjedgyaquekrtixmwbf.supabase.co'
 const SHOTS = process.env.KAWKIT_SHOTS
 const results = []
 const ok = (name, pass, detail = '') => {
@@ -42,7 +41,6 @@ async function axe(label) {
 }
 const go = (hash) => page.goto(`${BASE}#${hash}`)
 
-let userEmail = null
 try {
   // ---------------------------------------------------------------- guest
   await page.goto(BASE)
@@ -97,7 +95,7 @@ try {
   await page.getByRole('heading', { name: 'Sign in' }).waitFor()
   ok('signed-out visitors are sent to sign in', true)
   await axe('sign in')
-  userEmail = `e2e-${Date.now()}@kawkit-tests.example.com`
+  const userEmail = `e2e-${Date.now()}@kawkit-tests.example.com`
   await page.getByRole('button', { name: 'Create account' }).first().click()
   await page.getByLabel('Email').fill(userEmail)
   await page.getByLabel(/Password/).fill('correct-horse-battery')
@@ -187,13 +185,6 @@ try {
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/failure.png`, fullPage: true })
 } finally {
   await browser.close()
-  // remove the test user straight away rather than waiting for the daily clean-up
-  const key = process.env.KAWKIT_SERVICE_KEY ?? (process.env.KAWKIT_SERVICE_KEY_FILE ? readFileSync(process.env.KAWKIT_SERVICE_KEY_FILE, 'utf8').trim() : null)
-  if (key && userEmail) {
-    const h = { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
-    const rows = await (await fetch(`${SUPABASE}/rest/v1/rpc/accounts_to_delete`, { method: 'POST', headers: h, body: '{}' })).json()
-    console.log(`test user queued for deletion: ${Array.isArray(rows) ? rows.length : rows} account(s) pending housekeeping`)
-  }
 }
 const failed = results.filter((r) => !r.pass)
 console.log(`\n${results.length - failed.length} passed, ${failed.length} failed`)
