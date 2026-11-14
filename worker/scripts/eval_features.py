@@ -27,7 +27,15 @@ SETS = {
     "events+promo": ["events", "promo"], "events+promo+macro": ["events", "promo", "macro"],
     "all": ["events", "promo", "weather", "macro"],
 }
-if len(sys.argv) > 4 and sys.argv[4].startswith("only="):
+CHOSEN = {"home": ["events", "promo"], "beauty": ["events", "promo"], "apparel": ["events", "promo", "macro"],
+          "food": ["events", "promo", "macro"], "health": ["events"]}
+if len(sys.argv) > 4 and sys.argv[4] == "brand_search":
+    sys.argv.pop(4)
+    SETS = {"chosen": [], "chosen+brand_search": ["brand_search"], "chosen+brand_search_lag": ["brand_search_lag"]}
+elif len(sys.argv) > 4 and sys.argv[4] == "category_search":
+    sys.argv.pop(4)
+    SETS = {"chosen": [], "chosen+category_search": ["category_search"]}
+elif len(sys.argv) > 4 and sys.argv[4].startswith("only="):
     SETS = {k: SETS[k] for k in sys.argv.pop(4)[5:].split(",")}
 
 df = pd.read_csv(sys.argv[1], parse_dates=["DATE_DAY"])
@@ -37,20 +45,24 @@ results = {}
 for slug in brands:
     frame, _ = build(df, slug, external)
     results[slug] = {}
-    for name, groups in SETS.items():
+    sets = dict(SETS)
+    if "chosen" in sets or any(k.startswith("chosen") for k in sets):
+        sets = {k: CHOSEN[slug] + v for k, v in sets.items()}
+    for name, groups in sets.items():
         ds = validate_csv(select(frame, groups)).dataset
         ape, abs_err, total = [], 0.0, 0.0
         for fold in (3, 2, 1):
             design = M.build_design(ds, holdout=13 * fold)
             fit = M.fit(design, M.clean_priors({}, ds.channels), seed=100 + fold, chains=2, draws=400, tune=600,
                         retry_on_caution=False)
-            mu, _ = predict(design, fit.post)
+            mu, contrib = predict(design, fit.post)
+            media_share = float(np.median(contrib[:, : design.n_fit].sum(axis=(1, 2))) / ds.y[: design.n_fit].sum())
             sl = slice(design.n_fit, design.n_fit + 13)
             actual, pred = ds.y[sl], mu.mean(axis=0)[sl]
             ape.extend(np.abs((actual - pred) / actual))
             abs_err += float(np.abs(actual - pred).sum())
             total += float(actual.sum())
         results[slug][name] = {"mape": round(float(np.mean(ape)) * 100, 1), "wape": round(abs_err / total * 100, 1),
-                               "controls": ds.control_names}
+                               "media_share_last_fold": round(media_share, 3), "controls": ds.control_names}
         print(slug, name, results[slug][name], flush=True)
     Path(sys.argv[3]).with_suffix(f".{slug}.json").write_text(json.dumps(results[slug]))

@@ -104,6 +104,7 @@ def test_labels():
     assert data_verdict(0.7) == "The data was decisive"
     assert data_verdict(0.3) == "The data refined the belief"
     assert data_verdict(0.1) == "This mostly reflects the prior"
+    assert data_verdict(0.1, moved=True) == "The data overruled the starting assumption"
     assert confidence_label(0.9, 1.0, 1.3) == "high"
     assert confidence_label(0.6, 1.0, 1.4) == "medium"
     assert confidence_label(0.2, 1.0, 2.0) == "low"
@@ -190,6 +191,22 @@ def test_channel_with_no_spend_in_the_fitting_window_still_fits():
     df.loc[df.index[-6:], "spend_late"] = 5000.0
     ds = validate_csv(df.to_csv(index=False)).dataset
     held = M.build_design(ds, holdout=13)
-    assert held.share[2] == 0
+    assert held.share[2] == 0 and held.beta_scale[2] > 0
     fit = M.fit(held, M.clean_priors({}, ds.channels), seed=3, chains=2, draws=100, tune=150, retry_on_caution=False)
     assert np.isfinite(fit.post["beta"]).all()
+
+
+def test_default_prior_gives_every_channel_the_same_plausible_roi():
+    """The default prior centres each channel's ROI where media as a whole explains 30% of revenue."""
+    from kawkit_worker.summarise import prior_roi_draws
+
+    ds = validate_csv(make_dataset(seed=7)[0]).dataset
+    design = M.build_design(ds)
+    assert design.roi_centre == pytest.approx(0.3 * ds.y.sum() / ds.spend.sum())
+    rng = np.random.default_rng(0)
+    medians = [np.median(prior_roi_draws(design, {}, c, 3000, rng)) for c in range(len(ds.channels))]
+    highs = [np.percentile(prior_roi_draws(design, {}, c, 3000, rng), 95) for c in range(len(ds.channels))]
+    assert max(medians) / min(medians) < 1.6  # same starting point for every channel
+    assert all(0.5 * design.roi_centre < m < 1.6 * design.roi_centre for m in medians)
+    # no single channel's prior should plausibly exceed all revenue
+    assert all(h * ds.spend[:, c].sum() < ds.y.sum() for c, h in enumerate(highs))

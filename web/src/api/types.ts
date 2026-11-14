@@ -119,6 +119,8 @@ export interface ChannelResult {
     carryover_weeks?: number | null
     note?: string | null
     shrink: number
+    moved?: boolean
+    informed?: boolean
     verdict: string
     conflict: boolean
     grid: number[]

@@ -16,6 +16,10 @@ interface FeatureTest {
   order: string[]
   chosen: Record<string, string>
   results: Record<string, Record<string, { mape: number; wape: number }>>
+  search: Record<string, Record<string, { mape: number; wape: number; media_share?: number }>>
+  search_order: string[]
+  used: Record<string, string>
+  terms: Record<string, string>
 }
 const SET_LABELS: Record<string, string> = {
   none: 'No outside factors',
@@ -26,6 +30,12 @@ const SET_LABELS: Record<string, string> = {
   'events+promo': 'Events + promotions',
   'events+promo+macro': 'Events + promotions + economy',
   all: 'All of the above',
+  'events+category': 'Events + category search interest',
+  'events+promo+category': 'Events + promotions + category search interest',
+  chosen: 'The set this brand used before search interest was tested',
+  'chosen+category_search': '+ search interest in the product category (Google Trends)',
+  'chosen+brand_search': '+ searches for the brand itself, same week',
+  'chosen+brand_search_lag': '+ searches for the brand itself, previous week',
 }
 
 const EXAMPLES = {
@@ -92,8 +102,9 @@ export default function Sample() {
   const src = sample.source
   const f = sample.result.fit
   const csv = `${import.meta.env.BASE_URL}sample/${EXAMPLES[key].csv}`
-  const weak = sample.result.channels.filter((c) => c.prior.shrink < 0.2)
+  const weak = sample.result.channels.filter((c) => !(c.prior.informed ?? c.prior.shrink >= 0.2))
   const test = features?.results[key]
+  const searchTest = features?.search?.[key]
   return (
     <div className="grid gap-4">
       <h1>Sample result</h1>
@@ -150,7 +161,7 @@ export default function Sample() {
             <details className="card">
               <summary className="font-semibold cursor-pointer">Outside factors: which ones were tested, and which reduced the error for this brand</summary>
               <p className="mt-2 text-sm muted">
-                Sales also move for reasons that have nothing to do with advertising. Each group of factors below was added to the baseline and tested by predicting 39 weeks the model had not seen (three blocks of 13). Lower error is better. This brand uses <strong>{SET_LABELS[features!.chosen[key]].toLowerCase()}</strong>: the simplest set within about a point of the lowest error.
+                Sales also move for reasons that have nothing to do with advertising. Each group of factors below was added to the baseline and tested by predicting 39 weeks the model had not seen (three blocks of 13). Lower error is better. This brand uses <strong>{features!.used[key]}</strong>.
               </p>
               <div className="overflow-x-auto mt-2">
                 <table className="data num">
@@ -168,12 +179,38 @@ export default function Sample() {
                   </tbody>
                 </table>
               </div>
+              {searchTest && (
+                <>
+                  <h2 className="mt-4 text-base">Does search interest help?</h2>
+                  <p className="text-sm muted mt-1">
+                    Two kinds were tested on top of that set. Interest in the product category comes from Google Trends for “{features!.terms[key]}” in the brand’s country. The brands are anonymous, so their own Google Trends cannot be looked up; clicks from searches for the brand name, recorded in the dataset, stand in for it.
+                  </p>
+                  <div className="overflow-x-auto mt-2">
+                    <table className="data num">
+                      <caption className="sr-only">Error on unseen weeks with search interest added</caption>
+                      <thead><tr><th scope="col">Added to the baseline</th><th scope="col">Error on unseen weeks</th><th scope="col">Change</th><th scope="col">Revenue credited to media</th></tr></thead>
+                      <tbody>
+                        {features!.search_order.filter((k) => searchTest[k]).map((k) => (
+                          <tr key={k}>
+                            <th scope="row" style={{ fontWeight: 500, whiteSpace: 'normal' }}>{SET_LABELS[k]}</th>
+                            <td>{searchTest[k].wape.toFixed(1)}%</td>
+                            <td>{k === 'chosen' ? '–' : `${searchTest[k].wape - searchTest.chosen.wape > 0 ? '+' : '−'}${Math.abs(searchTest[k].wape - searchTest.chosen.wape).toFixed(1)} pts`}</td>
+                            <td>{searchTest[k].media_share !== undefined ? fmtPct(searchTest[k].media_share!) : '–'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
               <ul className="list-disc pl-5 mt-2 text-sm muted grid gap-1">
                 <li>Error here is total absolute error as a share of total revenue over the hidden weeks.</li>
+                <li>Category search interest gave a small gain for the skincare and dental brands and none for the others, so only those two use it. The search terms are guesses from each brand’s sub-category.</li>
+                <li>Searches for the brand itself are not used. They made predictions worse for two of the three brands that have the data, and they are partly caused by advertising, so putting them in the baseline takes credit away from the ads that prompted them.</li>
                 <li>Weather did not help any of the five brands. The economy measures helped the two US brands, but they move slowly, so they may be standing in for a change in trend, not causing it. Read the direction of their effect with caution.</li>
-                <li>The set was picked using these same test weeks, so the gain is a little optimistic.</li>
-                <li>Not tested, but likely to help: search interest in the product category, competitor promotions, stock-outs and price changes. The brands are anonymous, so none of these could be matched.</li>
-                <li>Weather from Open-Meteo; consumer confidence and prices from FRED (University of Michigan, OECD, national statistics offices).</li>
+                <li>The sets were picked using these same test weeks, so the gains are a little optimistic.</li>
+                <li>Not tested, but likely to help: competitor promotions, stock-outs and price changes. None is in the data.</li>
+                <li>Weather from Open-Meteo; consumer confidence and prices from FRED (University of Michigan, OECD, national statistics offices); search interest from Google Trends.</li>
               </ul>
             </details>
           )}

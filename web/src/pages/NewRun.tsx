@@ -261,7 +261,7 @@ export default function NewRun() {
         <>
           <section className="card grid gap-3" aria-labelledby="priors-h">
             <h2 id="priors-h">What you already know (optional)</h2>
-            <p className="muted">Leave everything blank to use the defaults, which let the data lead: each channel’s effect is assumed to be in proportion to its share of spend, and about a quarter of a week’s effect is assumed to carry into the next week. The results always show how far the data moved these starting points.</p>
+            <p className="muted">Leave everything blank to use the defaults, which let the data lead: every channel starts with the same expected return, set so that advertising as a whole would explain about 30% of your revenue, and about a quarter of a week’s effect is assumed to carry into the next week. The results always show how far the data moved these starting points.</p>
             <div className="grid gap-3">
               {s.channels.map((c) => {
                 const f = forms[c.name] ?? EMPTY

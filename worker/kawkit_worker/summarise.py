@@ -67,7 +67,7 @@ def prior_roi_draws(design: Design, priors: dict, c: int, n: int, rng: np.random
         m, s = M.roi_prior_params(p["roi_low"], p["roi_high"])
         return rng.lognormal(m, s, n)
     a, b = M.carryover_prior_params(p.get("carryover_weeks"))
-    beta = np.abs(rng.normal(0, 2.0 * max(design.share[c], 1e-4), n))
+    beta = np.abs(rng.normal(0, design.beta_scale[c], n))
     alpha = rng.beta(a, b, n)
     lam = rng.gamma(3.0, 1.0, n)
     x = design.xs[: design.n_fit, c]
@@ -89,7 +89,10 @@ def density(samples: np.ndarray, grid: np.ndarray) -> np.ndarray:
     return dens / peak if peak > 0 else dens
 
 
-def data_verdict(shrink: float) -> str:
+def data_verdict(shrink: float, moved: bool = False) -> str:
+    """How far the data moved the belief: by narrowing it, or by landing outside the prior's range."""
+    if moved:
+        return "The data overruled the starting assumption"
     if shrink > 0.5:
         return "The data was decisive"
     if shrink >= 0.2:
@@ -173,6 +176,7 @@ def summarise(fit: Fit, holdout_mape: float | None, seed: int) -> dict:
         g_hi = max(p_hi, roi_iv["high"]) * 1.6
         grid = np.exp(np.linspace(math.log(g_lo), math.log(g_hi), N_DENSITY))
         user = priors.get(name, {})
+        moved = bool(roi_iv["median"] < p_lo or roi_iv["median"] > p_hi)
         conflict = bool("roi_low" in user and (roi_iv["median"] < p_lo or roi_iv["median"] > p_hi))
 
         channels.append({
@@ -194,7 +198,9 @@ def summarise(fit: Fit, holdout_mape: float | None, seed: int) -> dict:
                 "carryover_weeks": user.get("carryover_weeks"),
                 "note": user.get("note"),
                 "shrink": round(shrink, 3),
-                "verdict": data_verdict(shrink),
+                "moved": moved,
+                "informed": bool(moved or shrink >= 0.2),
+                "verdict": data_verdict(shrink, moved),
                 "conflict": conflict,
                 "grid": r(grid, 4),
                 "prior_density": r(density(prior, grid), 3),

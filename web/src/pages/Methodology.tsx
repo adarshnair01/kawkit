@@ -40,7 +40,7 @@ export default function Methodology() {
             <caption className="sr-only">Default priors and how your inputs change them</caption>
             <thead><tr><th scope="col">Quantity</th><th scope="col" style={{ textAlign: 'left' }}>Default</th><th scope="col" style={{ textAlign: 'left' }}>With your input</th></tr></thead>
             <tbody>
-              <tr><th scope="row" style={{ fontWeight: 500 }}>Maximum effect β</th><td style={{ textAlign: 'left', whiteSpace: 'normal' }}>Half-normal, scaled to the channel’s share of total spend</td><td style={{ textAlign: 'left' }}>Unchanged</td></tr>
+              <tr><th scope="row" style={{ fontWeight: 500 }}>Maximum effect β</th><td style={{ textAlign: 'left', whiteSpace: 'normal' }}>Half-normal, scaled so that every channel starts with the same expected ROI, the one at which advertising as a whole would explain about 30% of revenue</td><td style={{ textAlign: 'left' }}>Unchanged</td></tr>
               <tr><th scope="row" style={{ fontWeight: 500 }}>Carry-over α</th><td style={{ textAlign: 'left', whiteSpace: 'normal' }}>Beta(1, 3): about a quarter of the effect carries into the next week</td><td style={{ textAlign: 'left', whiteSpace: 'normal' }}>“Lasts about N weeks” becomes a Beta centred where 10% of the effect is left after N weeks</td></tr>
               <tr><th scope="row" style={{ fontWeight: 500 }}>Saturation speed λ</th><td style={{ textAlign: 'left' }}>Gamma(3, 1)</td><td style={{ textAlign: 'left' }}>Unchanged</td></tr>
               <tr><th scope="row" style={{ fontWeight: 500 }}>Channel ROI</th><td style={{ textAlign: 'left' }}>None</td><td style={{ textAlign: 'left', whiteSpace: 'normal' }}>Your 90% range becomes a log-normal belief on the channel’s ROI (total contribution ÷ total spend)</td></tr>
@@ -54,7 +54,7 @@ export default function Methodology() {
         <ul className="list-disc pl-5 grid gap-1">
           <li><strong>Convergence.</strong> Pass needs every R-hat at or below 1.01, effective sample size of 400 or more, and under 0.1% divergent draws. If a run fails this, its results are hidden behind a warning.</li>
           <li><strong>Fit.</strong> R² and typical error in sample, and typical error on the last 13 weeks when they are held out.</li>
-          <li><strong>Prior vs posterior.</strong> For each channel, how much narrower the ROI range became: more than 50% narrower is “the data was decisive”, 20% to 50% “the data refined the belief”, less than 20% “this mostly reflects the prior”.</li>
+          <li><strong>Prior vs posterior.</strong> For each channel, how much narrower the ROI range became: more than 50% narrower is “the data was decisive”, 20% to 50% “the data refined the belief”, less than 20% “this mostly reflects the prior”. If the result lands outside the range the prior gave, it reads “the data overruled the starting assumption”.</li>
         </ul>
       </section>
       <section className="grid gap-2">

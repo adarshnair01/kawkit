@@ -6,6 +6,7 @@ Sources
     averaged over a few large cities per country.
   - Consumer sentiment and prices: FRED (University of Michigan sentiment UMCSENT, OECD consumer
     confidence for the UK, consumer price indices).
+  - Category search interest: Google Trends, weekly, for one search term per brand's sub-category.
 Calendar events are computed, not downloaded.
 """
 
@@ -40,7 +41,23 @@ GROUPS = {
     "promo": ["discount_rate"],
     "weather": ["temp_anomaly", "rain_anomaly"],
     "macro": ["consumer_confidence", "inflation"],
+    # the brand's own search interest: clicks from searches for the brand name. Tested, not used:
+    # it is partly caused by advertising, and the same-week value is not known in advance.
+    "brand_search": ["brand_search"],
+    "brand_search_lag": ["brand_search_last_week"],
+    # Google Trends interest in the product category in the brand's country (0 to 100)
+    "category_search": ["category_search"],
 }
+# search term per brand, picked from its sub-category; the brands are anonymous, so these are guesses
+TREND_TERMS = {"home": ("home decor", "GB"), "beauty": ("skincare", "US"), "apparel": ("underwear", "US"),
+               "food": ("food delivery", "US"), "health": ("teeth whitening", "GB")}
+
+
+def category_search(slug: str, external: Path, weeks: pd.DatetimeIndex) -> pd.DataFrame:
+    """Google Trends weeks start on Sunday; ours start the following Monday."""
+    t = pd.read_csv(external / f"trends_{slug}.csv", parse_dates=["date"])
+    s = pd.Series(t.interest.values, index=t.date + pd.Timedelta(days=1))
+    return pd.DataFrame({"category_search": s.reindex(weeks).interpolate().bfill().ffill().values}, index=weeks)
 
 
 def monday(d: date) -> date:
@@ -113,7 +130,8 @@ def build(df: pd.DataFrame, slug: str, external: Path) -> tuple[pd.DataFrame, di
                                                ("territory", "ORGANISATION_PRIMARY_TERRITORY_NAME"), ("currency", "CURRENCY_CODE")]}
     price = g.ALL_PURCHASES_ORIGINAL_PRICE.fillna(0)
     disc = g.ALL_PURCHASES_GROSS_DISCOUNT.fillna(0)
-    daily = g[list(NAMES)].fillna(0).assign(revenue=price - disc, price=price, disc=disc)
+    daily = g[list(NAMES)].fillna(0).assign(revenue=price - disc, price=price, disc=disc,
+                                            brand=g.BRANDED_SEARCH_CLICKS.fillna(0))
     weekly = daily.resample("W-MON", label="left", closed="left").sum()
     weekly = weekly[daily.revenue.resample("W-MON", label="left", closed="left").count() == 7]
     out = pd.DataFrame({"date": weekly.index.strftime("%Y-%m-%d"), "revenue": weekly.revenue.round(2).values}, index=weekly.index)
@@ -126,6 +144,8 @@ def build(df: pd.DataFrame, slug: str, external: Path) -> tuple[pd.DataFrame, di
         pd.DataFrame({"discount_rate": (weekly.disc / weekly.price.where(weekly.price > 0, np.nan)).fillna(0).round(4) * 100}),
         weather(country, external).reindex(weekly.index),
         macro(country, external, weekly.index),
+        pd.DataFrame({"brand_search": weekly.brand, "brand_search_last_week": weekly.brand.shift(1).bfill()}),
+        category_search(slug, external, weekly.index),
     ], axis=1)
     for c in feats:
         out[f"control_{c}"] = feats[c].values

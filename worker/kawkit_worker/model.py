@@ -26,6 +26,7 @@ PERIOD = 52.0
 N_FOURIER = 2
 Z90 = 1.6448536269514722
 BASELINE_SHARE = (0.5, 0.9)  # expected range for the baseline's share of revenue
+MEDIA_SHARE_PRIOR = 0.3  # default priors centre total media contribution at this share of revenue
 BASELINE_SHARE_SD = 0.02  # how quickly the prior penalises shares outside that range
 
 
@@ -128,6 +129,8 @@ class Design:
     trend: np.ndarray  # (T,)
     fourier: np.ndarray  # (T, 2*N_FOURIER) or (T, 0)
     share: np.ndarray  # (C,) share of total spend
+    roi_centre: float  # default prior median ROI, the same for every channel
+    beta_scale: np.ndarray  # (C,) HalfNormal scale for beta that gives that median ROI
     n_fit: int
 
     @property
@@ -156,10 +159,20 @@ def build_design(ds: Dataset, holdout: int = 0) -> Design:
     else:
         fourier = np.zeros((t_all, 0))
     total = x_fit.sum(axis=0)
+    # Default prior on each channel's effect. Every channel starts with the same expected return,
+    # set so that media as a whole would explain MEDIA_SHARE_PRIOR of revenue. The scale is worked
+    # out at the prior means of carry-over (0.25) and saturation speed (3).
+    xs_fit = x_fit / xmax
+    shape = saturation_np(adstock_np(xs_fit, np.full(xs_fit.shape[1], 0.25)), 3.0).sum(axis=0)  # (C,)
+    roi_centre = MEDIA_SHARE_PRIOR * float(y_fit.sum()) / max(float(total.sum()), 1e-9)
+    half_normal_median = 0.6744897501960817
+    with np.errstate(divide="ignore", invalid="ignore"):
+        beta_scale = roi_centre * total / (half_normal_median * ymax * shape)
+    beta_scale = np.where(np.isfinite(beta_scale) & (beta_scale > 0), beta_scale, 1e-4)
     return Design(
         channels=ds.channels, control_names=ds.control_names, dates=ds.dates, y=ds.y, spend=ds.spend,
         ymax=ymax, xmax=xmax, xs=ds.spend / xmax, zs=zs, controls_raw=ds.controls, trend=trend, fourier=fourier,
-        share=total / total.sum(), n_fit=n_fit,
+        share=total / total.sum(), roi_centre=roi_centre, beta_scale=beta_scale, n_fit=n_fit,
     )
 
 
@@ -232,8 +245,7 @@ def build_model(design: Design, priors: dict[str, dict]):
         baseline_share = pt.sum(mu) / float(y.sum())
         outside = pt.maximum(BASELINE_SHARE[0] - baseline_share, 0.0) + pt.maximum(baseline_share - BASELINE_SHARE[1], 0.0)
         pm.Potential("baseline_share_prior", -0.5 * (outside / BASELINE_SHARE_SD) ** 2)
-        # a channel with no spend in the fitting window has share 0; keep its prior valid without widening small channels
-        beta = pm.HalfNormal("beta", sigma=2.0 * np.maximum(design.share, 1e-4), shape=C)
+        beta = pm.HalfNormal("beta", sigma=design.beta_scale, shape=C)
         alpha = pm.Beta("alpha", alpha=a, beta=b, shape=C)
         lam = pm.Gamma("lam", alpha=3.0, beta=1.0, shape=C)
         sigma = pm.HalfNormal("sigma", 2.0)

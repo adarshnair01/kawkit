@@ -22,7 +22,7 @@ export function Summary({ result }: { result: RunResult }) {
 
   // how sure
   // only channels the data actually informed can be called best, or said to pay back
-  const measured = ch.filter((c) => c.prior.shrink >= 0.2)
+  const measured = ch.filter((c) => c.prior.informed ?? c.prior.shrink >= 0.2)
   const pool = measured.length ? measured : ch
   const best = [...pool].sort((a, b) => b.roi.median - a.roi.median)[0]
   const losing = pool.filter((c) => c.roi.p_above_1 < 0.2)
@@ -32,7 +32,7 @@ export function Summary({ result }: { result: RunResult }) {
   if (losing.length) sure += ` ${list(losing.map((c) => title(c.name)))} probably ${losing.length === 1 ? 'does' : 'do'} not.`
 
   // what the model cannot tell you
-  const prior = ch.filter((c) => c.prior.shrink < 0.2)
+  const prior = ch.filter((c) => !(c.prior.informed ?? c.prior.shrink >= 0.2))
   const wide = ch.filter((c) => c.roi.confidence === 'low' && !prior.includes(c))
   const conflict = ch.filter((c) => c.prior.conflict)
   const caveats: string[] = []

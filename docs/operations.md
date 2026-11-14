@@ -56,6 +56,17 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   Weather came from Open-Meteo and the economic series from FRED; neither is stored in the repository beyond the
   derived weekly control columns in the example CSV files.
 
+- Default channel priors recalibrated. The old default (half-normal scaled to 2x the channel's spend share)
+  implied typical ROIs of 3 to 19 with upper ends of 25 to 75 on the real brands, more than all revenue. Every
+  channel now starts with the same expected ROI, the one at which media as a whole explains 30% of revenue
+  (`MEDIA_SHARE_PRIOR` in `worker/kawkit_worker/model.py`). Priors are not tuned to any brand's results.
+  The prior-vs-posterior verdict gained "the data overruled the starting assumption" for results that land
+  outside the prior's range. Known-truth tests re-run and passing.
+- Search interest tested as a baseline factor. Category interest from Google Trends (one guessed term per brand)
+  gave a small gain for the skincare and dental brands and is used there. The brand's own search interest
+  (branded-search clicks from the dataset, since the brands are anonymous) made two of three brands worse and
+  takes credit from advertising, so it is not used.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

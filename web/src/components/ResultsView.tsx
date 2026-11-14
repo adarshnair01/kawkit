@@ -102,7 +102,7 @@ function ChannelCard({ c, i }: { c: ChannelResult; i: number }) {
       <p className="text-sm mt-2">
         <strong>{p.verdict}.</strong>{' '}
         <span className="muted">
-          {p.source === 'yours' ? 'Your prior' : 'The default prior'} said {fmtRange(p.roi.low, p.roi.high)}; the range is now {Math.max(0, Math.round(p.shrink * 100))}% narrower.
+          {p.source === 'yours' ? 'Your prior' : 'The default prior'} said {fmtRange(p.roi.low, p.roi.high)}; {p.moved ? `the result landed ${c.roi.median > p.roi.high ? 'above' : 'below'} that range` : `the range is now ${Math.max(0, Math.round(p.shrink * 100))}% narrower`}.
           {p.note ? ` Source: ${p.note}.` : ''}
         </span>
       </p>

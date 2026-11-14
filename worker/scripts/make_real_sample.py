@@ -26,8 +26,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from conjura_features import GROUPS, NAMES, SERIES, build, select  # noqa: E402
 
 FEATURES = {
-    "home": ["events", "promo"], "beauty": ["events", "promo"],
-    "apparel": ["events", "promo", "macro"], "food": ["events", "promo", "macro"], "health": ["events"],
+    "home": ["events", "promo"], "beauty": ["events", "promo", "category_search"],
+    "apparel": ["events", "promo", "macro"], "food": ["events", "promo", "macro"], "health": ["events", "category_search"],
 }
 
 df = pd.read_csv(sys.argv[1], parse_dates=["DATE_DAY"])
