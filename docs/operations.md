@@ -27,6 +27,13 @@ What was built, what was checked, and what is still open. Written 14 Nov 2026.
 Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-channel sample takes about
 55 seconds from submit to results (main fit about 20 seconds).
 
+## Added after the first version
+
+- A plain-language summary at the top of every result (what to do, how sure, how far to trust it).
+- A printable report: "Open printable report" stacks every section on one page for print or save as PDF.
+- A held-out-weeks chart: what the model predicted for the last 13 weeks when fitted without them.
+- Brand colour `#d55e00` with blue as its complement, and square corners throughout.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

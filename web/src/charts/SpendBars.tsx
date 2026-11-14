@@ -47,8 +47,8 @@ export function SpendBars({ labels, groups, ariaLabel, flags }: Props) {
                 const h = M.top + ih - sy(g.values[i])
                 return (
                   <g key={g.label}>
-                    <rect x={x + 1} y={sy(g.values[i])} width={bw - 2} height={h} fill={g.color} rx={2} />
-                    {g.hatch && <rect x={x + 1} y={sy(g.values[i])} width={bw - 2} height={h} fill={`url(#${hatchId})`} rx={2} />}
+                    <rect x={x + 1} y={sy(g.values[i])} width={bw - 2} height={h} fill={g.color} />
+                    {g.hatch && <rect x={x + 1} y={sy(g.values[i])} width={bw - 2} height={h} fill={`url(#${hatchId})`} />}
                   </g>
                 )
               })}
@@ -71,8 +71,8 @@ export function SpendBars({ labels, groups, ariaLabel, flags }: Props) {
           <li key={g.label} className="flex items-center gap-1.5">
             <svg width="14" height="12" aria-hidden="true">
               <defs>{hatch}</defs>
-              <rect width="14" height="12" fill={g.color} rx="2" />
-              {g.hatch && <rect width="14" height="12" fill={`url(#${hatchId})`} rx="2" />}
+              <rect width="14" height="12" fill={g.color} />
+              {g.hatch && <rect width="14" height="12" fill={`url(#${hatchId})`} />}
             </svg>
             {g.label}
           </li>

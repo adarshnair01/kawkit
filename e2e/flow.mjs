@@ -86,6 +86,18 @@ try {
   await page.getByRole('button', { name: 'Download recommended split (CSV)' }).click()
   ok('recommended split downloads as CSV', (await (await dl).suggestedFilename()).endsWith('.csv'))
 
+  // plain-language summary and the printable report
+  await go('/sample')
+  await page.getByText('What to do.').waitFor()
+  ok('plain-language summary is shown', (await page.getByText('How far to trust it.').count()) === 1)
+  await page.getByRole('button', { name: 'Open printable report' }).click()
+  await page.getByRole('heading', { name: 'Recommended budget split' }).waitFor()
+  ok('printable report shows every section', (await page.getByRole('heading', { name: 'Response curves' }).count()) === 1 && (await page.getByRole('tab').count()) === 0)
+  await axe('report')
+  await page.getByRole('button', { name: 'Back to the interactive view' }).click()
+  await page.getByRole('tab', { name: 'Fit' }).click()
+  ok('held-out weeks chart is shown', (await page.getByRole('heading', { name: /Can you trust it/ }).count()) === 1)
+
   await go('/methodology')
   await page.getByRole('heading', { name: 'Glossary' }).waitFor()
   await axe('methodology')

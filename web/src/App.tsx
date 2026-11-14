@@ -45,15 +45,15 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [location.pathname])
   const nav = ({ isActive }: { isActive: boolean }) =>
-    `px-2 py-1.5 rounded-md text-sm font-semibold no-underline ${isActive ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'text-[var(--text)]'}`
+    `px-2 py-1.5 rounded-md text-sm font-semibold no-underline ${isActive ? 'bg-[var(--accent-soft)] text-[var(--accent-ink)]' : 'text-[var(--text)]'}`
   return (
     <div className="min-h-screen flex flex-col">
       <a href="#main" className="skip-link" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus() }}>Skip to content</a>
-      <header className="border-b border-[var(--border)] bg-[var(--surface)]">
+      <header className="site border-b border-[var(--border)] bg-[var(--surface)]">
         <div className="max-w-6xl mx-auto px-4 py-2.5 flex flex-wrap items-center gap-x-4 gap-y-2">
           <Link to="/" className="flex items-center gap-2 no-underline text-[var(--text)] font-bold text-lg">
             <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true">
-              <rect width="32" height="32" rx="7" fill="var(--accent)" />
+              <rect width="32" height="32" fill="var(--accent)" />
               <path d="M7 22c4 0 5-12 9-12s5 8 9 8" fill="none" stroke="var(--accent-text)" strokeWidth="3" strokeLinecap="round" />
             </svg>
             Kawkit

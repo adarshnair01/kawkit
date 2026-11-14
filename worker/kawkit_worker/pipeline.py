@@ -43,17 +43,34 @@ def run_pipeline(csv_bytes: bytes, priors: dict | None, seed: int, settings: dic
 
     # out-of-sample error: fit again without the last 13 weeks, predict them
     holdout_mape = None
+    holdout = None
     if len(ds.y) - HOLDOUT_WEEKS >= 52:
         hd = M.build_design(ds, holdout=HOLDOUT_WEEKS)
         hfit = M.fit(hd, clean, seed=seed + 7, chains=2, draws=max(draws // 2, 100), tune=max(tune // 2, 100),
                      cores=cores, retry_on_caution=False, on_progress=progress(0.75, 0.93), should_stop=should_stop)
         mu, _ = predict(hd, hfit.post)
         holdout_mape = mape(ds.y[hd.n_fit:], mu.mean(axis=0)[hd.n_fit:])
+        # what the model, fitted without these weeks, predicted for them
+        tail = mu[:, hd.n_fit:]
+        rng = np.random.default_rng(seed + 11)
+        noisy = tail + rng.normal(0, 1, tail.shape) * hfit.post["sigma"][:, None] * hd.ymax
+        lo, hi = np.percentile(noisy, [5, 95], axis=0)
+        actual = ds.y[hd.n_fit:]
+        holdout = {
+            "dates": ds.dates[hd.n_fit:],
+            "actual": [float(v) for v in actual],
+            "predicted": [float(v) for v in tail.mean(axis=0)],
+            "low": [float(v) for v in lo],
+            "high": [float(v) for v in hi],
+            "inside": int(np.sum((actual >= lo) & (actual <= hi))),
+            "total_error_pct": float((tail.mean(axis=0).sum() - actual.sum()) / actual.sum() * 100),
+        }
     if on_progress:
         on_progress(0.94)
 
     out = summarise(fit, holdout_mape, seed)
     out["diagnostics"]["prior_check"] = prior_check
+    out["fit"]["holdout"] = holdout
     out["summary"] = v.summary
     assert np.isfinite(out["fit"]["r2"])
     return out

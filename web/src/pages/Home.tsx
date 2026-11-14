@@ -7,6 +7,7 @@ export default function Home() {
   return (
     <div className="grid gap-6">
       <section className="grid gap-4 py-4 sm:py-8">
+        <p className="eyebrow">Bayesian marketing mix modelling, no code</p>
         <h1 style={{ fontSize: 'clamp(1.9rem, 5vw, 2.8rem)', maxWidth: '18em' }}>Find out where your next marketing dollar should go, and how sure you can be.</h1>
         <p className="text-lg muted" style={{ maxWidth: '44em' }}>
           Upload weekly spend and revenue. Kawkit fits a Bayesian marketing mix model and recommends a budget split, with every estimate shown as a range rather than a single number.

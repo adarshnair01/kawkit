@@ -98,6 +98,7 @@ export interface Fit {
   channels: string[]
   controls: string[]
   seasonality: boolean
+  holdout?: { dates: string[]; actual: number[]; predicted: number[]; low: number[]; high: number[]; inside: number; total_error_pct: number } | null
 }
 
 export interface ChannelResult {

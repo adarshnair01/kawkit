@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import type { ChannelResult, Draws, Priors, RunResult } from '../api/types'
-import { ChartFrame } from '../charts/ChartFrame'
+import { ChartFrame, DataTable } from '../charts/ChartFrame'
 import { DensityChart } from '../charts/DensityChart'
 import { IntervalBars } from '../charts/IntervalBars'
 import { LineChart } from '../charts/LineChart'
 import { downloadCsv, fmtCompact, fmtNum, fmtPct, fmtRange, fmtRoi, palette, title } from '../lib/format'
 import { exportPlan, Optimise } from './Optimise'
+import { Summary } from './Summary'
 import { Tabs } from './Tabs'
 
 const VERDICT = {
@@ -76,7 +77,7 @@ function ChannelCard({ c, i }: { c: ChannelResult; i: number }) {
     <section className="card" aria-label={`${title(c.name)}: prior versus posterior`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="flex items-center gap-2">
-          <span aria-hidden="true" style={{ width: 12, height: 12, borderRadius: 3, background: palette(i), display: 'inline-block' }} />
+          <span aria-hidden="true" style={{ width: 12, height: 12, background: palette(i), display: 'inline-block' }} />
           {title(c.name)}
         </h3>
         <span className={`badge ${CONF[c.roi.confidence]}`}>{title(c.roi.confidence)} confidence</span>
@@ -124,6 +125,8 @@ interface Props {
 export function ResultsView({ name, result, draws, drawsError }: Props) {
   const [tab, setTab] = useState('overview')
   const [reveal, setReveal] = useState(false)
+  const [report, setReport] = useState(false)
+  const show = (id: string) => (report ? id !== 'optimise' && id !== 'download' : tab === id)
   const d = result.diagnostics
   const f = result.fit
   const v = VERDICT[d.verdict] ?? VERDICT.fail
@@ -170,13 +173,12 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
     { id: 'download', label: 'Download' },
   ]
 
-  return (
-    <div className="grid gap-4">
-      {d.verdict === 'fail' && <div className="notice notice-bad" role="alert"><strong>Unreliable:</strong> you chose to view results from a model that did not converge.</div>}
-      {convergence}
-      <Tabs tabs={tabs} active={tab} onChange={setTab} label="Result sections">
-        {tab === 'overview' && (
+  const plan = result.default_plan
+  const sections = (
+    <>
+        {show('overview') && (
           <div className="grid gap-4">
+            {report && <h2>Fit</h2>}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <Tile label="Variation explained (R²)" value={fmtPct(f.r2, 1)} sub={`${f.weeks} weeks`} />
               <Tile label="Typical error, in sample" value={`${f.mape.toFixed(1)}%`} sub="mean absolute % error" />
@@ -198,11 +200,30 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
                 ]}
               />
             </ChartFrame>
+            {f.holdout && (
+              <ChartFrame
+                title="Can you trust it? Predicting weeks the model never saw"
+                note={`The last ${f.holdout.dates.length} weeks were hidden and the model was fitted again without them. Its predictions were off by ${f.holdout_mape?.toFixed(1)}% in a typical week and ${Math.abs(f.holdout.total_error_pct).toFixed(1)}% in total; ${f.holdout.inside} of ${f.holdout.dates.length} actual weeks fell inside its 90% range.`}
+                table={{ caption: 'Predicted and actual revenue for the held-out weeks', header: ['Week', 'Actual', 'Predicted', '90% low', '90% high', 'Inside range'], rows: f.holdout.dates.map((w, i) => [w, fmtNum(f.holdout!.actual[i]), fmtNum(f.holdout!.predicted[i]), fmtNum(f.holdout!.low[i]), fmtNum(f.holdout!.high[i]), f.holdout!.actual[i] >= f.holdout!.low[i] && f.holdout!.actual[i] <= f.holdout!.high[i] ? 'Yes' : 'No']) }}
+              >
+                <LineChart
+                  ariaLabel={`Line chart of predicted and actual revenue for the ${f.holdout.dates.length} held-out weeks`}
+                  x={f.holdout.dates}
+                  height={240}
+                  zeroBased={false}
+                  series={[
+                    { label: 'Predicted without seeing these weeks', values: f.holdout.predicted, color: 'var(--c0)', band: { low: f.holdout.low, high: f.holdout.high } },
+                    { label: 'Actual', values: f.holdout.actual, color: 'var(--text)', width: 1.5 },
+                  ]}
+                />
+              </ChartFrame>
+            )}
           </div>
         )}
 
-        {tab === 'channels' && (
+        {show('channels') && (
           <div className="grid gap-4">
+            {report && <h2>Channels</h2>}
             <ChartFrame
               title="Return on spend (ROI) per channel"
               note="Revenue generated per unit of spend. Dot = median, bar = 90% credible range."
@@ -241,8 +262,9 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
           </div>
         )}
 
-        {tab === 'priors' && (
+        {show('priors') && (
           <div className="grid gap-4">
+            {report && <h2>Prior vs posterior</h2>}
             <p className="muted">How far the data moved each belief. A wide dashed curve that becomes a narrow solid one means the data was informative; if the two look alike, the result mostly reflects the prior.</p>
             <div className="grid gap-4 md:grid-cols-2">
               {ch.map((c, i) => <ChannelCard key={c.name} c={c} i={i} />)}
@@ -250,8 +272,9 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
           </div>
         )}
 
-        {tab === 'curves' && (
+        {show('curves') && (
           <div className="grid gap-4 md:grid-cols-2">
+            {report && <h2 className="md:col-span-2">Response curves</h2>}
             {result.curves.map((c, i) => (
               <ChartFrame
                 key={c.name}
@@ -272,9 +295,9 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
           </div>
         )}
 
-        {tab === 'optimise' && (draws ? <Optimise draws={draws} runName={name} /> : <p role="status" className={drawsError ? 'notice notice-bad' : 'muted'}>{drawsError ?? 'Loading posterior draws…'}</p>)}
+        {show('optimise') && (draws ? <Optimise draws={draws} runName={name} /> : <p role="status" className={drawsError ? 'notice notice-bad' : 'muted'}>{drawsError ?? 'Loading posterior draws…'}</p>)}
 
-        {tab === 'download' && (
+        {show('download') && (
           <div className="card grid gap-3">
             <h3>Download as CSV</h3>
             <div className="flex flex-wrap gap-2">
@@ -286,7 +309,39 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
             <p className="text-sm muted">For a split with your own budget and limits, use the download button on the Optimise tab.</p>
           </div>
         )}
-      </Tabs>
+        {report && plan && (
+          <div className="grid gap-2">
+            <h2>Recommended budget split</h2>
+            <p className="muted">At the same weekly budget ({fmtNum(plan.budget)}), with each channel kept between 50% and 150% of its recent spend. Expected change in weekly revenue from media: {fmtCompact(plan.lift.mean)} (90% range {fmtCompact(plan.lift.low)} to {fmtCompact(plan.lift.high)}); {fmtPct(plan.prob_better)} chance it beats the current split.</p>
+            <DataTable caption="Current and recommended weekly spend" header={['Channel', 'Current', 'Recommended', 'Change']} rows={plan.channels.map((c, i) => [title(c), fmtNum(plan.current[i]), fmtNum(plan.recommended[i]), plan.current[i] > 0 ? `${(((plan.recommended[i] - plan.current[i]) / plan.current[i]) * 100).toFixed(0)}%` : '–'])} />
+          </div>
+        )}
+    </>
+  )
+
+  return (
+    <div className="grid gap-4">
+      {d.verdict === 'fail' && <div className="notice notice-bad" role="alert"><strong>Unreliable:</strong> you chose to view results from a model that did not converge.</div>}
+      {report && (
+        <div className="report-only">
+          <p className="eyebrow">Kawkit report</p>
+          <p className="text-xl font-bold">{name}</p>
+          <p className="muted text-sm">{f.weeks} weeks, {f.dates[0]} to {f.dates[f.dates.length - 1]} · {ch.length} channels</p>
+        </div>
+      )}
+      <div className="flex flex-wrap items-center justify-end gap-2 no-print">
+        {report ? (
+          <>
+            <button type="button" className="btn btn-primary" onClick={() => window.print()}>Print or save as PDF</button>
+            <button type="button" className="btn" onClick={() => setReport(false)}>Back to the interactive view</button>
+          </>
+        ) : (
+          <button type="button" className="btn" onClick={() => { setReport(true); window.scrollTo(0, 0) }}>Open printable report</button>
+        )}
+      </div>
+      <Summary result={result} />
+      {convergence}
+      {report ? <div className="grid gap-6">{sections}</div> : <Tabs tabs={tabs} active={tab} onChange={setTab} label="Result sections">{sections}</Tabs>}
     </div>
   )
 }
