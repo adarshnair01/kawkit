@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../api/auth'
+import { HowItWorks } from '../components/HowItWorks'
 import { ServerNotice } from '../components/ServerNotice'
 
 export default function Home() {
@@ -19,18 +20,7 @@ export default function Home() {
         <p className="text-sm muted">The sample needs no account.</p>
       </section>
       <ServerNotice />
-      <section className="grid gap-4 md:grid-cols-3" aria-label="How it works">
-        {[
-          ['1. Upload a CSV', 'One row per week: a date, revenue, and one spend column per channel. The file is checked instantly and problems are shown with row numbers.'],
-          ['2. Add what you know', 'Optionally give an ROI range from a lift test, or how long a channel’s effect lasts. Leave everything blank to let the data lead.'],
-          ['3. Get ranges, not guesses', 'See each channel’s return with a 90% range, how far the data moved your beliefs, and a budget split with the probability that it beats your current one.'],
-        ].map(([h, p]) => (
-          <div key={h} className="card">
-            <h2 className="text-base">{h}</h2>
-            <p className="mt-1 muted">{p}</p>
-          </div>
-        ))}
-      </section>
+      <HowItWorks />
       <section className="card" aria-labelledby="privacy-h">
         <h2 id="privacy-h">How your data is stored and deleted</h2>
         <ul className="list-disc pl-5 mt-2 grid gap-1">
