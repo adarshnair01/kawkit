@@ -177,3 +177,19 @@ def test_current_split_is_last_13_weeks_and_curves_interpolate():
     draws = fixed_draws((0.5,), (3.0,), (100.0,))
     c = Curves(draws, np.array([200.0]))
     assert c.value(0, 77.0) == pytest.approx(float(response_draws(draws, 0, 77.0)[0, 0]), rel=1e-4)
+
+
+def test_channel_with_no_spend_in_the_fitting_window_still_fits():
+    """Found on real data: a channel that only starts spending in the held-out weeks."""
+    import io
+
+    import pandas as pd
+
+    df = pd.read_csv(io.StringIO(make_dataset(seed=5, weeks=70, n_channels=2)[0]))
+    df["spend_late"] = 0.0
+    df.loc[df.index[-6:], "spend_late"] = 5000.0
+    ds = validate_csv(df.to_csv(index=False)).dataset
+    held = M.build_design(ds, holdout=13)
+    assert held.share[2] == 0
+    fit = M.fit(held, M.clean_priors({}, ds.channels), seed=3, chains=2, draws=100, tune=150, retry_on_caution=False)
+    assert np.isfinite(fit.post["beta"]).all()

@@ -21,10 +21,13 @@ export function Summary({ result }: { result: RunResult }) {
   }
 
   // how sure
-  const best = [...ch].sort((a, b) => b.roi.median - a.roi.median)[0]
-  const losing = ch.filter((c) => c.roi.p_above_1 < 0.2)
-  const winning = ch.filter((c) => c.roi.p_above_1 > 0.9)
-  let sure = `${title(best.name)} has the highest return: ${fmtRoi(best.roi.median)} in revenue per unit of spend (90% range ${fmtRange(best.roi.low, best.roi.high)}).`
+  // only channels the data actually informed can be called best, or said to pay back
+  const measured = ch.filter((c) => c.prior.shrink >= 0.2)
+  const pool = measured.length ? measured : ch
+  const best = [...pool].sort((a, b) => b.roi.median - a.roi.median)[0]
+  const losing = pool.filter((c) => c.roi.p_above_1 < 0.2)
+  const winning = pool.filter((c) => c.roi.p_above_1 > 0.9)
+  let sure = `${title(best.name)} has the highest measured return: ${fmtRoi(best.roi.median)} in revenue per unit of spend (90% range ${fmtRange(best.roi.low, best.roi.high)}).`
   if (winning.length) sure += ` ${list(winning.map((c) => title(c.name)))} very likely ${winning.length === 1 ? 'pays' : 'pay'} back more than ${winning.length === 1 ? 'it costs' : 'they cost'}.`
   if (losing.length) sure += ` ${list(losing.map((c) => title(c.name)))} probably ${losing.length === 1 ? 'does' : 'do'} not.`
 
@@ -37,6 +40,7 @@ export function Summary({ result }: { result: RunResult }) {
   if (prior.length) caveats.push(`the data could not say much about ${list(prior.map((c) => title(c.name)))}, so ${prior.length === 1 ? 'that estimate mostly reflects' : 'those estimates mostly reflect'} the starting assumption`)
   if (wide.length) caveats.push(`the range for ${list(wide.map((c) => title(c.name)))} is wide`)
   if (conflict.length) caveats.push(`the data disagrees with the belief you gave for ${list(conflict.map((c) => title(c.name)))}`)
+  if (f.media_share.median > 0.9) caveats.push('the model credits almost all revenue to advertising, which is rarely true, so the recommendation is likely overconfident')
   if (f.holdout_mape !== null && f.holdout_mape > 5) caveats.push(`predictions for unseen weeks were off by ${f.holdout_mape.toFixed(1)}% on average`)
   const trust =
     f.holdout_mape !== null

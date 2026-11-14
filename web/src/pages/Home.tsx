@@ -17,7 +17,7 @@ export default function Home() {
           <Link to="/sample" className="btn btn-primary">Try the sample result</Link>
           {session ? <Link to="/new" className="btn">Start a new run</Link> : <Link to="/sign-in" className="btn">Sign in to run your own data</Link>}
         </div>
-        <p className="text-sm muted">The sample needs no account. It includes a made-up example with known answers and <Link to="/sample?example=real">a real e-commerce brand</Link>.</p>
+        <p className="text-sm muted">The sample needs no account. It includes a made-up example with known answers and <Link to="/sample?example=home">five real e-commerce brands</Link>.</p>
       </section>
       <ServerNotice />
       <HowItWorks />

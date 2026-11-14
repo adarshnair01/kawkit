@@ -223,7 +223,8 @@ def build_model(design: Design, priors: dict[str, dict]):
         if K:
             delta = pm.Normal("delta", 0.0, 2.0, shape=K)
             mu = mu + pt.dot(design.zs[:n], delta)
-        beta = pm.HalfNormal("beta", sigma=2.0 * design.share, shape=C)
+        # a channel with no spend in the fitting window has share 0; keep its prior valid without widening small channels
+        beta = pm.HalfNormal("beta", sigma=2.0 * np.maximum(design.share, 1e-4), shape=C)
         alpha = pm.Beta("alpha", alpha=a, beta=b, shape=C)
         lam = pm.Gamma("lam", alpha=3.0, beta=1.0, shape=C)
         sigma = pm.HalfNormal("sigma", 2.0)

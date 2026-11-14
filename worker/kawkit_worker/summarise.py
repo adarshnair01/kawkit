@@ -67,7 +67,7 @@ def prior_roi_draws(design: Design, priors: dict, c: int, n: int, rng: np.random
         m, s = M.roi_prior_params(p["roi_low"], p["roi_high"])
         return rng.lognormal(m, s, n)
     a, b = M.carryover_prior_params(p.get("carryover_weeks"))
-    beta = np.abs(rng.normal(0, 2.0 * design.share[c], n))
+    beta = np.abs(rng.normal(0, 2.0 * max(design.share[c], 1e-4), n))
     alpha = rng.beta(a, b, n)
     lam = rng.gamma(3.0, 1.0, n)
     x = design.xs[: design.n_fit, c]
