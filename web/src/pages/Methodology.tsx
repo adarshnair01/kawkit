@@ -29,7 +29,7 @@ export default function Methodology() {
         <ul className="list-disc pl-5 grid gap-1">
           <li><strong>Carry-over.</strong> A<sub>c,t</sub> is a weighted average of the channel’s spend over the current and previous 7 weeks, with weights α<sub>c</sub><sup>lag</sup> (geometric adstock, normalised).</li>
           <li><strong>Diminishing returns.</strong> S(A; λ) = (1 − e<sup>−λA</sup>) / (1 + e<sup>−λA</sup>) flattens as spend grows (logistic saturation).</li>
-          <li><strong>Baseline.</strong> An intercept, a linear trend, two yearly sine and cosine pairs (only with 78 weeks or more), and any control columns you supply.</li>
+          <li><strong>Baseline.</strong> An intercept, a linear trend, two yearly sine and cosine pairs (only with 78 weeks or more), and any control columns you supply. The intercept, trend and seasonality together are not allowed to go below zero in any week, because sales without advertising cannot be negative.</li>
         </ul>
         <p>These are the geometric adstock and logistic saturation transforms from PyMC-Marketing. The model is sampled with the NUTS sampler (nutpie): 4 chains of 1,000 draws after 1,000 warm-up steps, with a fixed seed per run so the same data and priors give the same answer.</p>
       </section>
@@ -66,6 +66,7 @@ export default function Methodology() {
         <h2>What the model cannot do</h2>
         <ul className="list-disc pl-5 grid gap-1">
           <li>If a channel’s spend barely changes, or always moves with the season, no model can separate its effect from the baseline. Kawkit warns before the run, and such channels usually show “this mostly reflects the prior”.</li>
+          <li>If you spend more in weeks when you expect to sell more, the model can credit advertising with sales that would have happened anyway. The real-data example shows this.</li>
           <li>It finds associations in historical data. Experiments (geo tests, lift tests) remain the best evidence; feed their results in as priors.</li>
           <li>It models one market and one KPI, with effects that do not change over time.</li>
         </ul>

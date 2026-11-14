@@ -98,6 +98,16 @@ try {
   await page.getByRole('tab', { name: 'Fit' }).click()
   ok('held-out weeks chart is shown', (await page.getByRole('heading', { name: /Can you trust it/ }).count()) === 1)
 
+  // the second example: a real brand, with its caveats and attribution
+  await go('/sample?example=real')
+  await page.getByText('Read this one with more care').waitFor()
+  await page.getByRole('heading', { name: 'Convergence check' }).waitFor()
+  ok('real-brand example loads with caveats and attribution', (await page.getByRole('link', { name: 'CC BY 4.0' }).count()) === 1)
+  await axe('real example')
+  await page.getByRole('button', { name: 'Made-up data with known answers' }).click()
+  await page.getByText('the true ROIs are known').waitFor()
+  ok('switching back to the made-up example works', true)
+
   await go('/methodology')
   await page.getByRole('heading', { name: 'Glossary' }).waitFor()
   await axe('methodology')

@@ -217,6 +217,9 @@ def build_model(design: Design, priors: dict[str, dict]):
         if F:
             fourier = pm.Normal("fourier", 0.0, 2.0, shape=F)
             mu = mu + pt.dot(design.fourier[:n], fourier)
+        # Sales without any media cannot be negative: penalise weeks where the baseline (intercept,
+        # trend and seasonality) dips below zero, as a tight half-normal on the negative part.
+        pm.Potential("baseline_not_negative", -0.5 * pt.sum((pt.minimum(mu, 0.0) / 0.01) ** 2))
         if K:
             delta = pm.Normal("delta", 0.0, 2.0, shape=K)
             mu = mu + pt.dot(design.zs[:n], delta)

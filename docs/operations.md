@@ -34,6 +34,13 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
 - A held-out-weeks chart: what the model predicted for the last 13 weeks when fitted without them.
 - Black-and-white theme with one electric-blue accent, Space Grotesk headings, Inter body text, 4 px corners.
 
+- A second guest example on real data: one anonymised brand from the Conjura MMM dataset (Anderson, 2024,
+  CC BY 4.0, https://doi.org/10.6084/m9.figshare.25314841.v3). `worker/scripts/make_real_sample.py` rebuilds it
+  from the downloaded file. Only the derived weekly file for that one brand is in the repository.
+- The model now keeps the no-media baseline (intercept, trend, seasonality) at or above zero in every week.
+  The first fit on real data credited media with more than 100% of revenue; this constraint fixed that.
+  The known-truth tests were re-run and still pass.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

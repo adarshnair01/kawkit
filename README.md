@@ -50,3 +50,7 @@ SUPABASE_ACCESS_TOKEN=sbp_... supabase/apply.sh supabase/migrations/0001_init.sq
 See `docs/operations.md` for what is and is not in this version.
 
 MIT licence.
+
+The real-data example uses one brand from the Conjura MMM dataset: Anderson, Anthony (2024), *Multi-Region
+Marketing Mix Modelling (MMM) Dataset for Several eCommerce Brands*, figshare,
+https://doi.org/10.6084/m9.figshare.25314841.v3, licensed CC BY 4.0. Weekly totals were derived from the daily data.
