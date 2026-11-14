@@ -200,6 +200,7 @@ export default function NewRun() {
                 <li><code>date</code> as YYYY-MM-DD, each date once. <code>revenue</code>: your KPI per period.</li>
                 <li><code>spend_&lt;channel&gt;</code>: 1 to 15 columns, 0 or more. <code>control_&lt;name&gt;</code>: optional other drivers such as promotions, price or holidays.</li>
                 <li>At least 52 weeks (104 or more recommended), at most 5,000 rows and 10 MB. Other columns are ignored.</li>
+                <li><strong>Tip:</strong> add a <code>control_</code> column for anything else that moves your sales, such as a 1 in Black Friday week and 0 otherwise, or your average discount. On the real example brands this cut the error on unseen weeks by up to a quarter, and it stops advertising taking the credit for those weeks.</li>
               </ul>
             </details>
           </section>

@@ -54,3 +54,5 @@ MIT licence.
 The real-data examples use five brands from the Conjura MMM dataset: Anderson, Anthony (2024), *Multi-Region
 Marketing Mix Modelling (MMM) Dataset for Several eCommerce Brands*, figshare,
 https://doi.org/10.6084/m9.figshare.25314841.v3, licensed CC BY 4.0. Weekly totals were derived from the daily data.
+The economy controls in two examples come from FRED (University of Michigan consumer sentiment, US CPI). Weather from
+Open-Meteo was tested but is not used.

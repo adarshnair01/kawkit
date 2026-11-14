@@ -98,6 +98,7 @@ export interface Fit {
   channels: string[]
   controls: string[]
   seasonality: boolean
+  drivers?: { name: string; effect: Interval; p_positive: number; share: Interval; binary: boolean; active_weeks: number; low_value: number; high_value: number }[]
   holdout?: { dates: string[]; actual: number[]; predicted: number[]; low: number[]; high: number[]; inside: number; total_error_pct: number } | null
 }
 

@@ -124,6 +124,7 @@ class Design:
     xmax: np.ndarray
     xs: np.ndarray  # (T, C) spend / xmax
     zs: np.ndarray  # (T, K) standardised controls
+    controls_raw: np.ndarray  # (T, K) controls as uploaded
     trend: np.ndarray  # (T,)
     fourier: np.ndarray  # (T, 2*N_FOURIER) or (T, 0)
     share: np.ndarray  # (C,) share of total spend
@@ -157,7 +158,7 @@ def build_design(ds: Dataset, holdout: int = 0) -> Design:
     total = x_fit.sum(axis=0)
     return Design(
         channels=ds.channels, control_names=ds.control_names, dates=ds.dates, y=ds.y, spend=ds.spend,
-        ymax=ymax, xmax=xmax, xs=ds.spend / xmax, zs=zs, trend=trend, fourier=fourier,
+        ymax=ymax, xmax=xmax, xs=ds.spend / xmax, zs=zs, controls_raw=ds.controls, trend=trend, fourier=fourier,
         share=total / total.sum(), n_fit=n_fit,
     )
 

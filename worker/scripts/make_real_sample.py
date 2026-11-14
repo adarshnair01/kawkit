@@ -1,13 +1,17 @@
 """Precompute the real-data guest examples: five anonymised e-commerce brands from the Conjura MMM
 dataset (Anderson, 2024, CC BY 4.0, https://doi.org/10.6084/m9.figshare.25314841.v3).
 
-    uv run python scripts/make_real_sample.py path/to/conjura_mmm_data.csv
+    uv run python scripts/make_real_sample.py path/to/conjura_mmm_data.csv path/to/external_dir
 
 The brands are chosen for their data, not their results. Every "All Territories" series with at
 least 104 complete weeks is ranked by its number of channels with steady, varied spend (at least 3%
 of spend, active in over 60% of weeks, coefficient of variation above 0.3), then by length of
 history; the best-ranked series in each of the first five named verticals is used.
 Revenue is merchandise value after discounts; daily rows are summed to weeks starting Monday.
+
+Each brand also gets baseline features (control columns). Which groups are used per brand comes from
+the rolling-origin test in scripts/eval_features.py (results in scripts/feature_eval_results.json):
+the simplest set within about a point of the lowest error on unseen weeks.
 """
 
 import json
@@ -18,35 +22,22 @@ import pandas as pd
 
 from kawkit_worker.pipeline import run_pipeline
 
-SERIES = {
-    "home": "826fd57057c52458a1f77cae4e3e6c67",     # Home & Garden > Home & Interior Decor, UK
-    "beauty": "3340d86d751fe8213235565e69512aa2",   # Beauty & Fitness > Face & Body Care, US
-    "apparel": "f7493de0a760f84888105af70245bed3",  # Apparel > Undergarments, US
-    "food": "ac9965a4cc73306fa9e4fcc0ac581eb5",     # Food & Drink, US
-    "health": "acfe71e0c8a49dbe6f3f6e97d0370339",   # Health > Oral & Dental Care, UK
-}
-NAMES = {
-    "GOOGLE_PAID_SEARCH_SPEND": "google_search", "GOOGLE_SHOPPING_SPEND": "google_shopping",
-    "GOOGLE_PMAX_SPEND": "google_pmax", "GOOGLE_DISPLAY_SPEND": "google_display",
-    "GOOGLE_VIDEO_SPEND": "google_video", "META_FACEBOOK_SPEND": "facebook",
-    "META_INSTAGRAM_SPEND": "instagram", "META_OTHER_SPEND": "meta_other", "TIKTOK_SPEND": "tiktok",
+sys.path.insert(0, str(Path(__file__).parent))
+from conjura_features import GROUPS, NAMES, SERIES, build, select  # noqa: E402
+
+FEATURES = {
+    "home": ["events", "promo"], "beauty": ["events", "promo"],
+    "apparel": ["events", "promo", "macro"], "food": ["events", "promo", "macro"], "health": ["events"],
 }
 
 df = pd.read_csv(sys.argv[1], parse_dates=["DATE_DAY"])
 out_dir = Path(__file__).resolve().parent.parent.parent / "web" / "public" / "sample"
 index = []
 for slug, series in SERIES.items():
-    g = df[df.MMM_TIMESERIES_ID == series].set_index("DATE_DAY").sort_index()
-    meta = {k: str(g[c].iloc[0]) for k, c in [("vertical", "ORGANISATION_VERTICAL"), ("subvertical", "ORGANISATION_SUBVERTICAL"),
-                                               ("territory", "ORGANISATION_PRIMARY_TERRITORY_NAME"), ("currency", "CURRENCY_CODE")]}
-    g = g[list(NAMES)].fillna(0).assign(revenue=g.ALL_PURCHASES_ORIGINAL_PRICE.fillna(0) - g.ALL_PURCHASES_GROSS_DISCOUNT.fillna(0))
-    weekly = g.resample("W-MON", label="left", closed="left").sum()
-    weekly = weekly[g.revenue.resample("W-MON", label="left", closed="left").count() == 7]
-    keep = [c for c in NAMES if weekly[c].sum() > 0]
-    out = pd.DataFrame({"date": weekly.index.strftime("%Y-%m-%d"), "revenue": weekly.revenue.round(2)})
-    for c in keep:
-        out[f"spend_{NAMES[c]}"] = weekly[c].round(2).values
-    csv = out.to_csv(index=False)
+    frame, meta = build(df, slug, Path(sys.argv[2]))
+    csv = select(frame, FEATURES[slug])
+    out = frame
+    keep = [c for c in NAMES if f"spend_{NAMES[c]}" in frame.columns]
 
     res = run_pipeline(csv.encode(), {}, seed=20261114)
     draws = res.pop("draws")
@@ -59,6 +50,7 @@ for slug, series in SERIES.items():
         "source": {**meta, "series": series, "citation": "Anderson, Anthony (2024). Multi-Region Marketing Mix Modelling (MMM) Dataset for "
                    "Several eCommerce Brands. figshare. Dataset.", "doi": "https://doi.org/10.6084/m9.figshare.25314841.v3",
                    "license": "CC BY 4.0", "license_url": "https://creativecommons.org/licenses/by/4.0/"},
+        "features": {"groups": FEATURES[slug], "controls": [c for g in FEATURES[slug] for c in GROUPS[g]]},
     }, separators=(",", ":")))
     index.append({"slug": slug, **meta, "weeks": len(out), "channels": len(summary["channels"])})
     d, f = res["diagnostics"], res["fit"]

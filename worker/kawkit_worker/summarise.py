@@ -209,6 +209,21 @@ def summarise(fit: Fit, holdout_mape: float | None, seed: int) -> dict:
         curves.append({"name": name, "spend": r(xs, 6), "median": r(c_med, 5), "low": r(c_lo, 5), "high": r(c_hi, 5),
                        "current": float(current[c]), "max_weekly": float(design.spend[:, c].max())})
 
+    # baseline drivers: what each control adds in the weeks it is highest, against the weeks it is lowest
+    drivers = []
+    if "delta" in post and design.zs.shape[1]:
+        span = design.zs.max(axis=0) - design.zs.min(axis=0)
+        for k, name in enumerate(design.control_names):
+            effect = post["delta"][:, k] * span[k] * design.ymax
+            total = (post["delta"][:, k][:, None] * (design.zs[:, k] - design.zs[:, k].min())[None, :]).sum(axis=1) * design.ymax
+            raw = design.controls_raw[:, k]
+            drivers.append({
+                "name": name, "effect": interval(effect), "p_positive": float(np.mean(effect > 0)),
+                "share": interval(total / revenue_total),
+                "binary": bool(set(np.unique(raw)) <= {0.0, 1.0}), "active_weeks": int(np.sum(raw != raw.min())),
+                "low_value": float(raw.min()), "high_value": float(raw.max()),
+            })
+
     media = total_contrib.sum(axis=1) / revenue_total
     draws = make_draws(design, post)
     plan_draws = {**draws, "beta": post["beta"], "lam": post["lam"], "xmax": design.xmax}
@@ -218,7 +233,7 @@ def summarise(fit: Fit, holdout_mape: float | None, seed: int) -> dict:
         "diagnostics": fit.diagnostics,
         "fit": {**fit_out, "media_share": interval(media), "weeks": design.T,
                 "channels": design.channels, "controls": design.control_names,
-                "seasonality": bool(design.fourier.shape[1])},
+                "seasonality": bool(design.fourier.shape[1]), "drivers": drivers},
         "channels": channels,
         "curves": curves,
         "default_plan": default_plan,

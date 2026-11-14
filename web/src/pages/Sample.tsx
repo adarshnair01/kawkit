@@ -11,6 +11,23 @@ interface SampleFile {
   source?: { vertical: string; subvertical: string; territory: string; currency: string; citation: string; doi: string; license: string; license_url: string }
 }
 
+interface FeatureTest {
+  method: string
+  order: string[]
+  chosen: Record<string, string>
+  results: Record<string, Record<string, { mape: number; wape: number }>>
+}
+const SET_LABELS: Record<string, string> = {
+  none: 'No outside factors',
+  events: 'Calendar events (Black Friday, Cyber week, pre-Christmas, Christmas and New Year, Easter)',
+  promo: 'Promotion depth (average discount rate)',
+  weather: 'Weather (temperature and rain against the seasonal norm)',
+  macro: 'Economy (consumer confidence, inflation)',
+  'events+promo': 'Events + promotions',
+  'events+promo+macro': 'Events + promotions + economy',
+  all: 'All of the above',
+}
+
 const EXAMPLES = {
   synthetic: { label: 'Made-up data', file: 'sample', draws: 'draws', csv: 'sample.csv' },
   home: { label: 'Home decor brand', file: 'real-home', draws: 'real-home-draws', csv: 'real-home.csv' },
@@ -28,6 +45,10 @@ export default function Sample() {
   const key: Key = wanted === 'real' ? 'home' : isKey(wanted) ? wanted : 'synthetic'
   const [loaded, setLoaded] = useState<{ key: Key; sample: SampleFile; draws: Draws } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [features, setFeatures] = useState<FeatureTest | null>(null)
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}sample/real-features.json`).then((r) => r.json()).then(setFeatures).catch(() => undefined)
+  }, [])
   useEffect(() => {
     let off = false
     const base = import.meta.env.BASE_URL
@@ -72,6 +93,7 @@ export default function Sample() {
   const f = sample.result.fit
   const csv = `${import.meta.env.BASE_URL}sample/${EXAMPLES[key].csv}`
   const weak = sample.result.channels.filter((c) => c.prior.shrink < 0.2)
+  const test = features?.results[key]
   return (
     <div className="grid gap-4">
       <h1>Sample result</h1>
@@ -107,7 +129,7 @@ export default function Sample() {
       {key !== 'synthetic' && src && (
         <>
           <p className="muted">
-            Real, anonymised data from one online brand: {src.vertical}{src.subvertical !== 'Other' ? ` (${src.subvertical})` : ''}, based in the {src.territory}. {s.weeks} weeks from {s.start} to {s.end}, {fmtNum(s.revenue_total)} {src.currency} in revenue, {s.channels.length} paid channels. Daily rows were summed to weeks; revenue is merchandise value after discounts. No priors were given.{' '}
+            Real, anonymised data from one online brand: {src.vertical}{src.subvertical !== 'Other' ? ` (${src.subvertical})` : ''}, based in the {src.territory}. {s.weeks} weeks from {s.start} to {s.end}, {fmtNum(s.revenue_total)} {src.currency} in revenue, {s.channels.length} paid channels{s.controls.length ? ` and ${s.controls.length} outside factors in the baseline` : ''}. Daily rows were summed to weeks; revenue is merchandise value after discounts. No priors were given.{' '}
             <a href={csv} download>Download the weekly file (CSV)</a>.
           </p>
           <div className="notice notice-warn">
@@ -124,6 +146,37 @@ export default function Sample() {
               <li>The five brands were chosen for their data, not their results: among series with at least 104 weeks, the one with the most steadily used, varied channels in each of five product categories.</li>
             </ul>
           </div>
+          {test && (
+            <details className="card">
+              <summary className="font-semibold cursor-pointer">Outside factors: which ones were tested, and which reduced the error for this brand</summary>
+              <p className="mt-2 text-sm muted">
+                Sales also move for reasons that have nothing to do with advertising. Each group of factors below was added to the baseline and tested by predicting 39 weeks the model had not seen (three blocks of 13). Lower error is better. This brand uses <strong>{SET_LABELS[features!.chosen[key]].toLowerCase()}</strong>: the simplest set within about a point of the lowest error.
+              </p>
+              <div className="overflow-x-auto mt-2">
+                <table className="data num">
+                  <caption className="sr-only">Error on unseen weeks for each group of outside factors</caption>
+                  <thead><tr><th scope="col">Factors added to the baseline</th><th scope="col">Error on unseen weeks</th><th scope="col">Change</th><th scope="col">Used</th></tr></thead>
+                  <tbody>
+                    {features!.order.filter((k) => test[k]).map((k) => (
+                      <tr key={k}>
+                        <th scope="row" style={{ fontWeight: 500, whiteSpace: 'normal' }}>{SET_LABELS[k]}</th>
+                        <td>{test[k].wape.toFixed(1)}%</td>
+                        <td>{k === 'none' ? '–' : `${test[k].wape - test.none.wape > 0 ? '+' : '−'}${Math.abs(test[k].wape - test.none.wape).toFixed(1)} pts`}</td>
+                        <td>{features!.chosen[key] === k ? 'Yes' : ''}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <ul className="list-disc pl-5 mt-2 text-sm muted grid gap-1">
+                <li>Error here is total absolute error as a share of total revenue over the hidden weeks.</li>
+                <li>Weather did not help any of the five brands. The economy measures helped the two US brands, but they move slowly, so they may be standing in for a change in trend, not causing it. Read the direction of their effect with caution.</li>
+                <li>The set was picked using these same test weeks, so the gain is a little optimistic.</li>
+                <li>Not tested, but likely to help: search interest in the product category, competitor promotions, stock-outs and price changes. The brands are anonymous, so none of these could be matched.</li>
+                <li>Weather from Open-Meteo; consumer confidence and prices from FRED (University of Michigan, OECD, national statistics offices).</li>
+              </ul>
+            </details>
+          )}
           <p className="text-sm muted">
             Source: {src.citation} <a href={src.doi}>{src.doi.replace('https://', '')}</a>. Licensed <a href={src.license_url}>{src.license}</a>. Weekly totals were derived from the daily data for this example.
           </p>

@@ -218,6 +218,24 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
                 />
               </ChartFrame>
             )}
+            {f.drivers && f.drivers.length > 0 && (
+              <ChartFrame
+                title="What else moves sales: baseline drivers"
+                note="Effect on weekly revenue of each non-media factor you supplied. For an event, the change in a week it happens; for a measure such as temperature, its highest observed value against its lowest. These sit in the baseline, so advertising is not credited with them."
+                table={{
+                  caption: 'Effect of each baseline driver on weekly revenue',
+                  header: ['Driver', 'Compared', 'Effect on weekly revenue', '90% range', 'Chance it raises sales', 'Share of all revenue'],
+                  rows: f.drivers.map((d) => [title(d.name), d.binary ? `${d.active_weeks} week${d.active_weeks === 1 ? '' : 's'} with it vs without` : `${fmtNum(d.high_value, 1)} vs ${fmtNum(d.low_value, 1)}`, fmtCompact(d.effect.median), fmtRange(d.effect.low, d.effect.high, fmtCompact), fmtPct(d.p_positive), `${fmtPct(d.share.median, 1)} (${fmtPct(d.share.low, 1)} to ${fmtPct(d.share.high, 1)})`]),
+                }}
+              >
+                <IntervalBars
+                  ariaLabel="Effect of each baseline driver on weekly revenue, with 90% credible ranges"
+                  rows={f.drivers.map((d) => ({ label: title(d.name), ...d.effect, color: d.effect.low > 0 || d.effect.high < 0 ? 'var(--c0)' : 'var(--c7)', detail: d.effect.low > 0 || d.effect.high < 0 ? `${fmtPct(d.p_positive)} chance it raises sales` : 'Range includes zero: no clear effect' }))}
+                  reference={{ value: 0, label: 'no effect' }}
+                  xLabel="Change in weekly revenue"
+                />
+              </ChartFrame>
+            )}
           </div>
         )}
 

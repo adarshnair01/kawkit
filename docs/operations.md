@@ -48,6 +48,14 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   23-47% for four of them (the fifth was already 64%); the data still pulls below 50% where spend tracks sales.
   `BASELINE_SHARE` and `BASELINE_SHARE_SD` in `worker/kawkit_worker/model.py` set the range and its firmness.
 
+- Outside factors in the baseline. For the five real brands, calendar events, promotion depth, weather and
+  economy measures were each tested by predicting 39 unseen weeks (`worker/scripts/eval_features.py`, results in
+  `worker/scripts/feature_eval_results.json`). Events helped most (home brand error 19.9% to 16.0%); consumer
+  confidence and inflation helped the two US brands; weather helped none. Each example uses the simplest set
+  within about a point of its lowest error. Results now include a "baseline drivers" chart of each control's effect.
+  Weather came from Open-Meteo and the economic series from FRED; neither is stored in the repository beyond the
+  derived weekly control columns in the example CSV files.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

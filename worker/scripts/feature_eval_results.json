@@ -1,0 +1,188 @@
+{
+ "method": "Rolling origin: three 13-week blocks at the end of each series are predicted in turn from the weeks before them. WAPE is total absolute error divided by total revenue over the 39 hidden weeks.",
+ "order": [
+  "none",
+  "events",
+  "promo",
+  "weather",
+  "macro",
+  "events+promo",
+  "events+promo+macro",
+  "all"
+ ],
+ "chosen": {
+  "home": "events+promo",
+  "beauty": "events+promo",
+  "apparel": "events+promo+macro",
+  "food": "events+promo+macro",
+  "health": "events"
+ },
+ "results": {
+  "apparel": {
+   "none": {
+    "mape": 34.5,
+    "wape": 27.3
+   },
+   "events": {
+    "mape": 35.1,
+    "wape": 27.6
+   },
+   "promo": {
+    "mape": 33.5,
+    "wape": 26.5
+   },
+   "weather": {
+    "mape": 34.5,
+    "wape": 27.4
+   },
+   "macro": {
+    "mape": 28.6,
+    "wape": 21.8
+   },
+   "events+promo": {
+    "mape": 34.7,
+    "wape": 27.2
+   },
+   "all": {
+    "mape": 23.3,
+    "wape": 17.9
+   },
+   "events+promo+macro": {
+    "mape": 27.2,
+    "wape": 20.1
+   }
+  },
+  "beauty": {
+   "none": {
+    "mape": 21.9,
+    "wape": 29.8
+   },
+   "events": {
+    "mape": 21.9,
+    "wape": 29.2
+   },
+   "promo": {
+    "mape": 21.7,
+    "wape": 29.7
+   },
+   "weather": {
+    "mape": 21.8,
+    "wape": 29.6
+   },
+   "macro": {
+    "mape": 22.0,
+    "wape": 29.9
+   },
+   "events+promo": {
+    "mape": 20.9,
+    "wape": 28.1
+   },
+   "all": {
+    "mape": 21.0,
+    "wape": 28.5
+   },
+   "events+promo+macro": {
+    "mape": 21.2,
+    "wape": 28.6
+   }
+  },
+  "food": {
+   "none": {
+    "mape": 22.9,
+    "wape": 27.1
+   },
+   "events": {
+    "mape": 22.4,
+    "wape": 26.3
+   },
+   "promo": {
+    "mape": 22.4,
+    "wape": 26.7
+   },
+   "weather": {
+    "mape": 23.1,
+    "wape": 27.5
+   },
+   "macro": {
+    "mape": 19.3,
+    "wape": 24.8
+   },
+   "events+promo": {
+    "mape": 22.9,
+    "wape": 26.6
+   },
+   "all": {
+    "mape": 16.9,
+    "wape": 22.3
+   },
+   "events+promo+macro": {
+    "mape": 16.9,
+    "wape": 22.0
+   }
+  },
+  "health": {
+   "none": {
+    "mape": 29.9,
+    "wape": 33.5
+   },
+   "events": {
+    "mape": 29.3,
+    "wape": 32.5
+   },
+   "promo": {
+    "mape": 31.0,
+    "wape": 34.1
+   },
+   "weather": {
+    "mape": 29.0,
+    "wape": 32.9
+   },
+   "macro": {
+    "mape": 32.2,
+    "wape": 35.7
+   },
+   "events+promo": {
+    "mape": 31.5,
+    "wape": 34.3
+   },
+   "all": {
+    "mape": 32.7,
+    "wape": 36.1
+   }
+  },
+  "home": {
+   "none": {
+    "mape": 22.0,
+    "wape": 19.9
+   },
+   "events": {
+    "mape": 17.8,
+    "wape": 16.0
+   },
+   "promo": {
+    "mape": 21.9,
+    "wape": 20.0
+   },
+   "weather": {
+    "mape": 22.3,
+    "wape": 20.2
+   },
+   "macro": {
+    "mape": 22.6,
+    "wape": 20.3
+   },
+   "events+promo": {
+    "mape": 16.6,
+    "wape": 15.1
+   },
+   "all": {
+    "mape": 16.9,
+    "wape": 15.7
+   },
+   "events+promo+macro": {
+    "mape": 15.7,
+    "wape": 15.0
+   }
+  }
+ }
+}
