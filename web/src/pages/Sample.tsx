@@ -115,12 +115,10 @@ export default function Sample() {
             <ul className="list-disc pl-5 mt-1 grid gap-1">
               <li>There is no known answer to check against, and real data is noisier: the model explains {fmtPct(f.r2)} of the week-to-week variation here and was off by {f.holdout_mape?.toFixed(1)}% in a typical unseen week.</li>
               <li>
-                The model credits {fmtPct(f.media_share.median)} of revenue to paid media (90% range {fmtPct(f.media_share.low)} to {fmtPct(f.media_share.high)}).{' '}
-                {f.media_share.median > 0.9
-                  ? 'Almost all revenue coming from ads is not believable. This brand’s spend rises and falls with its sales so closely that the model cannot separate the two, so do not act on the split below without an experiment.'
-                  : f.media_share.median > 0.6
-                    ? 'That is probably too generous: brands tend to spend more in weeks when they expect to sell more, and a model of past data cannot tell that apart from ads causing the sales. An experiment could.'
-                    : 'Brands tend to spend more in weeks when they expect to sell more, and a model of past data cannot fully tell that apart from ads causing the sales. An experiment could.'}
+                The model starts from the expectation that 50% to 90% of revenue would happen without advertising. Here it ends up crediting {fmtPct(1 - f.media_share.median)} to that baseline and {fmtPct(f.media_share.median)} to paid media (90% range {fmtPct(f.media_share.low)} to {fmtPct(f.media_share.high)}).{' '}
+                {f.media_share.median > 0.6
+                  ? 'The data pushed hard against that expectation, which usually means spend rises and falls with sales so closely that the model cannot separate the two. Do not act on the split below without an experiment.'
+                  : 'Brands tend to spend more in weeks when they expect to sell more, and a model of past data cannot fully tell that apart from ads causing the sales. An experiment could.'}
               </li>
               {weak.length > 0 && <li>{weak.length === 1 ? 'One channel has' : `${weak.length} channels have`} too little spend or variation to measure ({weak.map((c) => title(c.name)).join(', ')}), so {weak.length === 1 ? 'its estimate mostly reflects' : 'their estimates mostly reflect'} the starting assumption.</li>}
               <li>The five brands were chosen for their data, not their results: among series with at least 104 weeks, the one with the most steadily used, varied channels in each of five product categories.</li>

@@ -20,13 +20,12 @@ class Truth:
 
 
 def make_dataset(seed: int = 7, weeks: int = 156, n_channels: int = 5, noise: float = 0.02,
-                 with_promo: bool = True) -> tuple[str, Truth]:
+                 with_promo: bool = True, base_level: float = 400_000.0) -> tuple[str, Truth]:
     """Return (csv_text, truth). Spend varies week to week so effects are identifiable."""
     rng = np.random.default_rng(seed)
     names = ["tv", "search", "social", "display", "email", "video", "radio", "affiliates", "podcast", "outdoor"]
     names = names[:n_channels]
     t = np.arange(weeks)
-    base_level = 400_000.0
 
     spend = np.zeros((weeks, n_channels))
     for c in range(n_channels):

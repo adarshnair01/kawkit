@@ -25,6 +25,8 @@ SEASON_MIN_WEEKS = 78
 PERIOD = 52.0
 N_FOURIER = 2
 Z90 = 1.6448536269514722
+BASELINE_SHARE = (0.5, 0.9)  # expected range for the baseline's share of revenue
+BASELINE_SHARE_SD = 0.02  # how quickly the prior penalises shares outside that range
 
 
 class ModelError(Exception):
@@ -223,6 +225,12 @@ def build_model(design: Design, priors: dict[str, dict]):
         if K:
             delta = pm.Normal("delta", 0.0, 2.0, shape=K)
             mu = mu + pt.dot(design.zs[:n], delta)
+        # In most businesses the bulk of sales would happen without advertising: the baseline is expected
+        # to be 50% to 90% of revenue. The prior has no preference inside that range and a half-normal
+        # penalty (sd 2 points of share) outside it, so only strong evidence in the data moves it out.
+        baseline_share = pt.sum(mu) / float(y.sum())
+        outside = pt.maximum(BASELINE_SHARE[0] - baseline_share, 0.0) + pt.maximum(baseline_share - BASELINE_SHARE[1], 0.0)
+        pm.Potential("baseline_share_prior", -0.5 * (outside / BASELINE_SHARE_SD) ** 2)
         # a channel with no spend in the fitting window has share 0; keep its prior valid without widening small channels
         beta = pm.HalfNormal("beta", sigma=2.0 * np.maximum(design.share, 1e-4), shape=C)
         alpha = pm.Beta("alpha", alpha=a, beta=b, shape=C)

@@ -17,7 +17,8 @@ DATASETS = [
     dict(seed=7, weeks=156, n_channels=5),   # the sample
     dict(seed=21, weeks=156, n_channels=4),
     dict(seed=33, weeks=130, n_channels=6, noise=0.015),
-    dict(seed=48, weeks=156, n_channels=10, noise=0.02),
+    # a larger baseline, so that media stays under half of revenue as the model's prior expects
+    dict(seed=48, weeks=156, n_channels=10, noise=0.02, base_level=800_000.0),
 ]
 
 
@@ -28,6 +29,18 @@ def fits():
         csv, truth = make_dataset(**cfg)
         out.append((cfg, truth, run_pipeline(csv.encode(), {}, seed=1234)))
     return out
+
+
+def test_datasets_have_a_realistic_baseline():
+    """The model expects the baseline to be 50% to 90% of revenue; the test data must respect that."""
+    import io
+
+    import pandas as pd
+
+    for cfg in DATASETS:
+        csv, truth = make_dataset(**cfg)
+        share = 1 - sum(truth.contribution.values()) / pd.read_csv(io.StringIO(csv)).revenue.sum()
+        assert 0.5 <= share <= 0.9, (cfg, share)
 
 
 def test_convergence_gates(fits):

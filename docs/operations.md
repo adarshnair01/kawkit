@@ -43,6 +43,10 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
 - The model now keeps the no-media baseline (intercept, trend, seasonality) at or above zero in every week.
   The first fit on real data credited media with more than 100% of revenue; this constraint fixed that.
   The known-truth tests were re-run and still pass.
+- The model expects the baseline to be 50% to 90% of revenue: no preference inside that range, a half-normal
+  penalty (sd 2 points of share) outside it. On the five real brands this moved the baseline from 2-25% to
+  23-47% for four of them (the fifth was already 64%); the data still pulls below 50% where spend tracks sales.
+  `BASELINE_SHARE` and `BASELINE_SHARE_SD` in `worker/kawkit_worker/model.py` set the range and its firmness.
 
 ## Different from the design, on purpose
 
