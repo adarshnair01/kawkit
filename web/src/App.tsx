@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { Link, NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useAuth } from './api/auth'
 import { supabase } from './api/supabase'
@@ -17,27 +17,6 @@ function RequireAuth({ children }: { children: ReactNode }) {
   if (loading) return <p className="muted" role="status">Loading…</p>
   if (!session) return <Navigate to="/sign-in" state={{ from: location.pathname + location.search }} replace />
   return children
-}
-
-type Theme = 'system' | 'light' | 'dark'
-
-function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('kawkit-theme') as Theme) || 'system')
-  useEffect(() => {
-    if (theme === 'system') document.documentElement.removeAttribute('data-theme')
-    else document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('kawkit-theme', theme)
-  }, [theme])
-  const next: Record<Theme, Theme> = { system: 'light', light: 'dark', dark: 'system' }
-  return (
-    <button type="button" className="btn btn-small" onClick={() => setTheme(next[theme])} aria-label={`Colour theme: ${theme}. Change theme`}>
-      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
-        <circle cx="8" cy="8" r="6.5" fill={theme === 'dark' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" />
-        {theme === 'system' && <path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor" />}
-      </svg>
-      {theme[0].toUpperCase() + theme.slice(1)}
-    </button>
-  )
 }
 
 export default function App() {
@@ -67,7 +46,6 @@ export default function App() {
             {session && <NavLink to="/new" className={nav}>New run</NavLink>}
           </nav>
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             {session ? (
               <>
                 <NavLink to="/account" className={nav}>Account</NavLink>

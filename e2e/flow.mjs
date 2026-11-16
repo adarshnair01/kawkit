@@ -1,7 +1,6 @@
 // End-to-end flow with accessibility checks.
 //   KAWKIT_URL=http://localhost:4173/kawkit/ node flow.mjs
-// Guest sample, sign-up, upload, priors, run, results, optimise, download; axe on every page in
-// light and dark. The test user asks for its own deletion at the end; the worker's clean-up removes it.
+// Guest sample, sign-up, upload, priors, run, results, optimise, download; axe on every page. The test user asks for its own deletion at the end; the worker's clean-up removes it.
 import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { chromium } from 'playwright'
@@ -26,17 +25,12 @@ const consoleErrors = []
 page.on('pageerror', (e) => consoleErrors.push(e.message))
 
 async function axe(label) {
-  for (const theme of ['light', 'dark']) {
-    await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme)
-    await page.waitForTimeout(150)
-    await page.evaluate(axeSource)
-    const violations = await page.evaluate(async () => {
-      const r = await window.axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] })
-      return r.violations.map((v) => `${v.id}: ${v.nodes.length} node(s), e.g. ${v.nodes[0].html.slice(0, 120)}`)
-    })
-    ok(`axe: ${label} (${theme})`, violations.length === 0, violations.join(' | '))
-  }
-  await page.evaluate(() => document.documentElement.removeAttribute('data-theme'))
+  await page.evaluate(axeSource)
+  const violations = await page.evaluate(async () => {
+    const r = await window.axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] })
+    return r.violations.map((v) => `${v.id}: ${v.nodes.length} node(s), e.g. ${v.nodes[0].html.slice(0, 120)}`)
+  })
+  ok(`axe: ${label}`, violations.length === 0, violations.join(' | '))
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/${label.replace(/\W+/g, '-')}.png`, fullPage: true })
 }
 const go = (hash) => page.goto(`${BASE}#${hash}`)
@@ -233,6 +227,7 @@ try {
   await page.getByRole('button', { name: 'Delete my account and all my data' }).click()
   await page.getByRole('heading', { name: 'Sign in' }).waitFor({ timeout: 20000 })
   ok('account deletion requested and signed out', true)
+  ok('no theme switch in the header', (await page.getByRole('button', { name: /theme/i }).count()) === 0)
   ok('no uncaught page errors', consoleErrors.length === 0, consoleErrors.join(' | '))
 } catch (e) {
   ok(`flow stopped: ${String(e).split('\n')[0]}`, false)
