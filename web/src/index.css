@@ -334,3 +334,4 @@ html { overflow-x: clip; }
 @media (min-width: 901px) and (max-width: 1240px) {
   .hero-art { -webkit-mask-image: linear-gradient(90deg, transparent 0%, transparent 54%, #000 76%); mask-image: linear-gradient(90deg, transparent 0%, transparent 54%, #000 76%); }
 }
+#map-h:focus, #map-h:focus-visible { outline: none; }

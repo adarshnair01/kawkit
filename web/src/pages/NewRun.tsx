@@ -6,6 +6,9 @@ import type { ChannelPrior, Priors } from '../api/types'
 import { ChartFrame } from '../charts/ChartFrame'
 import { LineChart } from '../charts/LineChart'
 import { ServerNotice } from '../components/ServerNotice'
+import { EVENTS, withEvents, type EventKey } from '../connectors/events'
+import { fetchLink, LinkError, resolveLink } from '../connectors/link'
+import { applyMapping, checkMapping, DATE_FORMATS, detectDateFormat, guessColumns, isCanonical, readSheet, type Column, type DateFormat, type Role, type Sheet } from '../connectors/mapping'
 import { fmtCompact, fmtNum, fmtPct, palette, title } from '../lib/format'
 import { MAX_BYTES, validateCsv, type Validation } from '../validation/validate'
 
@@ -62,8 +65,14 @@ export default function NewRun() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const fileInput = useRef<HTMLInputElement>(null)
   const summaryRef = useRef<HTMLDivElement>(null)
+  const [mapping, setMapping] = useState<{ sheet: Sheet; cols: Column[]; format: DateFormat; ambiguous: boolean; label: string } | null>(null)
+  const [link, setLink] = useState('')
+  const [linkBusy, setLinkBusy] = useState(false)
+  const [events, setEvents] = useState<EventKey[]>(['black_friday', 'cyber_week', 'pre_christmas', 'christmas_newyear', 'easter'])
+  const [eventNote, setEventNote] = useState<string | null>(null)
 
-  const load = (text: string, label: string, bytes?: number) => {
+  /** Check a file that is already in the model's layout and show its summary. */
+  const accept = (text: string, label: string, bytes?: number) => {
     const v = validateCsv(text, bytes)
     setCsv(text)
     setFileName(label)
@@ -72,6 +81,70 @@ export default function NewRun() {
     setLoadError(null)
     setName((n) => n || label.replace(/\.csv$/i, '').slice(0, 60))
     setTimeout(() => summaryRef.current?.focus(), 50)
+  }
+
+  /** Any incoming file: use it as it is if the columns are already named for the model, otherwise map them. */
+  const load = (text: string, label: string, bytes?: number) => {
+    setEventNote(null)
+    const sheet = readSheet(text)
+    if (sheet.header.length === 0 || isCanonical(sheet.header)) {
+      setMapping(null)
+      accept(text, label, bytes)
+      return
+    }
+    const cols = guessColumns(sheet)
+    const dateCol = cols.find((c) => c.role === 'date')
+    const { format, ambiguous } = detectDateFormat(dateCol ? sheet.rows.map((r) => r[dateCol.index] ?? '') : [])
+    setMapping({ sheet, cols, format, ambiguous, label })
+    setCsv(null)
+    setValidation(null)
+    setFileName(label)
+    setError(null)
+    setLoadError(null)
+    setTimeout(() => document.getElementById('map-h')?.focus(), 50)
+  }
+
+  const setCol = (index: number, patch: Partial<Column>) =>
+    setMapping((m) => {
+      if (!m) return m
+      const cols = m.cols.map((c) => (c.index === index ? { ...c, ...patch } : c))
+      if (patch.role !== 'date') return { ...m, cols }
+      const d = detectDateFormat(m.sheet.rows.map((r) => r[index] ?? ''))
+      return { ...m, cols, format: d.format, ambiguous: d.ambiguous }
+    })
+  const mappingProblems = mapping ? checkMapping(mapping.cols) : []
+  const useMapping = () => {
+    if (!mapping || mappingProblems.length) return
+    accept(applyMapping(mapping.sheet, mapping.cols, mapping.format), mapping.label)
+  }
+
+  const importLink = async () => {
+    const target = resolveLink(link)
+    if (!target) {
+      setLoadError('Paste a full https link to a Google Sheet or a CSV file.')
+      return
+    }
+    setLinkBusy(true)
+    setLoadError(null)
+    try {
+      load(await fetchLink(target), target.kind === 'google_sheet' ? 'Google Sheet.csv' : (target.url.split('/').pop()?.split('?')[0] || 'Linked file.csv'))
+    } catch (e) {
+      setLoadError(e instanceof LinkError ? e.message : 'The link could not be read. Try again.')
+    } finally {
+      setLinkBusy(false)
+    }
+  }
+
+  const addEvents = () => {
+    if (!validation?.dataset) return
+    const { csv: next, added, skipped } = withEvents(validation.dataset, events)
+    const names = (keys: EventKey[]) => keys.map((k) => EVENTS[k].label.toLowerCase()).join(', ')
+    if (added.length) accept(next, fileName)
+    setEventNote(
+      [added.length ? `Added to the baseline: ${names(added)}.` : 'Nothing was added.', skipped.length ? `Left out because ${skipped.length === 1 ? 'it never falls' : 'they never fall'} within your dates: ${names(skipped)}.` : '']
+        .filter(Boolean)
+        .join(' '),
+    )
   }
 
   const onFile = async (file: File | undefined) => {
@@ -115,6 +188,8 @@ export default function NewRun() {
     return () => {
       cancelled = true
     }
+    // runs once per run being re-run; load only reads the file it is given
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [from])
 
   const channels = useMemo(() => validation?.summary?.channels ?? [], [validation])
@@ -174,7 +249,7 @@ export default function NewRun() {
       {step === 'data' && (
         <>
           <section className="card grid gap-3" aria-labelledby="upload-h">
-            <h2 id="upload-h">Upload your data</h2>
+            <h2 id="upload-h">Bring in your data</h2>
             <div
               className={`dropzone ${over ? 'over' : ''}`}
               onDragOver={(e: DragEvent) => { e.preventDefault(); setOver(true) }}
@@ -190,6 +265,14 @@ export default function NewRun() {
               </div>
               <input ref={fileInput} type="file" accept=".csv,text/csv" className="sr-only" aria-label="Choose a CSV file" tabIndex={-1} onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = '' }} />
             </div>
+            <form className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end" onSubmit={(e) => { e.preventDefault(); importLink() }}>
+              <div>
+                <label className="field" htmlFor="link">Or import from a link: a Google Sheet, or any address that serves a CSV file</label>
+                <input id="link" className="input" type="url" inputMode="url" placeholder="https://docs.google.com/spreadsheets/d/…" value={link} onChange={(e) => setLink(e.target.value)} />
+              </div>
+              <button type="submit" className="btn" disabled={linkBusy || !link.trim()}>{linkBusy ? 'Importing…' : 'Import'}</button>
+            </form>
+            <p className="text-sm muted">For a Google Sheet, set sharing to “Anyone with the link can view”. Column names do not have to match the template: you can say which column is which after loading.</p>
             <p className="notice text-sm">
               <strong>Privacy:</strong> when you submit, this file is sent to and stored on the service so the model server can fit it. Only you can read it. It is kept with your run (your 5 most recent finished runs are kept; older ones and their files are deleted automatically), and you can delete everything from the <Link to="/account">Account page</Link>. Until you submit, the file stays in your browser.
             </p>
@@ -205,6 +288,56 @@ export default function NewRun() {
             </details>
           </section>
 
+          {mapping && !validation && (
+            <section className="card grid gap-3" aria-labelledby="map-h">
+              <h2 id="map-h" tabIndex={-1} className="outline-none">Tell us which column is which</h2>
+              <p className="muted">{mapping.label} has {mapping.sheet.rows.length} rows and {mapping.cols.length} columns. We have made a first guess below; change anything that is wrong.</p>
+              <div className="overflow-x-auto">
+                <table className="data">
+                  <caption className="sr-only">Columns in your file and what each one is</caption>
+                  <thead><tr><th scope="col">Your column</th><th scope="col" style={{ textAlign: 'left' }}>First values</th><th scope="col" style={{ textAlign: 'left' }}>What it is</th><th scope="col" style={{ textAlign: 'left' }}>Name in results</th></tr></thead>
+                  <tbody>
+                    {mapping.cols.map((c) => (
+                      <tr key={c.index}>
+                        <th scope="row" style={{ fontWeight: 600, whiteSpace: 'normal' }}>{c.header || `(column ${c.index + 1})`}</th>
+                        <td className="num muted" style={{ textAlign: 'left' }}>{c.sample.join(', ') || '–'}</td>
+                        <td style={{ textAlign: 'left' }}>
+                          <select className="input" style={{ minWidth: '11rem', minHeight: '2.1rem' }} aria-label={`What is column ${c.header || c.index + 1}`} value={c.role} onChange={(e) => setCol(c.index, { role: e.target.value as Role })}>
+                            <option value="date">Date</option>
+                            <option value="revenue">Revenue (what to explain)</option>
+                            <option value="spend">Advertising spend</option>
+                            <option value="control">Outside factor</option>
+                            <option value="ignore">Leave out</option>
+                          </select>
+                        </td>
+                        <td style={{ textAlign: 'left' }}>
+                          {c.role === 'spend' || c.role === 'control' ? (
+                            <input className="input" style={{ minWidth: '9rem', minHeight: '2.1rem' }} aria-label={`Name for column ${c.header || c.index + 1}`} value={c.name} maxLength={40} onChange={(e) => setCol(c.index, { name: e.target.value })} />
+                          ) : (
+                            <span className="muted">–</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {mapping.cols.some((c) => c.role === 'date') && (
+                <div style={{ maxWidth: '24rem' }}>
+                  <label className="field" htmlFor="date-format">How dates are written</label>
+                  <select id="date-format" className="input" value={mapping.format} onChange={(e) => setMapping((m) => m && { ...m, format: e.target.value as DateFormat, ambiguous: false })}>
+                    {(Object.keys(DATE_FORMATS) as DateFormat[]).map((f) => <option key={f} value={f}>{DATE_FORMATS[f]}</option>)}
+                  </select>
+                  {mapping.ambiguous && <p className="text-sm mt-1" style={{ color: 'var(--warn)' }}>Your dates could be day/month or month/day. We assumed day first; change it here if that is wrong.</p>}
+                </div>
+              )}
+              {mappingProblems.length > 0 && (
+                <div className="notice notice-bad" role="alert"><ul className="list-disc pl-5">{mappingProblems.map((p) => <li key={p.message}>{p.message}</li>)}</ul></div>
+              )}
+              <div><button type="button" className="btn btn-primary" disabled={mappingProblems.length > 0} onClick={useMapping}>Use these columns</button></div>
+            </section>
+          )}
+
           {validation && (
             <div ref={summaryRef} tabIndex={-1} className="grid gap-4 outline-none" aria-live="polite">
               {validation.errors.length > 0 && (
@@ -212,6 +345,7 @@ export default function NewRun() {
                   <h2 id="err-h" className="text-base">{fileName}: {validation.errors.length === 1 ? '1 problem' : `${validation.errors.length} problems`} to fix before this can run</h2>
                   <ul className="list-disc pl-5 mt-1 grid gap-1">{validation.errors.map((e, i) => <li key={i}>{e.message}</li>)}</ul>
                   <p className="text-sm mt-2">Row numbers count the header as row 1. Fix the file and upload it again.</p>
+                  {mapping && <button type="button" className="btn btn-small mt-2" onClick={() => { setValidation(null); setCsv(null) }}>Change which column is which</button>}
                 </section>
               )}
               {s && ds && (
@@ -249,7 +383,28 @@ export default function NewRun() {
                   >
                     <LineChart ariaLabel={`Line chart of weekly spend for ${ds.channels.length} channels from ${s.start} to ${s.end}`} x={ds.dates} series={ds.channels.map((c, j) => ({ label: title(c), values: ds.spend.map((r) => r[j]), color: palette(j), width: 1.6 }))} />
                   </ChartFrame>
-                  <div><button type="button" className="btn btn-primary" onClick={() => { setStep('priors'); window.scrollTo(0, 0) }}>Continue</button></div>
+                  <section className="card grid gap-3" aria-labelledby="lib-h">
+                    <h2 id="lib-h">Add outside factors from the library (optional)</h2>
+                    <p className="muted">Sales jump in some weeks for reasons that have nothing to do with advertising. Tick the events that matter for your business and they are worked out from your dates and added to the baseline, so your ads are not credited with them. On the real example brands this cut the error on unseen weeks by up to a quarter.</p>
+                    <fieldset className="grid gap-2 sm:grid-cols-2">
+                      <legend className="sr-only">Calendar events to add</legend>
+                      {(Object.keys(EVENTS) as EventKey[]).map((k) => {
+                        const has = ds.controlNames.includes(k)
+                        return (
+                          <label key={k} className="flex items-start gap-2">
+                            <input type="checkbox" style={{ width: '1.15rem', height: '1.15rem', marginTop: '0.2rem' }} disabled={has} checked={has || events.includes(k)} onChange={(e) => setEvents((ev) => (e.target.checked ? [...ev, k] : ev.filter((x) => x !== k)))} />
+                            <span><span className="font-semibold">{EVENTS[k].label}</span>{has ? ' (already in your data)' : ''}<br /><span className="text-sm muted">{EVENTS[k].note}</span></span>
+                          </label>
+                        )
+                      })}
+                    </fieldset>
+                    {eventNote && <p className="notice notice-ok" role="status">{eventNote}</p>}
+                    <div><button type="button" className="btn" disabled={!events.some((k) => !ds.controlNames.includes(k))} onClick={addEvents}>Add selected to my data</button></div>
+                  </section>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" className="btn btn-primary" onClick={() => { setStep('priors'); window.scrollTo(0, 0) }}>Continue</button>
+                    {mapping && <button type="button" className="btn" onClick={() => { setValidation(null); setCsv(null) }}>Change which column is which</button>}
+                  </div>
                 </>
               )}
             </div>

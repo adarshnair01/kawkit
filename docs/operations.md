@@ -87,6 +87,13 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   confidence and inflation there; the food brand keeps confidence and inflation (29.6% to 23.3%); nothing
   qualified for the other three. Adding everything at once made three brands worse.
 
+- Data connectors, first set (none needs credentials). A column mapper lets any spreadsheet layout and common
+  date formats be used: roles are guessed from names and values and can be changed. Import from a link reads a
+  Google Sheet shared by link, or any address that serves CSV to the browser. The event library works out Black
+  Friday, Cyber week, the run-up to Christmas, Christmas and New Year, and Easter from the dates and adds them
+  to the baseline. Tested by unit tests and the end-to-end flow; the link import is tested against a stubbed
+  sheet, not a real Google Sheet.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

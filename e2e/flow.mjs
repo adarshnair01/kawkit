@@ -130,13 +130,43 @@ try {
 
   // ---------------------------------------------------------------- bad file, then the sample
   await go('/new')
-  await page.getByRole('heading', { name: 'Upload your data' }).waitFor()
+  await page.getByRole('heading', { name: 'Bring in your data' }).waitFor()
   await page.getByLabel('Choose a CSV file').setInputFiles({ name: 'bad.csv', mimeType: 'text/csv', buffer: Buffer.from('date,revenue,spend_tv\n2024-01-01,100,5\nnot-a-date,abc,-3\n') })
   await page.getByText('Date is not YYYY-MM-DD in row 3').waitFor()
   ok('bad file is rejected with row numbers', (await page.getByRole('button', { name: 'Continue' }).count()) === 0)
   await axe('new run (errors)')
-  await page.getByRole('button', { name: 'Use the sample dataset' }).click()
+  // ---------------------------------------------------------------- connectors
+  // a spreadsheet with its own column names and day-first dates goes through the column mapper
+  const messy = ['Week commencing,Sales,TV cost,Paid Search Spend,Promo running,Notes']
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(Date.UTC(2023, 0, 2 + 7 * i))
+    messy.push(`${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()},${50000 + 700 * (i % 9)},${1000 + 300 * (i % 5)},${800 + 90 * (i % 7)},${i % 8 === 0 ? 1 : 0},ok`)
+  }
+  await page.getByLabel('Choose a CSV file').setInputFiles({ name: 'my-export.csv', mimeType: 'text/csv', buffer: Buffer.from(messy.join('\n')) })
+  await page.getByRole('heading', { name: 'Tell us which column is which' }).waitFor()
+  ok('column mapper guesses the roles', (await page.getByLabel('What is column Sales').inputValue()) === 'revenue' && (await page.getByLabel('What is column TV cost').inputValue()) === 'spend' && (await page.getByLabel('What is column Notes').inputValue()) === 'ignore')
+  await axe('new run (column mapper)')
+  await page.getByRole('button', { name: 'Use these columns' }).click()
   await page.getByRole('heading', { name: /looks good/ }).waitFor()
+  ok('mapped file passes the checks with dates converted', (await page.getByText('2023-01-02 to 2024-02-19').count()) === 1)
+
+  // the event library adds baseline columns worked out from the dates
+  await page.getByRole('button', { name: 'Add selected to my data' }).click()
+  await page.getByText(/Added to the baseline: black friday week/).waitFor()
+  ok('event library adds calendar events to the baseline', (await page.getByText('Promo running, Black friday, Cyber week, Pre christmas, Christmas newyear, Easter').count()) === 1)
+  await axe('new run (event library)')
+
+  // import from a link (the sheet itself is stubbed: no real Google Sheet is contacted)
+  const sampleCsv = await (await page.request.get(`${BASE}sample/sample.csv`)).text()
+  await page.route('https://docs.google.com/spreadsheets/d/TESTSHEET/**', (route) => route.fulfill({ status: 200, contentType: 'text/csv', headers: { 'access-control-allow-origin': '*' }, body: sampleCsv }))
+  await page.getByLabel(/Or import from a link/).fill('https://docs.google.com/spreadsheets/d/TESTSHEET/edit#gid=0')
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  await page.getByRole('heading', { name: 'Google Sheet.csv looks good' }).waitFor()
+  ok('import from a Google Sheets link loads the data', true)
+  await page.unroute('https://docs.google.com/spreadsheets/d/TESTSHEET/**')
+
+  await page.getByRole('button', { name: 'Use the sample dataset' }).click()
+  await page.getByRole('heading', { name: /Sample dataset.csv looks good/ }).waitFor()
   ok('sample dataset passes the checks', true)
   await axe('new run (summary)')
   await page.getByRole('button', { name: 'Continue' }).click()
