@@ -80,6 +80,13 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   pointer, six feature sections each with an illustration that draws in on scroll, the how-it-works diagram, and
   links to the six examples. Motion is off for visitors who ask for reduced motion.
 
+- Wider macroeconomic test. Eight measures per country (consumer confidence, inflation, unemployment, retail
+  sales growth, interest rate, fuel price or exchange rate, real income growth, plus all at once and a combined
+  index) were tested on top of each brand's events and promotions. A measure is used only if it cuts error on
+  unseen weeks by at least 2 points. Unemployment took the apparel brand from 25.2% to 11.2% and replaced
+  confidence and inflation there; the food brand keeps confidence and inflation (29.6% to 23.3%); nothing
+  qualified for the other three. Adding everything at once made three brands worse.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

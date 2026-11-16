@@ -32,6 +32,14 @@ CHOSEN = {"home": ["events", "promo"], "beauty": ["events", "promo"], "apparel":
 if len(sys.argv) > 4 and sys.argv[4] == "brand_search":
     sys.argv.pop(4)
     SETS = {"chosen": [], "chosen+brand_search": ["brand_search"], "chosen+brand_search_lag": ["brand_search_lag"]}
+elif len(sys.argv) > 4 and sys.argv[4] == "macro":
+    sys.argv.pop(4)
+    SETS = {"chosen": [], "chosen+macro": ["macro"], "chosen+unemployment": ["unemployment"], "chosen+retail_growth": ["retail_growth"],
+            "chosen+interest_rate": ["interest_rate"], "chosen+fuel_fx": ["fuel_fx"], "chosen+real_income": ["real_income"],
+            "chosen+macro_wide": ["macro_wide"], "chosen+macro_index": ["macro_index"]}
+    # the base here is each brand's current set without any economy measure
+    CHOSEN = {"home": ["events", "promo"], "beauty": ["events", "promo", "category_search"], "apparel": ["events", "promo"],
+              "food": ["events", "promo"], "health": ["events", "category_search"]}
 elif len(sys.argv) > 4 and sys.argv[4] == "category_search":
     sys.argv.pop(4)
     SETS = {"chosen": [], "chosen+category_search": ["category_search"]}
@@ -48,7 +56,12 @@ for slug in brands:
     sets = dict(SETS)
     if "chosen" in sets or any(k.startswith("chosen") for k in sets):
         sets = {k: CHOSEN[slug] + v for k, v in sets.items()}
+    seen_controls = set()
     for name, groups in sets.items():
+        names = tuple(validate_csv(select(frame, groups)).dataset.control_names)
+        if names in seen_controls:
+            continue  # this group adds nothing for this country
+        seen_controls.add(names)
         ds = validate_csv(select(frame, groups)).dataset
         ape, abs_err, total = [], 0.0, 0.0
         for fold in (3, 2, 1):

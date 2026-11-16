@@ -19,15 +19,15 @@
  "chosen": {
   "home": "events+promo",
   "beauty": "events+promo",
-  "apparel": "events+promo+macro",
-  "food": "events+promo+macro",
+  "apparel": "events+promo",
+  "food": "events+promo",
   "health": "events"
  },
  "used": {
   "home": "calendar events and promotion depth",
   "beauty": "calendar events, promotion depth and category search interest",
-  "apparel": "calendar events, promotion depth and the economy measures",
-  "food": "calendar events, promotion depth and the economy measures",
+  "apparel": "calendar events, promotion depth and unemployment",
+  "food": "calendar events, promotion depth, consumer confidence and inflation",
   "health": "calendar events and category search interest"
  },
  "terms": {
@@ -336,8 +336,8 @@
   },
   "apparel": {
    "model": {
-    "weekly": 20.7,
-    "quarter": 24.7
+    "weekly": 11.2,
+    "quarter": 10.8
    },
    "simple": {
     "name": "same weeks last year, scaled for growth",
@@ -345,9 +345,9 @@
     "quarter": 41.2
    },
    "quarters": [
-    18.1,
-    43.7,
-    12.3
+    11.6,
+    17.1,
+    3.7
    ]
   },
   "food": {
@@ -400,5 +400,207 @@
    "name": "Carrying recent misses forward into the forecast",
    "result": "Within \u00b11 pt for every brand"
   }
- ]
+ ],
+ "macro": {
+  "apparel": {
+   "chosen": {
+    "wape": 25.2,
+    "media_share": 0.563
+   },
+   "chosen+macro": {
+    "wape": 20.7,
+    "media_share": 0.551
+   },
+   "chosen+unemployment": {
+    "wape": 11.2,
+    "media_share": 0.53
+   },
+   "chosen+retail_growth": {
+    "wape": 25.2,
+    "media_share": 0.561
+   },
+   "chosen+interest_rate": {
+    "wape": 24.8,
+    "media_share": 0.563
+   },
+   "chosen+fuel_fx": {
+    "wape": 23.5,
+    "media_share": 0.553
+   },
+   "chosen+real_income": {
+    "wape": 24.5,
+    "media_share": 0.561
+   },
+   "chosen+macro_wide": {
+    "wape": 14.7,
+    "media_share": 0.523
+   },
+   "chosen+macro_index": {
+    "wape": 22.7,
+    "media_share": 0.553
+   }
+  },
+  "beauty": {
+   "chosen": {
+    "wape": 30.8,
+    "media_share": 0.581
+   },
+   "chosen+macro": {
+    "wape": 31.1,
+    "media_share": 0.551
+   },
+   "chosen+unemployment": {
+    "wape": 30.6,
+    "media_share": 0.575
+   },
+   "chosen+retail_growth": {
+    "wape": 31.2,
+    "media_share": 0.574
+   },
+   "chosen+interest_rate": {
+    "wape": 31.2,
+    "media_share": 0.579
+   },
+   "chosen+fuel_fx": {
+    "wape": 30.3,
+    "media_share": 0.569
+   },
+   "chosen+real_income": {
+    "wape": 31.1,
+    "media_share": 0.579
+   },
+   "chosen+macro_wide": {
+    "wape": 36.3,
+    "media_share": 0.535
+   },
+   "chosen+macro_index": {
+    "wape": 30.9,
+    "media_share": 0.567
+   }
+  },
+  "food": {
+   "chosen": {
+    "wape": 29.6,
+    "media_share": 0.468
+   },
+   "chosen+macro": {
+    "wape": 23.3,
+    "media_share": 0.313
+   },
+   "chosen+unemployment": {
+    "wape": 29.0,
+    "media_share": 0.348
+   },
+   "chosen+retail_growth": {
+    "wape": 28.4,
+    "media_share": 0.457
+   },
+   "chosen+interest_rate": {
+    "wape": 29.9,
+    "media_share": 0.439
+   },
+   "chosen+fuel_fx": {
+    "wape": 29.5,
+    "media_share": 0.437
+   },
+   "chosen+real_income": {
+    "wape": 27.3,
+    "media_share": 0.405
+   },
+   "chosen+macro_wide": {
+    "wape": 30.9,
+    "media_share": 0.327
+   },
+   "chosen+macro_index": {
+    "wape": 23.7,
+    "media_share": 0.304
+   }
+  },
+  "health": {
+   "chosen": {
+    "wape": 30.8,
+    "media_share": 0.265
+   },
+   "chosen+macro": {
+    "wape": 34.6,
+    "media_share": 0.275
+   },
+   "chosen+unemployment": {
+    "wape": 31.9,
+    "media_share": 0.257
+   },
+   "chosen+retail_growth": {
+    "wape": 29.3,
+    "media_share": 0.133
+   },
+   "chosen+interest_rate": {
+    "wape": 40.7,
+    "media_share": 0.298
+   },
+   "chosen+fuel_fx": {
+    "wape": 42.5,
+    "media_share": 0.26
+   },
+   "chosen+macro_wide": {
+    "wape": 64.3,
+    "media_share": 0.207
+   },
+   "chosen+macro_index": {
+    "wape": 34.8,
+    "media_share": 0.198
+   }
+  },
+  "home": {
+   "chosen": {
+    "wape": 15.0,
+    "media_share": 0.493
+   },
+   "chosen+macro": {
+    "wape": 16.0,
+    "media_share": 0.441
+   },
+   "chosen+unemployment": {
+    "wape": 14.4,
+    "media_share": 0.437
+   },
+   "chosen+retail_growth": {
+    "wape": 14.9,
+    "media_share": 0.479
+   },
+   "chosen+interest_rate": {
+    "wape": 15.9,
+    "media_share": 0.475
+   },
+   "chosen+fuel_fx": {
+    "wape": 13.4,
+    "media_share": 0.418
+   },
+   "chosen+macro_wide": {
+    "wape": 18.2,
+    "media_share": 0.442
+   },
+   "chosen+macro_index": {
+    "wape": 13.4,
+    "media_share": 0.423
+   }
+  }
+ },
+ "macro_order": [
+  "chosen",
+  "chosen+macro",
+  "chosen+unemployment",
+  "chosen+retail_growth",
+  "chosen+interest_rate",
+  "chosen+fuel_fx",
+  "chosen+real_income",
+  "chosen+macro_wide",
+  "chosen+macro_index"
+ ],
+ "macro_used": {
+  "home": "chosen",
+  "beauty": "chosen",
+  "apparel": "chosen+unemployment",
+  "food": "chosen+macro",
+  "health": "chosen"
+ }
 }

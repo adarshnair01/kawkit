@@ -41,6 +41,16 @@ GROUPS = {
     "promo": ["discount_rate"],
     "weather": ["temp_anomaly", "rain_anomaly"],
     "macro": ["consumer_confidence", "inflation"],
+    # wider macroeconomic candidates (FRED); which exist depends on the country
+    "unemployment": ["unemployment"],
+    "retail_growth": ["retail_growth"],
+    "interest_rate": ["interest_rate"],
+    "fuel_fx": ["fuel_price", "exchange_rate"],
+    "real_income": ["real_income_growth"],
+    "macro_wide": ["consumer_confidence", "inflation", "unemployment", "retail_growth", "interest_rate", "fuel_price",
+                   "exchange_rate", "real_income_growth"],
+    # one summary of all of them: the first principal component of the standardised series
+    "macro_index": ["macro_index"],
     # the brand's own search interest: clicks from searches for the brand name. Tested, not used:
     # it is partly caused by advertising, and the same-week value is not known in advance.
     "brand_search": ["brand_search"],
@@ -123,6 +133,39 @@ def macro(country: str, external: Path, weeks: pd.DatetimeIndex) -> pd.DataFrame
     return pd.DataFrame({"consumer_confidence": at(conf).round(2), "inflation": at(infl.dropna()).round(2)}, index=weeks)
 
 
+def macro_wide(country: str, external: Path, weeks: pd.DatetimeIndex) -> pd.DataFrame:
+    """More economic series. Monthly figures use last month's value (publication lag); daily and
+    weekly ones use the previous week's average."""
+
+    def series(name: str) -> pd.Series:
+        t = pd.read_csv(external / f"fred_{name}.csv")
+        return pd.Series(pd.to_numeric(t.iloc[:, 1], errors="coerce").values, index=pd.to_datetime(t.iloc[:, 0])).dropna()
+
+    def monthly(x: pd.Series) -> np.ndarray:
+        return np.array([x[x.index <= (w - pd.DateOffset(months=1))].iloc[-1] for w in weeks])
+
+    def previous_week(x: pd.Series) -> np.ndarray:
+        wk = x.resample("W-MON", label="left", closed="left").mean().ffill()
+        return wk.shift(1).reindex(weeks).ffill().bfill().values
+
+    def yoy(x: pd.Series) -> pd.Series:
+        return ((x / x.shift(12) - 1) * 100).dropna()
+
+    out = pd.DataFrame(index=weeks)
+    if country == "US":
+        out["unemployment"] = monthly(series("UNRATE"))
+        out["retail_growth"] = monthly(yoy(series("RSXFS")))
+        out["interest_rate"] = monthly(series("FEDFUNDS"))
+        out["fuel_price"] = previous_week(series("GASREGW"))
+        out["real_income_growth"] = monthly(yoy(series("DSPIC96")))
+    else:
+        out["unemployment"] = monthly(series("LRHUTTTTGBM156S"))
+        out["retail_growth"] = monthly(yoy(series("GBRSARTMISMEI")))
+        out["interest_rate"] = previous_week(series("IUDSOIA"))
+        out["exchange_rate"] = previous_week(series("DEXUSUK"))
+    return out.round(3)
+
+
 def build(df: pd.DataFrame, slug: str, external: Path) -> tuple[pd.DataFrame, dict]:
     """Weekly frame with date, revenue, spend_* and every candidate control_* column."""
     g = df[df.MMM_TIMESERIES_ID == SERIES[slug]].set_index("DATE_DAY").sort_index()
@@ -146,7 +189,12 @@ def build(df: pd.DataFrame, slug: str, external: Path) -> tuple[pd.DataFrame, di
         macro(country, external, weekly.index),
         pd.DataFrame({"brand_search": weekly.brand, "brand_search_last_week": weekly.brand.shift(1).bfill()}),
         category_search(slug, external, weekly.index),
+        macro_wide(country, external, weekly.index),
     ], axis=1)
+    wide = feats[[c for c in GROUPS["macro_wide"] if c in feats]]
+    z = (wide - wide.mean()) / wide.std()
+    _, _, vt = np.linalg.svd(z.values, full_matrices=False)
+    feats["macro_index"] = (z.values @ vt[0]).round(3)
     for c in feats:
         out[f"control_{c}"] = feats[c].values
     return out.reset_index(drop=True), meta

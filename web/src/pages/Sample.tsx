@@ -19,6 +19,9 @@ interface FeatureTest {
   search: Record<string, Record<string, { mape: number; wape: number; media_share?: number }>>
   search_order: string[]
   used: Record<string, string>
+  macro: Record<string, Record<string, { wape: number; media_share?: number }>>
+  macro_order: string[]
+  macro_used: Record<string, string>
   accuracy: Record<string, { model: { weekly: number; quarter: number }; simple: { name: string; weekly: number; quarter: number }; quarters: number[] }>
   tried: { name: string; result: string }[]
   terms: Record<string, string>
@@ -38,6 +41,17 @@ const SET_LABELS: Record<string, string> = {
   'chosen+category_search': '+ search interest in the product category (Google Trends)',
   'chosen+brand_search': '+ searches for the brand itself, same week',
   'chosen+brand_search_lag': '+ searches for the brand itself, previous week',
+}
+const MACRO_LABELS: Record<string, string> = {
+  chosen: 'No economy measure',
+  'chosen+macro': '+ consumer confidence and inflation',
+  'chosen+unemployment': '+ unemployment rate',
+  'chosen+retail_growth': '+ growth in national retail sales',
+  'chosen+interest_rate': '+ interest rate',
+  'chosen+fuel_fx': '+ fuel price (US) or pound-to-dollar rate (UK)',
+  'chosen+real_income': '+ growth in real household income',
+  'chosen+macro_wide': '+ all of them at once',
+  'chosen+macro_index': '+ one combined index of all of them',
 }
 
 const EXAMPLES = {
@@ -108,6 +122,7 @@ export default function Sample() {
   const test = features?.results[key]
   const searchTest = features?.search?.[key]
   const acc = features?.accuracy?.[key]
+  const macroTest = features?.macro?.[key]
   return (
     <div className="grid gap-4">
       <h1>Sample result</h1>
@@ -232,15 +247,40 @@ export default function Sample() {
                   </div>
                 </>
               )}
+              {macroTest && (
+                <>
+                  <h2 className="mt-4 text-base">Does the wider economy help?</h2>
+                  <p className="text-sm muted mt-1">
+                    Eight economic measures for the brand’s country were tested on top of its events and promotions, one at a time and together. Monthly figures use the previous month’s value, since that is what would have been published. A measure is used only if it cuts the error by at least 2 points, because with this many candidates a smaller gain could be luck.
+                  </p>
+                  <div className="overflow-x-auto mt-2">
+                    <table className="data num">
+                      <caption className="sr-only">Error on unseen weeks with economic measures added</caption>
+                      <thead><tr><th scope="col">Added to the baseline</th><th scope="col">Error on unseen weeks</th><th scope="col">Change</th><th scope="col">Used</th></tr></thead>
+                      <tbody>
+                        {features!.macro_order.filter((k) => macroTest[k]).map((k) => (
+                          <tr key={k}>
+                            <th scope="row" style={{ fontWeight: 500, whiteSpace: 'normal' }}>{MACRO_LABELS[k]}</th>
+                            <td>{macroTest[k].wape.toFixed(1)}%</td>
+                            <td>{k === 'chosen' ? '–' : `${macroTest[k].wape - macroTest.chosen.wape > 0 ? '+' : '−'}${Math.abs(macroTest[k].wape - macroTest.chosen.wape).toFixed(1)} pts`}</td>
+                            <td>{features!.macro_used[key] === k ? 'Yes' : ''}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
               <ul className="list-disc pl-5 mt-2 text-sm muted grid gap-1">
                 <li>Also tested, to reduce the error, and rejected: {features!.tried.map((t) => `${t.name.charAt(0).toLowerCase()}${t.name.slice(1)} (${t.result.charAt(0).toLowerCase()}${t.result.slice(1)})`).join('; ')}.</li>
                 <li>Error here is total absolute error as a share of total revenue over the hidden weeks.</li>
                 <li>Category search interest gave a small gain for the skincare and dental brands and none for the others, so only those two use it. The search terms are guesses from each brand’s sub-category.</li>
                 <li>Searches for the brand itself are not used. They made predictions worse for two of the three brands that have the data, and they are partly caused by advertising, so putting them in the baseline takes credit away from the ads that prompted them.</li>
-                <li>Weather did not help any of the five brands. The economy measures helped the two US brands, but they move slowly, so they may be standing in for a change in trend, not causing it. Read the direction of their effect with caution.</li>
+                <li>Weather did not help any of the five brands.</li>
+                <li>Economy measures helped the two US brands and no others: unemployment more than halved the apparel brand’s error, and consumer confidence with inflation helped the food brand. These series move slowly, so they may be tracing a change in the brand’s trend, not causing it. They improve the forecast either way, but read the direction of their effect with caution. Adding every measure at once made three brands worse.</li>
                 <li>The sets were picked using these same test weeks, so the gains are a little optimistic.</li>
                 <li>Not tested, but likely to help: competitor promotions, stock-outs and price changes. None is in the data.</li>
-                <li>Weather from Open-Meteo; consumer confidence and prices from FRED (University of Michigan, OECD, national statistics offices); search interest from Google Trends.</li>
+                <li>Weather from Open-Meteo; consumer confidence and prices from FRED (University of Michigan, OECD, Federal Reserve, national statistics offices); search interest from Google Trends.</li>
               </ul>
             </details>
           )}

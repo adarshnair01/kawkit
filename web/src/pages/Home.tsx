@@ -70,7 +70,7 @@ const EXAMPLES = [
   { to: '/sample', name: 'Made-up data', note: 'True answers known, so you can check the model' },
   { to: '/sample?example=home', name: 'Home decor', note: 'UK · 155 weeks · quarter forecast within 5%' },
   { to: '/sample?example=beauty', name: 'Skincare', note: 'US · 131 weeks · a hard case, shown honestly' },
-  { to: '/sample?example=apparel', name: 'Apparel', note: 'US · 147 weeks · halves a simple forecast’s miss' },
+  { to: '/sample?example=apparel', name: 'Apparel', note: 'US · 147 weeks · a third of a simple forecast’s miss' },
   { to: '/sample?example=food', name: 'Food and drink', note: 'US · 116 weeks · nine paid channels' },
   { to: '/sample?example=health', name: 'Dental care', note: 'UK · 108 weeks · where a model adds least' },
 ]

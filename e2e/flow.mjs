@@ -107,7 +107,7 @@ try {
     await page.getByRole('heading', { name: 'Convergence check' }).waitFor()
     ok(`real example "${k}" loads with caveats and attribution`, (await page.getByRole('link', { name: 'CC BY 4.0' }).count()) === 1)
     await page.locator('summary', { hasText: 'Outside factors' }).click()
-    ok(`real example "${k}" shows the outside-factors test and baseline drivers`, (await page.getByRole('table', { name: /Error on unseen weeks/ }).count()) === 2 && (await page.getByRole('heading', { name: /baseline drivers/ }).count()) === 1)
+    ok(`real example "${k}" shows the outside-factors test and baseline drivers`, (await page.getByRole('table', { name: /Error on unseen weeks/ }).count()) === 3 && (await page.getByRole('heading', { name: /baseline drivers/ }).count()) === 1)
     await axe(`real example ${k}`)
   }
   await page.getByRole('button', { name: 'Made-up data' }).click()
