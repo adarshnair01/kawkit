@@ -224,6 +224,25 @@ try {
     ok(`download: ${name}`, (await (await d).suggestedFilename()).endsWith('.csv'))
   }
 
+  // ---------------------------------------------------------------- share link
+  await page.getByRole('button', { name: 'Share', exact: true }).click()
+  const shareLink = await page.getByLabel('Share link').inputValue({ timeout: 20000 })
+  ok('a share link is created for the finished run', /#\/shared\/[0-9a-f-]{36}$/.test(shareLink))
+  await axe('run with share panel')
+  const visitor = await browser.newContext({ viewport: { width: 1280, height: 900 } })
+  const guest = await visitor.newPage()
+  await guest.goto(shareLink)
+  await guest.getByRole('heading', { name: 'E2E sample run' }).waitFor({ timeout: 20000 })
+  await guest.getByRole('heading', { name: 'Convergence check' }).waitFor()
+  await guest.getByRole('tab', { name: 'Optimise budget' }).click()
+  ok('someone who is not signed in can open the shared result', (await guest.getByText('available to the person who ran this model').count()) === 1)
+  await page.getByRole('button', { name: 'Stop sharing' }).click()
+  await page.getByRole('button', { name: 'Share', exact: true }).waitFor()
+  await guest.reload()
+  await guest.getByRole('heading', { name: 'This link no longer works' }).waitFor({ timeout: 20000 })
+  ok('the link stops working once sharing is stopped', true)
+  await visitor.close()
+
   // reload: still signed in, run is kept
   await page.reload()
   await go('/runs')

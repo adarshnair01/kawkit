@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../api/auth'
-import { cancelRun, friendlyError, getDraws, getResult, queuePosition, renameRun, SECONDS_PER_RUN, useRuns, useServerStatus } from '../api/runs'
+import { cancelRun, createShare, friendlyError, getDraws, getResult, getShare, queuePosition, renameRun, revokeShare, SECONDS_PER_RUN, shareUrl, useRuns, useServerStatus, type Share } from '../api/runs'
 import type { Draws, RunResult } from '../api/types'
 import { ResultsView } from '../components/ResultsView'
 import { ServerNotice } from '../components/ServerNotice'
@@ -23,6 +23,18 @@ export default function RunPage() {
   const [editing, setEditing] = useState(false)
   const [newName, setNewName] = useState('')
   const status = run?.status
+  const [share, setShare] = useState<Share | null>(null)
+  const [shareOpen, setShareOpen] = useState(false)
+  const [shareBusy, setShareBusy] = useState(false)
+  const [copied, setCopied] = useState(false)
+  useEffect(() => {
+    if (status !== 'finished' || !id) return
+    let off = false
+    getShare(id).then((s) => !off && setShare(s)).catch(() => undefined)
+    return () => {
+      off = true
+    }
+  }, [status, id])
 
   useEffect(() => {
     if (status !== 'finished' || !id) return
@@ -74,6 +86,42 @@ export default function RunPage() {
       setCancelling(false)
     }
   }
+  const startShare = async () => {
+    setShareOpen(true)
+    if (share) return
+    setShareBusy(true)
+    setActionError(null)
+    try {
+      setShare(await createShare(run.id))
+    } catch (e) {
+      setActionError(friendlyError(e))
+      setShareOpen(false)
+    } finally {
+      setShareBusy(false)
+    }
+  }
+  const stopShare = async () => {
+    setShareBusy(true)
+    try {
+      await revokeShare(run.id)
+      setShare(null)
+      setShareOpen(false)
+    } catch (e) {
+      setActionError(friendlyError(e))
+    } finally {
+      setShareBusy(false)
+    }
+  }
+  const copyShare = async () => {
+    if (!share) return
+    try {
+      await navigator.clipboard.writeText(shareUrl(share.token))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    } catch {
+      document.getElementById('share-url')?.focus()
+    }
+  }
   const rename = async () => {
     try {
       await renameRun(run.id, newName.trim())
@@ -110,8 +158,28 @@ export default function RunPage() {
         <div className="flex flex-wrap gap-2">
           {!editing && <button type="button" className="btn btn-small" onClick={() => { setNewName(run.name); setEditing(true) }}>Rename</button>}
           <Link to={`/new?from=${run.id}`} className="btn btn-small">Re-run with different priors</Link>
+          {run.status === 'finished' && <button type="button" className="btn btn-small" aria-expanded={shareOpen} onClick={() => (shareOpen ? setShareOpen(false) : startShare())}>{share ? 'Sharing: on' : 'Share'}</button>}
         </div>
       </div>
+      {shareOpen && run.status === 'finished' && (
+        <section className="card grid gap-2" aria-labelledby="share-h">
+          <h2 id="share-h" className="text-base">Share a read-only link</h2>
+          {shareBusy && !share ? (
+            <p className="muted" role="status">Creating the link…</p>
+          ) : share ? (
+            <>
+              <p className="text-sm muted">Anyone with this link can see this run’s results without signing in, until {fmtDate(share.expires_at)}. They cannot see your uploaded file, your other runs or your account, and they cannot change anything.</p>
+              <div className="flex flex-wrap gap-2">
+                <label className="sr-only" htmlFor="share-url">Share link</label>
+                <input id="share-url" className="input num" style={{ flex: '1 1 20rem' }} readOnly value={shareUrl(share.token)} onFocus={(e) => e.target.select()} />
+                <button type="button" className="btn btn-primary" onClick={copyShare}>{copied ? 'Copied' : 'Copy link'}</button>
+                <button type="button" className="btn btn-danger" disabled={shareBusy} onClick={stopShare}>Stop sharing</button>
+              </div>
+              <p className="text-sm muted" role="status">{copied ? 'Link copied to the clipboard.' : 'The link also stops working if this run is deleted to make room for newer ones.'}</p>
+            </>
+          ) : null}
+        </section>
+      )}
       {actionError && <div className="notice notice-bad" role="alert">{actionError}</div>}
 
       {(run.status === 'queued' || run.status === 'running') && (

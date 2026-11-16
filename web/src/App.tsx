@@ -9,6 +9,7 @@ import MyRuns from './pages/MyRuns'
 import NewRun from './pages/NewRun'
 import RunPage from './pages/RunPage'
 import Sample from './pages/Sample'
+import Shared from './pages/Shared'
 import SignIn from './pages/SignIn'
 
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -61,6 +62,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/sample" element={<Sample />} />
+          <Route path="/shared/:token" element={<Shared />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/runs" element={<RequireAuth><MyRuns /></RequireAuth>} />
           <Route path="/new" element={<RequireAuth><NewRun /></RequireAuth>} />

@@ -148,3 +148,42 @@ export function useServerStatus() {
   const online = !!beat && now - new Date(beat.last_seen).getTime() < OFFLINE_AFTER_MS
   return { known, online, beat: beat ?? null }
 }
+
+export interface Share {
+  token: string
+  run_id: string
+  expires_at: string
+  revoked_at: string | null
+}
+export interface SharedRun {
+  name: string
+  finished_at: string | null
+  expires_at: string
+  weeks: number | null
+  result: RunResult
+}
+
+export async function getShare(runId: string): Promise<Share | null> {
+  const { data, error } = await supabase.from('shares').select('*').eq('run_id', runId).is('revoked_at', null).gt('expires_at', new Date().toISOString()).order('created_at', { ascending: false }).limit(1)
+  if (error) throw error
+  return (data?.[0] as Share | undefined) ?? null
+}
+
+export async function createShare(runId: string): Promise<Share> {
+  const { data, error } = await supabase.rpc('create_share', { p_run_id: runId })
+  if (error) throw error
+  return data as Share
+}
+
+export async function revokeShare(runId: string): Promise<void> {
+  const { error } = await supabase.rpc('revoke_share', { p_run_id: runId })
+  if (error) throw error
+}
+
+export async function getSharedRun(token: string): Promise<SharedRun | null> {
+  const { data, error } = await supabase.rpc('get_shared_run', { p_token: token })
+  if (error) throw error
+  return data as SharedRun | null
+}
+
+export const shareUrl = (token: string) => `${window.location.origin}${import.meta.env.BASE_URL}#/shared/${token}`

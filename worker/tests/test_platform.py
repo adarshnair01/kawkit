@@ -135,3 +135,54 @@ def test_account_deletion_removes_every_row_and_file(supa, sample_csv):
         assert supa.select(table, f"select=user_id&user_id=eq.{a.id}") == [], table
     assert supa.list("uploads", a.id) == [] and supa.list("results", a.id) == []
     assert supa.http.get(f"{supa.url}/auth/v1/admin/users/{a.id}").status_code == 404
+
+
+def test_share_links_are_read_only_scoped_and_revocable(make_user, supa, sample_csv):
+    import httpx
+
+    from conftest import ANON, URL
+
+    a, b = make_user(), make_user()
+    run_id = _finished_run(supa, a, sample_csv, 0)
+    supa.http.patch(f"{supa.url}/rest/v1/run_results?run_id=eq.{run_id}", json={"fit": {"r2": 0.9}}).raise_for_status()
+    queued, r = a.submit(sample_csv)
+    assert r.status_code == 200
+
+    # only the owner, and only for a finished run
+    assert b.rpc("create_share", {"p_run_id": run_id}).status_code >= 400
+    assert a.rpc("create_share", {"p_run_id": queued}).status_code >= 400
+    share = a.rpc("create_share", {"p_run_id": run_id})
+    assert share.status_code == 200, share.text
+    token = share.json()["token"]
+    assert a.rpc("create_share", {"p_run_id": run_id}).json()["token"] == token  # reused, not duplicated
+
+    # anyone with the link reads the results, with nothing about the owner or the file
+    anon = httpx.Client(timeout=60, headers={"apikey": ANON})
+    got = anon.post(f"{URL}/rest/v1/rpc/get_shared_run", json={"p_token": token})
+    assert got.status_code == 200 and got.json()["name"] == "run 0" and got.json()["result"]["fit"] == {"r2": 0.9}
+    assert "user_id" not in got.text and "upload_path" not in got.text and a.id not in got.text
+    assert anon.post(f"{URL}/rest/v1/rpc/get_shared_run", json={"p_token": str(uuid.uuid4())}).json() is None
+
+    # the link opens nothing else: no tables, no files, and tokens cannot be listed
+    assert anon.get(f"{URL}/rest/v1/shares?select=*").status_code in (401, 403)
+    assert anon.get(f"{URL}/rest/v1/runs?select=*").status_code in (401, 403)
+    assert b.get("shares").json() == []
+    assert anon.get(f"{URL}/storage/v1/object/uploads/{a.id}/{run_id}.csv").status_code in (400, 401, 403, 404)
+    r = a.http.post(f"{URL}/rest/v1/shares", json={"run_id": run_id, "user_id": a.id})
+    assert r.status_code in (401, 403), r.text
+
+    # others cannot revoke it; the owner can, and it stops working at once
+    assert b.rpc("revoke_share", {"p_run_id": run_id}).json() == 0
+    assert got.status_code == 200 and anon.post(f"{URL}/rest/v1/rpc/get_shared_run", json={"p_token": token}).json() is not None
+    assert a.rpc("revoke_share", {"p_run_id": run_id}).json() == 1
+    assert anon.post(f"{URL}/rest/v1/rpc/get_shared_run", json={"p_token": token}).json() is None
+
+    # an expired link stops working, and a deleted run takes its links with it
+    token2 = a.rpc("create_share", {"p_run_id": run_id}).json()["token"]
+    assert token2 != token
+    supa.http.patch(f"{supa.url}/rest/v1/shares?token=eq.{token2}", json={"expires_at": "2020-01-01T00:00:00Z"}).raise_for_status()
+    assert anon.post(f"{URL}/rest/v1/rpc/get_shared_run", json={"p_token": token2}).json() is None
+    a.rpc("create_share", {"p_run_id": run_id})
+    supa.rpc("delete_runs", {"p_run_ids": [run_id]})
+    assert supa.select("shares", f"select=token&run_id=eq.{run_id}") == []
+    a.rpc("cancel_run", {"p_run_id": queued})

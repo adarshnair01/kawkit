@@ -120,10 +120,12 @@ interface Props {
   result: RunResult
   draws: Draws | null
   drawsError?: string | null
+  /** a shared link: no posterior draws, so the interactive optimiser is replaced by the stored plan */
+  shared?: boolean
   priors?: Priors
 }
 
-export function ResultsView({ name, result, draws, drawsError }: Props) {
+export function ResultsView({ name, result, draws, drawsError, shared }: Props) {
   const [tab, setTab] = useState('overview')
   const [reveal, setReveal] = useState(false)
   const [report, setReport] = useState(false)
@@ -348,7 +350,23 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
           </div>
         )}
 
-        {show('optimise') && (draws ? <Optimise draws={draws} runName={name} /> : <p role="status" className={drawsError ? 'notice notice-bad' : 'muted'}>{drawsError ?? 'Loading posterior draws…'}</p>)}
+        {show('optimise') &&
+          (draws ? (
+            <Optimise draws={draws} runName={name} />
+          ) : shared ? (
+            plan ? (
+              <div className="card grid gap-2">
+                <h3>Recommended budget split</h3>
+                <p className="muted">At the same weekly budget ({fmtNum(plan.budget)}), with each channel kept between 50% and 150% of its recent spend. Expected change in weekly revenue from media: {fmtCompact(plan.lift.mean)} (90% range {fmtCompact(plan.lift.low)} to {fmtCompact(plan.lift.high)}); {fmtPct(plan.prob_better)} chance it beats the current split.</p>
+                <DataTable caption="Current and recommended weekly spend" header={['Channel', 'Current', 'Recommended', 'Change']} rows={plan.channels.map((c, i) => [title(c), fmtNum(plan.current[i]), fmtNum(plan.recommended[i]), plan.current[i] > 0 ? `${(((plan.recommended[i] - plan.current[i]) / plan.current[i]) * 100).toFixed(0)}%` : '–'])} />
+                <p className="text-sm muted">The interactive optimiser, scenario planner and target mode are available to the person who ran this model.</p>
+              </div>
+            ) : (
+              <p className="muted">No budget recommendation was stored with this run.</p>
+            )
+          ) : (
+            <p role="status" className={drawsError ? 'notice notice-bad' : 'muted'}>{drawsError ?? 'Loading posterior draws…'}</p>
+          ))}
 
         {show('download') && (
           <div className="card grid gap-3">
