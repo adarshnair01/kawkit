@@ -152,10 +152,10 @@ export function DriversArt() {
       </g>
       <g data-speed="0.03">
         <text x="40" y="238" fontSize="12" fill={ink} fontWeight="600">baseline: sales without advertising</text>
-        {['events', 'promotions', 'economy', 'search interest'].map((t, i) => (
-          <g key={t} className="pop" style={{ transitionDelay: `${0.5 + i * 0.1}s`, transformOrigin: `${30 + i * 104 + 48}px 283px` }}>
-            <rect x={30 + i * 104} y="268" width="96" height="28" fill={surface} stroke={ink} rx="14" />
-            <text x={30 + i * 104 + 48} y="287" fontSize="11.5" textAnchor="middle" fill={ink}>{t}</text>
+        {([['events', 30, 78], ['promotions', 116, 100], ['economy', 224, 88], ['search interest', 320, 110]] as const).map(([t, x, w], i) => (
+          <g key={t} className="pop" style={{ transitionDelay: `${0.5 + i * 0.1}s`, transformOrigin: `${x + w / 2}px 283px` }}>
+            <rect x={x} y="268" width={w} height="28" fill={surface} stroke={ink} rx="14" />
+            <text x={x + w / 2} y="287" fontSize="11.5" textAnchor="middle" fill={ink}>{t}</text>
           </g>
         ))}
       </g>

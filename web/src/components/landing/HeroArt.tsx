@@ -6,8 +6,8 @@ export function HeroArt() {
     <svg className="hero-art" viewBox="0 0 900 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="hero-fade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#8ea2ff" stopOpacity="0.55" />
-          <stop offset="1" stopColor="#8ea2ff" stopOpacity="0" />
+          <stop offset="0" stopColor="#f4a9b8" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#f4a9b8" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="hero-fade2" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#ffffff" stopOpacity="0.22" />
@@ -32,8 +32,8 @@ export function HeroArt() {
       </g>
       <g data-speed="0.22" data-drift="26">
         <path d={curve(600, 150, 330)} fill="url(#hero-fade)" />
-        <path className="draw draw-solid" pathLength={1} d={curve(600, 150, 330)} fill="none" stroke="#8ea2ff" strokeWidth="3.5" />
-        <line x1="600" x2="600" y1="96" y2="420" stroke="#8ea2ff" strokeOpacity="0.5" strokeDasharray="3 6" />
+        <path className="draw draw-solid" pathLength={1} d={curve(600, 150, 330)} fill="none" stroke="#f4a9b8" strokeWidth="3.5" />
+        <line x1="600" x2="600" y1="96" y2="420" stroke="#f4a9b8" strokeOpacity="0.5" strokeDasharray="3 6" />
       </g>
 
       {/* axis */}
@@ -47,9 +47,9 @@ export function HeroArt() {
       {/* near layer: ranges */}
       <g data-speed="0.32" data-drift="40">
         {[
-          { y: 462, a: 500, b: 700, m: 606, c: '#8ea2ff' },
-          { y: 492, a: 350, b: 560, m: 470, c: '#ffffff' },
-          { y: 522, a: 610, b: 820, m: 700, c: '#ffffff' },
+          { y: 462, a: 520, b: 700, m: 606, c: '#f4a9b8' },
+          { y: 492, a: 610, b: 790, m: 700, c: '#e9c27d' },
+          { y: 522, a: 540, b: 680, m: 620, c: '#ffffff' },
         ].map((r, i) => (
           <g key={i} className="grow" style={{ transformOrigin: `${r.m}px ${r.y}px`, animationDelay: `${0.9 + i * 0.15}s` }}>
             <line x1={r.a} x2={r.b} y1={r.y} y2={r.y} stroke={r.c} strokeOpacity={i ? 0.45 : 0.6} strokeWidth="7" strokeLinecap="round" />
@@ -63,7 +63,7 @@ export function HeroArt() {
         {[
           [210, 150, 5], [300, 260, 3.5], [770, 120, 6], [840, 300, 4], [430, 90, 4], [120, 330, 4.5], [700, 230, 3], [880, 470, 5],
         ].map(([x, y, r], i) => (
-          <circle key={i} className="float" cx={x} cy={y} r={r} fill={i % 3 === 0 ? '#8ea2ff' : '#ffffff'} fillOpacity={i % 3 === 0 ? 0.95 : 0.5} style={{ animationDelay: `${i * -0.9}s` }} />
+          <circle key={i} className="float" cx={x} cy={y} r={r} fill={i % 3 === 0 ? '#f4a9b8' : '#ffffff'} fillOpacity={i % 3 === 0 ? 0.95 : 0.5} style={{ animationDelay: `${i * -0.9}s` }} />
         ))}
       </g>
     </svg>

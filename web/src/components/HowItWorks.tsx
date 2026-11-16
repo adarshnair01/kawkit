@@ -100,7 +100,7 @@ function Diagram({ vertical }: { vertical: boolean }) {
         const y = vertical ? i * (PANEL_H + GAP) : 0
         return (
           <g key={s.title} transform={`translate(${x} ${y})`}>
-            <g transform="translate(0 0)">{s.art}</g>
+            <g transform="translate(-30 0)">{s.art}</g>
             <circle cx="16" cy="204" r="15" fill={ink} />
             <text x="16" y="209.5" fontSize="15" fontWeight="700" textAnchor="middle" fill="var(--bg)" fontFamily="'Space Grotesk', Inter, sans-serif">{i + 1}</text>
             <text x="42" y="210" fontSize="19" fontWeight="700" fill={ink} fontFamily="'Space Grotesk', Inter, sans-serif">{s.title}</text>

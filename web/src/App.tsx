@@ -32,7 +32,11 @@ function ThemeToggle() {
   const next: Record<Theme, Theme> = { system: 'light', light: 'dark', dark: 'system' }
   return (
     <button type="button" className="btn btn-small" onClick={() => setTheme(next[theme])} aria-label={`Colour theme: ${theme}. Change theme`}>
-      <span aria-hidden="true">{theme === 'dark' ? '☾' : theme === 'light' ? '☀' : '◐'}</span> {theme[0].toUpperCase() + theme.slice(1)}
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+        <circle cx="8" cy="8" r="6.5" fill={theme === 'dark' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" />
+        {theme === 'system' && <path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor" />}
+      </svg>
+      {theme[0].toUpperCase() + theme.slice(1)}
     </button>
   )
 }
@@ -93,8 +97,7 @@ export default function App() {
       </main>
       <footer className="border-t border-[var(--border)] text-sm muted">
         <div className="max-w-6xl mx-auto px-4 py-4 flex flex-wrap gap-x-5 gap-y-1">
-          <span>Kawkit · open source, MIT licence</span>
-          <a href="https://github.com/adarshnair01/kawkit">Source on GitHub</a>
+          <span>Kawkit · Bayesian marketing mix modelling</span>
           <Link to="/methodology">Methodology and glossary</Link>
         </div>
       </footer>
