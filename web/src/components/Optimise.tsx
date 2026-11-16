@@ -4,6 +4,7 @@ import { ChartFrame } from '../charts/ChartFrame'
 import { SpendBars } from '../charts/SpendBars'
 import { downloadCsv, fmtCompact, fmtNum, fmtPct, title } from '../lib/format'
 import { optimise } from '../optimizer/optimize'
+import { ScenarioPlanner, TargetPlanner } from './Planner'
 
 interface Row {
   min: string
@@ -166,6 +167,8 @@ export function Optimise({ draws, runName }: { draws: Draws; runName: string }) 
           flags={plan.extrapolated}
         />
       </ChartFrame>
+      <ScenarioPlanner draws={draws} />
+      <TargetPlanner draws={draws} />
     </div>
   )
 }

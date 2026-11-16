@@ -4,6 +4,7 @@ import { ChartFrame, DataTable } from '../charts/ChartFrame'
 import { DensityChart } from '../charts/DensityChart'
 import { IntervalBars } from '../charts/IntervalBars'
 import { LineChart } from '../charts/LineChart'
+import { testCandidates } from '../lib/testNext'
 import { downloadCsv, fmtCompact, fmtNum, fmtPct, fmtRange, fmtRoi, palette, title } from '../lib/format'
 import { exportPlan, Optimise } from './Optimise'
 import { Summary } from './Summary'
@@ -132,6 +133,7 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
   const v = VERDICT[d.verdict] ?? VERDICT.fail
   const hidden = d.verdict === 'fail' && !reveal
   const ch = result.channels
+  const tests = testCandidates(ch)
 
   const convergence = (
     <section className={`notice ${v.cls}`} aria-labelledby="conv-h">
@@ -251,6 +253,30 @@ export function ResultsView({ name, result, draws, drawsError }: Props) {
         {show('channels') && (
           <div className="grid gap-4">
             {report && <h2>Channels</h2>}
+            {tests.length > 0 && (
+              <section className="summary" aria-labelledby="test-h">
+                <p className="eyebrow" id="test-h">What to test next</p>
+                <p className="mt-1">
+                  <strong>Run an experiment on {title(tests[0].name)} first.</strong> You spend about {fmtCompact(tests[0].weeklySpend)} a week there, and its return could be anywhere from {fmtRoi(tests[0].roiLow)} to {fmtRoi(tests[0].roiHigh)}. That is the difference between {fmtCompact(tests[0].revenueLow)} and {fmtCompact(tests[0].revenueHigh)} of weekly revenue, and {fmtPct(tests[0].share)} of all the uncertainty in this result.
+                  {tests[1] ? ` ${title(tests[1].name)} is next (${fmtPct(tests[1].share)}).` : ''}
+                </p>
+                <p className="text-sm muted mt-1">A simple test: pause or halve the channel in some regions for 4 to 6 weeks and compare sales with the rest. Enter the return you measure as that channel’s ROI range on your next run, and every other estimate sharpens with it.</p>
+                <details className="mt-2">
+                  <summary className="text-sm font-semibold cursor-pointer">How much rides on each channel</summary>
+                  <div className="overflow-x-auto mt-2">
+                    <table className="data num">
+                      <caption className="sr-only">Weekly revenue at stake from not knowing each channel’s return</caption>
+                      <thead><tr><th scope="col">Channel</th><th scope="col">Weekly spend</th><th scope="col">ROI range</th><th scope="col">Weekly revenue at stake</th><th scope="col">Share of uncertainty</th></tr></thead>
+                      <tbody>
+                        {tests.map((t) => (
+                          <tr key={t.name}><th scope="row" style={{ fontWeight: 500 }}>{title(t.name)}</th><td>{fmtNum(t.weeklySpend)}</td><td>{fmtRange(t.roiLow, t.roiHigh)}</td><td>{fmtCompact(t.swing)}</td><td>{fmtPct(t.share)}</td></tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </details>
+              </section>
+            )}
             <ChartFrame
               title="Return on spend (ROI) per channel"
               note="Revenue generated per unit of spend. Dot = median, bar = 90% credible range."

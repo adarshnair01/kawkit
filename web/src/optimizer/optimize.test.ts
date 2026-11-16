@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Draws } from '../api/types'
-import { optimise, response } from './optimize'
+import { budgetForTarget, evaluate, optimise, response } from './optimize'
 
 function fixed(beta: number[], lam: number[], xmax: number[], current: number[]): Draws {
   return { channels: beta.map((_, i) => `c${i}`), ymax: 1000, xmax, max_weekly: xmax, current, beta: [beta], lam: [lam], alpha: [beta.map(() => 0.3)] }
@@ -95,5 +95,47 @@ describe('optimiser', () => {
     const t = performance.now()
     optimise(draws, draws.current, { budget: sum(draws.current) * 1.1 })
     expect(performance.now() - t).toBeLessThan(2000)
+  })
+
+  it('scenario planner agrees with the optimiser and with doing nothing', () => {
+    const draws = randomDraws(5, 300, 7)
+    const same = evaluate(draws, draws.current, draws.current)
+    expect(same.lift.mean).toBeCloseTo(0, 9)
+    expect(same.prob_better).toBe(0)
+    const plan = optimise(draws, draws.current)
+    const e = evaluate(draws, draws.current, plan.recommended)
+    expect(e.lift.mean).toBeCloseTo(plan.lift.mean, 6)
+    expect(e.prob_better).toBeCloseTo(plan.prob_better, 9)
+    expect(e.budget).toBeCloseTo(plan.budget, 6)
+    const cut = evaluate(draws, draws.current, draws.current.map((v) => v * 0.5))
+    expect(cut.lift.high).toBeLessThan(0)
+    expect(evaluate(draws, draws.current, draws.current.map((v) => v * 3)).extrapolated.some(Boolean)).toBe(true)
+  })
+
+  it('target mode finds the smallest budget that reaches the target', () => {
+    const draws = randomDraws(5, 300, 9)
+    const total = sum(draws.current)
+    const free = optimise(draws, draws.current).lift.mean
+    // a target the re-split alone delivers needs no extra money
+    const easy = budgetForTarget(draws, draws.current, free * 0.5)
+    expect(easy.reachable).toBe(true)
+    expect(easy.extra_budget).toBeCloseTo(0, 6)
+    // a bigger target needs more budget, and just enough of it
+    const max = budgetForTarget(draws, draws.current, Infinity).max_lift
+    const target = free + (max - free) * 0.5
+    const r = budgetForTarget(draws, draws.current, target)
+    expect(r.reachable).toBe(true)
+    expect(r.budget).toBeGreaterThan(total)
+    expect(r.plan.lift.mean).toBeGreaterThanOrEqual(target)
+    const lower = draws.current.map((v) => v * 0.5)
+    const upper = draws.current.map((v) => v * 2)
+    expect(optimise(draws, draws.current, { budget: r.budget - total * 0.01, lower, upper }).lift.mean).toBeLessThan(target)
+    expect(r.prob_target).toBeGreaterThan(0.2)
+    expect(r.prob_target).toBeLessThan(0.9)
+    // out of reach: says so and reports the most that is possible
+    const far = budgetForTarget(draws, draws.current, max * 2)
+    expect(far.reachable).toBe(false)
+    expect(far.max_lift).toBeCloseTo(max, 6)
+    expect(far.budget).toBeCloseTo(total * 2, 6)
   })
 })
