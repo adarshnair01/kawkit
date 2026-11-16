@@ -32,7 +32,7 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
 - A plain-language summary at the top of every result (what to do, how sure, how far to trust it).
 - A printable report: "Open printable report" stacks every section on one page for print or save as PDF.
 - A held-out-weeks chart: what the model predicted for the last 13 weeks when fitted without them.
-- Maroon theme (burgundy actions, wine links, blush tints, warm cream background; wine gradient bands on the home page), Space Grotesk headings, Inter body text, 4 px corners.
+- Navy, coral and lavender theme (navy headings and actions, coral accents, lavender tints on a near-white background; a light hero and a navy closing band on the home page), Space Grotesk headings, Inter body text, 4 px corners.
 
 - Five guest examples on real data: anonymised brands from the Conjura MMM dataset (Anderson, 2024, CC BY 4.0,
   https://doi.org/10.6084/m9.figshare.25314841.v3), one each from home, beauty, apparel, food and health.

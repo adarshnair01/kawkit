@@ -1,7 +1,7 @@
 /** One illustration per feature. Each animates when its section gets the class "in". All decorative. */
-const ink = 'var(--text)'
-const blue = 'var(--accent-ink)'
-const soft = 'var(--accent-soft)'
+const ink = 'var(--heading)'
+const blue = 'var(--coral)'
+const soft = 'var(--second-soft)'
 const line = 'var(--border)'
 const muted = 'var(--muted)'
 const surface = 'var(--surface)'
@@ -65,7 +65,7 @@ export function PriorArt() {
         <text x="322" y="66" fontSize="12.5" fontWeight="600" fill={ink}>after your data</text>
       </g>
       <g data-speed="0.03">
-        <rect x="30" y="262" width="252" height="34" fill={soft} rx="4" />
+        <rect x="30" y="262" width="286" height="34" fill={soft} rx="4" />
         <text x="44" y="284" fontSize="13" fontWeight="600" fill={ink}>The data was decisive: 64% narrower</text>
       </g>
     </Frame>

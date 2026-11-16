@@ -10,9 +10,9 @@ interface Step {
   art: ReactNode
 }
 
-const ink = 'var(--text)'
-const blue = 'var(--accent-ink)'
-const soft = 'var(--accent-soft)'
+const ink = 'var(--heading)'
+const blue = 'var(--coral)'
+const soft = 'var(--second-soft)'
 const line = 'var(--border)'
 const muted = 'var(--muted)'
 
