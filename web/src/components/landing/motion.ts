@@ -9,7 +9,7 @@ export function useLandingMotion() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const root = document.documentElement
-    root.classList.add('anim')
+    root.classList.add('anim', 'snap')
 
     const seen = new IntersectionObserver(
       (entries) => {
@@ -24,7 +24,7 @@ export function useLandingMotion() {
     document.querySelectorAll('.reveal').forEach((el) => seen.observe(el))
 
     return () => {
-      root.classList.remove('anim')
+      root.classList.remove('anim', 'snap')
       seen.disconnect()
     }
   }, [])
