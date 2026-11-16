@@ -94,6 +94,14 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   to the baseline. Tested by unit tests and the end-to-end flow; the link import is tested against a stubbed
   sheet, not a real Google Sheet.
 
+- Economy connector. A Supabase Edge Function (`supabase/functions/economy`, deployed with
+  `supabase/deploy-function.sh economy`) fetches monthly indicators for the US or UK from FRED: unemployment,
+  inflation, consumer confidence, interest rate and retail sales growth. The FRED key is a Supabase secret
+  (`FRED_API_KEY`) and never reaches the browser. The function checks the caller's token against Supabase Auth
+  itself, because the gateway alone also lets the public key through. The browser gives each week the previous
+  month's figure and leaves out any series that starts too late, ends more than 3 months before the data does,
+  or never changes. FRED's UK inflation series stops at March 2025, so it is left out for later data.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

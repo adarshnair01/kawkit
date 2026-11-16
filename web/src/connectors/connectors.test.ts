@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { validateCsv } from '../validation/validate'
+import { alignMonthly, monthBefore, withControls } from './economy'
 import { blackFriday, easterSunday, eventFlags, withEvents } from './events'
 import fixture from './events.fixture.json'
 import { fetchLink, LinkError, resolveLink } from './link'
@@ -116,5 +117,46 @@ describe('import from a link', () => {
     await expect(fetchLink(sheet, denied)).rejects.toBeInstanceOf(LinkError)
     const blocked = (async () => { throw new TypeError('Failed to fetch') }) as unknown as typeof fetch
     await expect(fetchLink({ kind: 'csv', url: 'https://example.com/a.csv' }, blocked)).rejects.toThrow(/download the file/)
+  })
+})
+
+describe('economy connector', () => {
+  const monthly = (from: string, n: number, f: (i: number) => number) =>
+    Array.from({ length: n }, (_, i) => ({ date: monthBefore(from, -i), value: f(i) }))
+  const weeks = Array.from({ length: 60 }, (_, i) => iso(Date.UTC(2023, 0, 2 + 7 * i)))
+
+  it('finds the month before', () => {
+    expect(monthBefore('2024-03-25', 1)).toBe('2024-02-01')
+    expect(monthBefore('2024-01-08', 1)).toBe('2023-12-01')
+    expect(monthBefore('2024-01-08', 14)).toBe('2022-11-01')
+  })
+
+  it('gives each week the previous month\u2019s figure', () => {
+    const obs = monthly('2022-11-01', 20, (i) => 100 + i) // Nov 2022 = 100, Dec = 101, Jan 2023 = 102 ...
+    const a = alignMonthly(weeks, obs)
+    expect(a.ok).toBe(true)
+    if (!a.ok) return
+    expect(a.values[0]).toBe(101) // week of 2 Jan 2023 uses December 2022
+    expect(a.values[4]).toBe(101) // 30 Jan 2023 still uses December
+    expect(a.values[5]).toBe(102) // 6 Feb 2023 uses January
+    expect(a.values).toHaveLength(60)
+  })
+
+  it('refuses series that start late, stop early or never change', () => {
+    expect(alignMonthly(weeks, [])).toMatchObject({ ok: false })
+    expect(alignMonthly(weeks, monthly('2023-03-01', 20, (i) => i))).toMatchObject({ ok: false, reason: expect.stringMatching(/only start/) })
+    expect(alignMonthly(weeks, monthly('2022-11-01', 6, (i) => i))).toMatchObject({ ok: false, reason: expect.stringMatching(/stop in 2023-04/) })
+    expect(alignMonthly(weeks, monthly('2022-11-01', 20, () => 5))).toMatchObject({ ok: false, reason: expect.stringMatching(/does not change/) })
+    // a series that ends up to 3 months early is carried forward
+    expect(alignMonthly(weeks, monthly('2022-11-01', 13, (i) => i)).ok).toBe(true)
+  })
+
+  it('appends the new columns without touching what is there', () => {
+    const rows = weeks.map((w, i) => `${w},${1000 + i},${10 + (i % 5)},${i % 6 === 0 ? 1 : 0}`)
+    const ds = validateCsv(['date,revenue,spend_tv,control_promo', ...rows].join('\n')).dataset!
+    const v = validateCsv(withControls(ds, { unemployment: weeks.map((_, i) => 4 + (i % 7) / 10), promo: weeks.map(() => 9) }))
+    expect(v.errors).toEqual([])
+    expect(v.dataset?.controlNames).toEqual(['promo', 'unemployment'])
+    expect(v.dataset?.controls[3]).toEqual([0, 4.3])
   })
 })

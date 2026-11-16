@@ -150,6 +150,15 @@ try {
   ok('event library adds calendar events to the baseline', (await page.getByText('Promo running, Black friday, Cyber week, Pre christmas, Christmas newyear, Easter').count()) === 1)
   await axe('new run (event library)')
 
+  // the economy connector fetches real figures through the server-side function
+  await page.getByLabel('Country').selectOption('UK')
+  await page.getByLabel(/^Unemployment rate/).check()
+  await page.getByLabel(/^Consumer confidence/).check()
+  await page.getByRole('button', { name: 'Fetch and add to my data' }).click()
+  await page.getByText(/Added to the baseline for the United Kingdom: unemployment rate, consumer confidence/).waitFor({ timeout: 30000 })
+  ok('economy connector fetches and adds indicators', (await page.getByText(/Easter, Unemployment, Consumer confidence/).count()) === 1)
+  await axe('new run (economy connector)')
+
   // import from a link (the sheet itself is stubbed: no real Google Sheet is contacted)
   const sampleCsv = await (await page.request.get(`${BASE}sample/sample.csv`)).text()
   await page.route('https://docs.google.com/spreadsheets/d/TESTSHEET/**', (route) => route.fulfill({ status: 200, contentType: 'text/csv', headers: { 'access-control-allow-origin': '*' }, body: sampleCsv }))

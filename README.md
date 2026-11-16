@@ -45,6 +45,7 @@ uv run pytest -m slow                         # known-truth recovery on 4 synthe
 KAWKIT_SERVICE_KEY=... uv run pytest -m integration   # isolation, limits, retention, queue lifecycle on the live project
 
 SUPABASE_ACCESS_TOKEN=sbp_... supabase/apply.sh supabase/migrations/0001_init.sql   # apply a migration
+SUPABASE_ACCESS_TOKEN=sbp_... supabase/deploy-function.sh economy                   # deploy an Edge Function
 ```
 
 See `docs/operations.md` for what is and is not in this version.

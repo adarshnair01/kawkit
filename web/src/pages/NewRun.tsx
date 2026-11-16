@@ -6,6 +6,7 @@ import type { ChannelPrior, Priors } from '../api/types'
 import { ChartFrame } from '../charts/ChartFrame'
 import { LineChart } from '../charts/LineChart'
 import { ServerNotice } from '../components/ServerNotice'
+import { alignMonthly, COUNTRIES, fetchEconomy, INDICATORS, withControls, type Country, type Indicator } from '../connectors/economy'
 import { EVENTS, withEvents, type EventKey } from '../connectors/events'
 import { fetchLink, LinkError, resolveLink } from '../connectors/link'
 import { applyMapping, checkMapping, DATE_FORMATS, detectDateFormat, guessColumns, isCanonical, readSheet, type Column, type DateFormat, type Role, type Sheet } from '../connectors/mapping'
@@ -70,6 +71,10 @@ export default function NewRun() {
   const [linkBusy, setLinkBusy] = useState(false)
   const [events, setEvents] = useState<EventKey[]>(['black_friday', 'cyber_week', 'pre_christmas', 'christmas_newyear', 'easter'])
   const [eventNote, setEventNote] = useState<string | null>(null)
+  const [country, setCountry] = useState<Country>('US')
+  const [indicators, setIndicators] = useState<Indicator[]>([])
+  const [econBusy, setEconBusy] = useState(false)
+  const [econNote, setEconNote] = useState<{ ok: boolean; text: string } | null>(null)
 
   /** Check a file that is already in the model's layout and show its summary. */
   const accept = (text: string, label: string, bytes?: number) => {
@@ -132,6 +137,36 @@ export default function NewRun() {
       setLoadError(e instanceof LinkError ? e.message : 'The link could not be read. Try again.')
     } finally {
       setLinkBusy(false)
+    }
+  }
+
+  const addEconomy = async () => {
+    const ds = validation?.dataset
+    if (!ds) return
+    const wanted = indicators.filter((k) => !ds.controlNames.includes(k))
+    setEconBusy(true)
+    setEconNote(null)
+    try {
+      const res = await fetchEconomy(country, ds.dates, wanted)
+      const extra: Record<string, number[]> = {}
+      const skipped: string[] = []
+      for (const k of wanted) {
+        const got = res.series[k]
+        const a = got && !got.error ? alignMonthly(ds.dates, got.observations) : ({ ok: false, reason: 'it could not be fetched' } as const)
+        if (a.ok) extra[k] = a.values
+        else skipped.push(`${INDICATORS[k].label.toLowerCase()} (${a.reason})`)
+      }
+      const added = Object.keys(extra) as Indicator[]
+      if (added.length) accept(withControls(ds, extra), fileName)
+      setIndicators([])
+      setEconNote({
+        ok: added.length > 0,
+        text: [added.length ? `Added to the baseline for the ${COUNTRIES[country]}: ${added.map((k) => INDICATORS[k].label.toLowerCase()).join(', ')}.` : 'Nothing was added.', skipped.length ? `Left out: ${skipped.join('; ')}.` : ''].filter(Boolean).join(' '),
+      })
+    } catch (e) {
+      setEconNote({ ok: false, text: e instanceof Error ? e.message : 'The economy figures could not be fetched.' })
+    } finally {
+      setEconBusy(false)
     }
   }
 
@@ -400,6 +435,31 @@ export default function NewRun() {
                     </fieldset>
                     {eventNote && <p className="notice notice-ok" role="status">{eventNote}</p>}
                     <div><button type="button" className="btn" disabled={!events.some((k) => !ds.controlNames.includes(k))} onClick={addEvents}>Add selected to my data</button></div>
+
+                    <h3 className="mt-3">The wider economy</h3>
+                    <p className="muted">Monthly figures for your market, fetched for your dates. Each week uses the previous month’s figure, the latest that would have been published. Add one or two that plausibly affect your customers: on the real example brands a single measure sometimes helped a lot, while adding them all made most forecasts worse.</p>
+                    <div style={{ maxWidth: '18rem' }}>
+                      <label className="field" htmlFor="econ-country">Country</label>
+                      <select id="econ-country" className="input" value={country} onChange={(e) => setCountry(e.target.value as Country)}>
+                        {(Object.keys(COUNTRIES) as Country[]).map((c) => <option key={c} value={c}>{COUNTRIES[c]}</option>)}
+                      </select>
+                    </div>
+                    <fieldset className="grid gap-2 sm:grid-cols-2">
+                      <legend className="sr-only">Economic measures to add</legend>
+                      {(Object.keys(INDICATORS) as Indicator[]).map((k) => {
+                        const has = ds.controlNames.includes(k)
+                        return (
+                          <label key={k} className="flex items-start gap-2">
+                            <input type="checkbox" style={{ width: '1.15rem', height: '1.15rem', marginTop: '0.2rem' }} disabled={has} checked={has || indicators.includes(k)} onChange={(e) => setIndicators((ev) => (e.target.checked ? [...ev, k] : ev.filter((x) => x !== k)))} />
+                            <span><span className="font-semibold">{INDICATORS[k].label}</span>{has ? ' (already in your data)' : ''}<br /><span className="text-sm muted">{INDICATORS[k].note}</span></span>
+                          </label>
+                        )
+                      })}
+                    </fieldset>
+                    {indicators.length > 2 && <p className="text-sm" style={{ color: 'var(--warn)' }}>That is a lot for the model to separate. Consider keeping to one or two.</p>}
+                    {econNote && <p className={`notice ${econNote.ok ? 'notice-ok' : 'notice-warn'}`} role="status">{econNote.text}</p>}
+                    <div><button type="button" className="btn" disabled={econBusy || !indicators.some((k) => !ds.controlNames.includes(k))} onClick={addEconomy}>{econBusy ? 'Fetching…' : 'Fetch and add to my data'}</button></div>
+                    <p className="text-xs muted">Source: FRED, Federal Reserve Bank of St. Louis. This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.</p>
                   </section>
                   <div className="flex flex-wrap gap-2">
                     <button type="button" className="btn btn-primary" onClick={() => { setStep('priors'); window.scrollTo(0, 0) }}>Continue</button>
