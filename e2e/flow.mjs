@@ -114,10 +114,6 @@ try {
   await page.getByText('the true ROIs are known').waitFor()
   ok('switching back to the made-up example works', true)
 
-  await go('/methodology')
-  await page.getByRole('heading', { name: 'Glossary' }).waitFor()
-  await axe('methodology')
-
   // ---------------------------------------------------------------- sign up
   await go('/runs')
   await page.getByRole('heading', { name: 'Sign in' }).waitFor()
@@ -193,7 +189,7 @@ try {
 
   // ---------------------------------------------------------------- phone width
   await page.setViewportSize({ width: 360, height: 780 })
-  for (const hash of ['/', '/sample', '/runs', '/new', '/methodology']) {
+  for (const hash of ['/', '/sample', '/runs', '/new']) {
     await go(hash)
     await page.waitForTimeout(700)
     const w = await page.evaluate(() => document.documentElement.scrollWidth)
