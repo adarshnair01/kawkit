@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../api/auth'
-import { HowItWorks } from '../components/HowItWorks'
 import { DriversArt, PriorArt, QueueArt, RangesArt, SplitArt, TrustArt } from '../components/landing/FeatureArt'
 import { HeroArt } from '../components/landing/HeroArt'
 import { useLandingMotion } from '../components/landing/motion'
@@ -129,14 +128,6 @@ export default function Home() {
           </section>
         ))}
       </div>
-
-      <section className="reveal grid gap-4" aria-labelledby="how-h">
-        <div className="section-head">
-          <p className="eyebrow">How it works</p>
-          <h2 id="how-h">Three steps, a few minutes</h2>
-        </div>
-        <HowItWorks />
-      </section>
 
       <section className="reveal grid gap-4" aria-labelledby="ex-h">
         <div className="section-head">
