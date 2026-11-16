@@ -61,7 +61,7 @@ const FEATURES: Feature[] = [
     body: 'Runs queue and fit in the background on a dedicated model server, with live status. Your data is yours: nobody else can read it, and you can delete everything.',
     points: ['Live queue position and progress', 'Your last 5 runs kept, compared side by side', 'CSV downloads and a printable report'],
     art: <QueueArt />,
-    link: { to: '/methodology', label: 'Read how it works' },
+    link: { to: '/sample', label: 'Open the sample result' },
   },
 ]
 

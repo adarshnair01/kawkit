@@ -5,7 +5,6 @@ import { supabase } from './api/supabase'
 import Account from './pages/Account'
 import Compare from './pages/Compare'
 import Home from './pages/Home'
-import Methodology from './pages/Methodology'
 import MyRuns from './pages/MyRuns'
 import NewRun from './pages/NewRun'
 import RunPage from './pages/RunPage'
@@ -66,7 +65,6 @@ export default function App() {
             <NavLink to="/sample" className={nav}>Sample result</NavLink>
             {session && <NavLink to="/runs" className={nav}>My runs</NavLink>}
             {session && <NavLink to="/new" className={nav}>New run</NavLink>}
-            <NavLink to="/methodology" className={nav}>How it works</NavLink>
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -86,7 +84,6 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/sample" element={<Sample />} />
           <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/methodology" element={<Methodology />} />
           <Route path="/runs" element={<RequireAuth><MyRuns /></RequireAuth>} />
           <Route path="/new" element={<RequireAuth><NewRun /></RequireAuth>} />
           <Route path="/runs/:id" element={<RequireAuth><RunPage /></RequireAuth>} />
@@ -98,7 +95,6 @@ export default function App() {
       <footer className="border-t border-[var(--border)] text-sm muted">
         <div className="max-w-6xl mx-auto px-4 py-4 flex flex-wrap gap-x-5 gap-y-1">
           <span>Kawkit · Bayesian marketing mix modelling</span>
-          <Link to="/methodology">Methodology and glossary</Link>
         </div>
       </footer>
     </div>
