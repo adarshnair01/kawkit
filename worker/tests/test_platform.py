@@ -139,7 +139,6 @@ def test_account_deletion_removes_every_row_and_file(supa, sample_csv):
 
 def test_share_links_are_read_only_scoped_and_revocable(make_user, supa, sample_csv):
     import httpx
-
     from conftest import ANON, URL
 
     a, b = make_user(), make_user()
