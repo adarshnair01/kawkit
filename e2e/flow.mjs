@@ -125,6 +125,26 @@ try {
   await page.getByText('the true ROIs are known').waitFor()
   ok('switching back to the made-up example works', true)
 
+  // ---------------------------------------------------------------- lessons page, and the free data check
+  await go('/lessons')
+  await page.getByRole('heading', { name: 'What five real brands taught this model' }).waitFor()
+  await page.getByRole('table', { name: /model against a simple forecast, per brand/ }).waitFor()
+  ok('lessons page shows the per-brand accuracy table', (await page.getByRole('row').count()) === 6)
+  await axe('lessons')
+
+  await go('/check')
+  await page.getByRole('heading', { name: 'Check your data' }).waitFor()
+  await page.getByRole('button', { name: 'Use the sample dataset' }).click()
+  await page.getByText('Ready to run').waitFor()
+  ok('a visitor can check data without an account', (await page.getByRole('button', { name: 'Sign in to run the model on this data' }).count()) === 1 && (await page.getByLabel('Country').count()) === 0)
+  await axe('data check (guest)')
+  await page.getByRole('button', { name: 'Sign in to run the model on this data' }).click()
+  await page.getByRole('heading', { name: 'Sign in' }).waitFor()
+  ok('the data check hands over to sign-in', true)
+  const kept = await page.evaluate(() => sessionStorage.getItem('kawkit-pending-data'))
+  ok('checked data is kept in the browser for after sign-in', !!kept && kept.includes('spend_tv'))
+  await page.evaluate(() => sessionStorage.removeItem('kawkit-pending-data'))
+
   // ---------------------------------------------------------------- sign up
   await go('/runs')
   await page.getByRole('heading', { name: 'Sign in' }).waitFor()

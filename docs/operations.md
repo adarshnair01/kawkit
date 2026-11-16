@@ -102,6 +102,14 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   month's figure and leaves out any series that starts too late, ends more than 3 months before the data does,
   or never changes. FRED's UK inflation series stops at March 2025, so it is left out for later data.
 
+- Seven additions that needed no outside accounts. In results: "what to test next" (the channel where the most
+  money rides on the least certain return), a scenario planner (type any split, see the expected change with its
+  range) and target mode (smallest budget expected to add a given weekly revenue, by bisection). Sharing:
+  read-only links to a finished run (`supabase/migrations/0003_shares.sql`), valid 30 days, revocable, exposing
+  results only. Reach: link-preview tags and image (`web/public/og.png`), a lessons page on what the five real
+  brands changed, and a free data check at `/check` that runs entirely in the browser and carries the checked
+  data over to New run after sign-in.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

@@ -87,7 +87,7 @@ export default function Home() {
           <p className="hero-lead">Upload weekly spend and revenue. Kawkit fits a Bayesian model and recommends a budget split, with every estimate shown as a range instead of a single number.</p>
           <div className="flex flex-wrap gap-3">
             <Link to="/sample" className="btn btn-primary">Try the sample result</Link>
-            {session ? <Link to="/new" className="btn">Start a new run</Link> : <Link to="/sign-in" className="btn">Sign in to run your own data</Link>}
+            {session ? <Link to="/new" className="btn">Start a new run</Link> : <Link to="/check" className="btn">Check your data, free</Link>}
           </div>
           <p className="hero-note">The sample needs no account. It includes a made-up example with known answers and <Link to="/sample?example=home">five real e-commerce brands</Link>.</p>
         </div>
@@ -146,6 +146,9 @@ export default function Home() {
             </li>
           ))}
         </ul>
+        <p className="muted">
+          Fitting those five brands changed the model in six ways, and much of what was tried made it worse. <Link to="/lessons">Read what they taught it</Link>.
+        </p>
       </section>
 
       <section className="card reveal" aria-labelledby="privacy-h">

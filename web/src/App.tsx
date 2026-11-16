@@ -5,6 +5,7 @@ import { supabase } from './api/supabase'
 import Account from './pages/Account'
 import Compare from './pages/Compare'
 import Home from './pages/Home'
+import Lessons from './pages/Lessons'
 import MyRuns from './pages/MyRuns'
 import NewRun from './pages/NewRun'
 import RunPage from './pages/RunPage'
@@ -43,6 +44,7 @@ export default function App() {
           </Link>
           <nav aria-label="Main" className="flex flex-wrap items-center gap-1 flex-1">
             <NavLink to="/sample" className={nav}>Sample result</NavLink>
+            {!session && <NavLink to="/check" className={nav}>Check my data</NavLink>}
             {session && <NavLink to="/runs" className={nav}>My runs</NavLink>}
             {session && <NavLink to="/new" className={nav}>New run</NavLink>}
           </nav>
@@ -62,6 +64,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/sample" element={<Sample />} />
+          <Route path="/check" element={<NewRun guest />} />
+          <Route path="/lessons" element={<Lessons />} />
           <Route path="/shared/:token" element={<Shared />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/runs" element={<RequireAuth><MyRuns /></RequireAuth>} />
@@ -75,6 +79,7 @@ export default function App() {
       <footer className="border-t border-[var(--border)] text-sm muted">
         <div className="max-w-6xl mx-auto px-4 py-4 flex flex-wrap gap-x-5 gap-y-1">
           <span>Kawkit · Bayesian marketing mix modelling</span>
+          <Link to="/lessons">Lessons from five real brands</Link>
         </div>
       </footer>
     </div>

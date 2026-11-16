@@ -48,7 +48,10 @@ function parsePriors(forms: Record<string, PriorForm>, channels: string[]): { pr
   return { priors, problems }
 }
 
-export default function NewRun() {
+const PENDING = 'kawkit-pending-data'
+
+/** `guest`: the free data check. Everything runs in the browser; nothing is sent until the visitor signs in and submits. */
+export default function NewRun({ guest = false }: { guest?: boolean }) {
   const { session } = useAuth()
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -121,6 +124,16 @@ export default function NewRun() {
   const useMapping = () => {
     if (!mapping || mappingProblems.length) return
     accept(applyMapping(mapping.sheet, mapping.cols, mapping.format), mapping.label)
+  }
+
+  /** Guest: keep the checked data in this tab so it is waiting on the New run screen after sign-in. */
+  const keepAndSignIn = () => {
+    try {
+      if (csv) sessionStorage.setItem(PENDING, JSON.stringify({ csv, fileName }))
+    } catch {
+      // too large for the browser to hold: the visitor uploads it again after signing in
+    }
+    navigate(session ? '/new' : '/sign-in', { state: { from: '/new' } })
   }
 
   const importLink = async () => {
@@ -202,6 +215,21 @@ export default function NewRun() {
     }
   }
 
+  // data checked as a guest is waiting here after sign-in
+  useEffect(() => {
+    if (guest || from) return
+    try {
+      const raw = sessionStorage.getItem(PENDING)
+      if (!raw) return
+      sessionStorage.removeItem(PENDING)
+      const kept = JSON.parse(raw) as { csv: string; fileName: string }
+      if (kept.csv) load(kept.csv, kept.fileName || 'Your data.csv')
+    } catch {
+      // nothing usable was kept
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // re-run an earlier run with changed priors
   useEffect(() => {
     if (!from) return
@@ -272,13 +300,14 @@ export default function NewRun() {
   return (
     <div className="grid gap-4">
       <div>
-        <h1>New run</h1>
-        <ol className="flex flex-wrap gap-2 mt-2 text-sm" style={{ listStyle: 'none', padding: 0 }}>
+        <h1>{guest ? 'Check your data' : 'New run'}</h1>
+        {guest && <p className="muted mt-1" style={{ maxWidth: '46rem' }}>See whether your data is ready for a marketing mix model before you sign up. Your file is checked in your browser and is not sent anywhere.</p>}
+        <ol hidden={guest} className="flex flex-wrap gap-2 mt-2 text-sm" style={{ listStyle: 'none', padding: 0 }}>
           <li><span className={`badge ${step === 'data' ? 'badge-info' : ''}`} aria-current={step === 'data' ? 'step' : undefined}>1. Data</span></li>
           <li><span className={`badge ${step === 'priors' ? 'badge-info' : ''}`} aria-current={step === 'priors' ? 'step' : undefined}>2. What you already know, and submit</span></li>
         </ol>
       </div>
-      <ServerNotice />
+      {!guest && <ServerNotice />}
       {loadError && <div className="notice notice-bad" role="alert">{loadError}</div>}
 
       {step === 'data' && (
@@ -387,6 +416,7 @@ export default function NewRun() {
                 <>
                   <section className="card" aria-labelledby="sum-h">
                     <h2 id="sum-h">{fileName} looks good</h2>
+                    <p className="mt-1"><span className="badge badge-ok">✓ Ready to run</span> <span className="muted text-sm">{s.warnings.length === 0 ? 'No problems found.' : `${s.warnings.length} thing${s.warnings.length === 1 ? '' : 's'} to know, listed below; none stops the model running.`}</span></p>
                     <dl className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
                       <div><dt className="text-sm muted">Weeks</dt><dd className="text-xl font-bold num">{s.weeks}{s.cadence === 'daily' && <span className="text-sm font-normal muted"> (from {fmtNum(s.input_rows)} daily rows)</span>}</dd></div>
                       <div><dt className="text-sm muted">Date range</dt><dd className="font-semibold num">{s.start} to {s.end}</dd></div>
@@ -436,6 +466,10 @@ export default function NewRun() {
                     {eventNote && <p className="notice notice-ok" role="status">{eventNote}</p>}
                     <div><button type="button" className="btn" disabled={!events.some((k) => !ds.controlNames.includes(k))} onClick={addEvents}>Add selected to my data</button></div>
 
+                    {guest ? (
+                      <p className="text-sm muted mt-2">Economy figures for your market (unemployment, inflation, consumer confidence and more) can be added once you are signed in.</p>
+                    ) : (
+                      <>
                     <h3 className="mt-3">The wider economy</h3>
                     <p className="muted">Monthly figures for your market, fetched for your dates. Each week uses the previous month’s figure, the latest that would have been published. Add one or two that plausibly affect your customers: on the real example brands a single measure sometimes helped a lot, while adding them all made most forecasts worse.</p>
                     <div style={{ maxWidth: '18rem' }}>
@@ -460,9 +494,15 @@ export default function NewRun() {
                     {econNote && <p className={`notice ${econNote.ok ? 'notice-ok' : 'notice-warn'}`} role="status">{econNote.text}</p>}
                     <div><button type="button" className="btn" disabled={econBusy || !indicators.some((k) => !ds.controlNames.includes(k))} onClick={addEconomy}>{econBusy ? 'Fetching…' : 'Fetch and add to my data'}</button></div>
                     <p className="text-xs muted">Source: FRED, Federal Reserve Bank of St. Louis. This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.</p>
+                      </>
+                    )}
                   </section>
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" className="btn btn-primary" onClick={() => { setStep('priors'); window.scrollTo(0, 0) }}>Continue</button>
+                    {guest ? (
+                      <button type="button" className="btn btn-primary" onClick={keepAndSignIn}>Sign in to run the model on this data</button>
+                    ) : (
+                      <button type="button" className="btn btn-primary" onClick={() => { setStep('priors'); window.scrollTo(0, 0) }}>Continue</button>
+                    )}
                     {mapping && <button type="button" className="btn" onClick={() => { setValidation(null); setCsv(null) }}>Change which column is which</button>}
                   </div>
                 </>
