@@ -45,7 +45,9 @@ try {
   // ---------------------------------------------------------------- guest
   await page.goto(BASE)
   await page.getByRole('heading', { level: 1 }).waitFor()
+  await page.waitForTimeout(1500) // let the entrance animations finish before measuring contrast
   await axe('home')
+  ok('landing page lists six features', (await page.locator('.feature').count()) === 6)
 
   let t = Date.now()
   await go('/sample')

@@ -76,6 +76,10 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   latest quarter came in 30-41% above forecast and the simple forecasts missed it as badly, which points to an
   event outside the data.
 
+- Landing page. The home page is now a showcase: a dark hero with layered SVG that moves with scroll and the
+  pointer, six feature sections each with an illustration that draws in on scroll, the how-it-works diagram, and
+  links to the six examples. Motion is off for visitors who ask for reduced motion.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on
