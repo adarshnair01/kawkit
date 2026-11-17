@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
-import type { Draws } from '../api/types'
+import { useEffect, useMemo, useState } from 'react'
+import { deleteScenario, friendlyError, listScenarios, saveScenario } from '../api/runs'
+import type { Draws, Scenario } from '../api/types'
 import { fmtCompact, fmtNum, fmtPct, title } from '../lib/format'
 import { budgetForTarget, evaluate, type TargetResult } from '../optimizer/optimize'
 
@@ -10,7 +11,7 @@ const num = (s: string) => {
 const signed = (v: number) => `${v >= 0 ? '+' : '−'}${fmtCompact(Math.abs(v))}`
 
 /** Scenario planner: type any split and see what the model expects, with its range. */
-export function ScenarioPlanner({ draws }: { draws: Draws }) {
+export function ScenarioPlanner({ draws, runId }: { draws: Draws; runId?: string }) {
   const current = draws.current
   const [rows, setRows] = useState<string[]>(() => current.map((v) => String(Math.round(v))))
   const values = rows.map(num)
@@ -21,6 +22,7 @@ export function ScenarioPlanner({ draws }: { draws: Draws }) {
   const unchanged = x.every((v, i) => Math.abs(v - current[i]) < 0.5)
   const scale = (f: number) => setRows(current.map((v) => String(Math.round(v * f))))
   return (
+    <>
     <section className="card grid gap-3" aria-labelledby="scn-h">
       <div>
         <h3 id="scn-h">Try your own split</h3>
@@ -82,6 +84,95 @@ export function ScenarioPlanner({ draws }: { draws: Draws }) {
           )}
         </div>
       </div>
+    </section>
+    {runId && <SavedScenarios runId={runId} draws={draws} x={x} valid={valid && !unchanged} onLoad={(spend) => setRows(draws.channels.map((c, i) => String(Math.round(spend[c] ?? current[i]))))} />}
+    </>
+  )
+}
+
+/** Named what-if splits kept with the run, shown side by side. */
+function SavedScenarios({ runId, draws, x, valid, onLoad }: { runId: string; draws: Draws; x: number[]; valid: boolean; onLoad: (spend: Record<string, number>) => void }) {
+  const [items, setItems] = useState<Scenario[] | null>(null)
+  const [name, setName] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  useEffect(() => {
+    let off = false
+    listScenarios(runId).then((r) => !off && setItems(r)).catch((e) => !off && setError(friendlyError(e)))
+    return () => {
+      off = true
+    }
+  }, [runId])
+  const rows = useMemo(
+    () =>
+      (items ?? []).map((sc) => {
+        const spend = draws.channels.map((c, i) => sc.spend[c] ?? draws.current[i])
+        return { sc, e: evaluate(draws, draws.current, spend), spend }
+      }),
+    [items, draws],
+  )
+  const save = async () => {
+    setBusy(true)
+    setError(null)
+    try {
+      const sc = await saveScenario(runId, name.trim(), Object.fromEntries(draws.channels.map((c, i) => [c, Math.round(x[i] * 100) / 100])))
+      setItems((all) => [...(all ?? []), sc])
+      setName('')
+    } catch (e) {
+      setError(friendlyError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+  const remove = async (id: string) => {
+    try {
+      await deleteScenario(id)
+      setItems((all) => (all ?? []).filter((s) => s.id !== id))
+    } catch (e) {
+      setError(friendlyError(e))
+    }
+  }
+  return (
+    <section className="card grid gap-3" aria-labelledby="sv-h">
+      <div>
+        <h3 id="sv-h">Saved scenarios</h3>
+        <p className="muted text-sm mt-0.5">Keep the splits you try, with this run, and compare them side by side. Up to 10 per run.</p>
+      </div>
+      <form className="flex flex-wrap items-end gap-2" onSubmit={(ev) => { ev.preventDefault(); if (valid && name.trim()) save() }}>
+        <div>
+          <label className="field" htmlFor="sv-name">Name for the split above</label>
+          <input id="sv-name" className="input" style={{ width: '16rem', maxWidth: '100%' }} maxLength={60} placeholder="e.g. Shift 20% to email" value={name} onChange={(ev) => setName(ev.target.value)} />
+        </div>
+        <button type="submit" className="btn btn-primary" disabled={busy || !valid || !name.trim()}>Save scenario</button>
+      </form>
+      {!valid && <p className="text-sm muted">Change a number in the scenario above first, then name and save it.</p>}
+      {error && <div className="notice notice-bad" role="alert">{error}</div>}
+      {items && items.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="data num">
+            <caption className="sr-only">Saved scenarios compared</caption>
+            <thead>
+              <tr><th scope="col">Scenario</th><th scope="col">Weekly spend</th><th scope="col">Expected change in weekly revenue</th><th scope="col">90% range</th><th scope="col">Chance it beats now</th><th scope="col"><span className="sr-only">Actions</span></th></tr>
+            </thead>
+            <tbody>
+              {rows.map(({ sc, e }) => (
+                <tr key={sc.id}>
+                  <th scope="row" style={{ fontWeight: 600, whiteSpace: 'normal' }}>{sc.name}</th>
+                  <td>{fmtNum(e.budget)}</td>
+                  <td>{signed(e.lift.mean)}</td>
+                  <td>{signed(e.lift.low)} to {signed(e.lift.high)}</td>
+                  <td>{fmtPct(e.prob_better)}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <button type="button" className="btn btn-small" onClick={() => onLoad(sc.spend)}>Load<span className="sr-only"> {sc.name}</span></button>{' '}
+                    <button type="button" className="btn btn-small btn-danger" onClick={() => remove(sc.id)}>Delete<span className="sr-only"> {sc.name}</span></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {items && items.length === 0 && <p className="text-sm muted">No saved scenarios yet.</p>}
     </section>
   )
 }

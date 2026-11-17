@@ -48,6 +48,13 @@ try {
   await page.getByRole('heading', { name: 'Convergence check' }).waitFor()
   ok('guest sample loads in under 3 seconds', Date.now() - t < 3000, `${Date.now() - t} ms`)
   await axe('sample fit')
+  await page.getByRole('button', { name: 'Take the 1-minute tour' }).click()
+  await page.getByRole('region', { name: 'Guided tour' }).waitFor()
+  for (let i = 0; i < 4; i++) await page.getByRole('region', { name: 'Guided tour' }).getByRole('button', { name: 'Next' }).click()
+  ok('the guided tour reaches its last step and highlights the optimiser tab', (await page.locator('.tour-target').count()) === 1 && (await page.getByRole('link', { name: 'Try it on your data' }).count()) === 1)
+  await axe('sample tour')
+  await page.keyboard.press('Escape')
+  ok('Esc closes the tour', (await page.getByRole('region', { name: 'Guided tour' }).count()) === 0)
 
   // keyboard only: move through the tabs with arrow keys
   await page.getByRole('tab', { name: 'Fit' }).focus()
@@ -261,11 +268,53 @@ try {
   await page.getByRole('heading', { name: 'Recommendation' }).waitFor({ timeout: 20000 })
   ok('optimiser loads the posterior draws from private storage', true)
   await page.getByRole('tab', { name: 'Download' }).click()
+  {
+    const d = page.waitForEvent('download')
+    await page.getByRole('button', { name: 'Excel workbook (everything)' }).click()
+    const dl = await d
+    ok('download: Excel workbook', dl.suggestedFilename().endsWith('.xlsx'))
+    const { createRequire } = await import('node:module')
+    const { unzipSync, strFromU8 } = createRequire(import.meta.url)('../web/node_modules/fflate')
+    const { readFileSync } = await import('node:fs')
+    const zip = unzipSync(new Uint8Array(readFileSync(await dl.path())))
+    ok('the workbook has a channels sheet with real numbers', strFromU8(zip['xl/workbook.xml']).includes('Channels') && /<v>\d/.test(strFromU8(zip['xl/worksheets/sheet2.xml'])))
+  }
   for (const name of ['Channel results', 'Weekly fit and contributions', 'Recommended split (default limits)', 'Posterior summary']) {
     const d = page.waitForEvent('download')
     await page.getByRole('button', { name }).click()
     ok(`download: ${name}`, (await (await d).suggestedFilename()).endsWith('.csv'))
   }
+
+  // ---------------------------------------------------------------- saved scenarios
+  await page.getByRole('tab', { name: 'Optimise budget' }).click()
+  await page.getByRole('button', { name: 'Cut everything 20%' }).click()
+  await page.getByLabel('Name for the split above').fill('Cut 20 percent')
+  await page.getByRole('button', { name: 'Save scenario' }).click()
+  await page.getByRole('row', { name: /Cut 20 percent/ }).waitFor({ timeout: 20000 })
+  ok('a scenario is saved and shown with its expected change', true)
+  await axe('saved scenarios')
+  await page.reload()
+  await page.getByRole('tab', { name: 'Optimise budget' }).click()
+  await page.getByRole('row', { name: /Cut 20 percent/ }).waitFor({ timeout: 20000 })
+  ok('the saved scenario is still there after a reload', true)
+  await page.getByRole('button', { name: 'Delete Cut 20 percent' }).click()
+  await page.getByText('No saved scenarios yet').waitFor()
+  ok('a saved scenario can be deleted', true)
+
+  // ---------------------------------------------------------------- notes and tags
+  await page.getByRole('button', { name: 'Add notes' }).click()
+  await page.getByLabel('Note (up to 500 characters)').fill('With the Black Friday dummy')
+  await page.getByLabel(/Tags, separated by commas/).fill('client-a, q3, client-a')
+  await page.getByRole('button', { name: 'Save notes' }).click()
+  await page.getByRole('region', { name: 'Notes on this run' }).waitFor({ timeout: 20000 })
+  const tagCounts = [await page.locator('.badge', { hasText: 'client-a' }).count(), await page.locator('.badge', { hasText: 'q3' }).count()]
+  ok('notes and de-duplicated tags are saved on the run', tagCounts.join() === '1,1', `counts ${tagCounts.join(',')}`)
+  await go('/runs')
+  await page.getByText('With the Black Friday dummy').waitFor()
+  ok('notes and tags show on My runs', (await page.locator('.badge', { hasText: 'q3' }).count()) === 1)
+  await axe('my runs with notes')
+  await page.getByRole('link', { name: 'E2E sample run' }).click()
+  await page.getByRole('heading', { name: 'Convergence check' }).waitFor({ timeout: 20000 })
 
   // ---------------------------------------------------------------- share link
   await page.getByRole('button', { name: 'Share', exact: true }).click()

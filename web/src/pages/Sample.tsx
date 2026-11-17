@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { Draws, Run, RunResult } from '../api/types'
+import { Tour } from '../components/Tour'
 import { ResultsView } from '../components/ResultsView'
 import { fmtNum, fmtPct, fmtRoi, title } from '../lib/format'
 
@@ -125,7 +126,10 @@ export default function Sample() {
   const macroTest = features?.macro?.[key]
   return (
     <div className="grid gap-4">
-      <h1>Sample result</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1>Sample result</h1>
+        <Tour />
+      </div>
       {picker}
       {key === 'synthetic' && sample.truth && (
         <>

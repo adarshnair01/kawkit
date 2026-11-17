@@ -5,6 +5,7 @@ import { friendlyError, getResult, useRuns } from '../api/runs'
 import type { RunResult } from '../api/types'
 import { ChartFrame } from '../charts/ChartFrame'
 import { IntervalBars, type IntervalRow } from '../charts/IntervalBars'
+import { whatChanged } from '../lib/changes'
 import { fmtDate, fmtPct, fmtRange, fmtRoi, palette, title } from '../lib/format'
 
 export default function Compare() {
@@ -96,6 +97,15 @@ export default function Compare() {
           >
             <IntervalBars ariaLabel="ROI per channel for run A and run B with 90% ranges" rows={rows} fmt={fmtRoi} reference={{ value: 1, label: 'break-even (1.0)' }} xLabel="ROI" />
           </ChartFrame>
+          <section className="card" aria-labelledby="chg-h">
+            <h2 id="chg-h" className="mb-2">What changed</h2>
+            {a === b ? <p className="muted">Pick two different runs to see what changed.</p> : (
+              <ul className="grid gap-1" style={{ listStyle: 'disc', paddingLeft: '1.2rem' }}>
+                {whatChanged(ra.channels, rb.channels).map((t) => <li key={t}>{t}</li>)}
+              </ul>
+            )}
+            <p className="text-sm muted mt-2">“Overlap” means the 90% ranges share some values, so the two runs do not clearly disagree.</p>
+          </section>
           <section className="card" aria-labelledby="fit-h">
             <h2 id="fit-h" className="mb-2">Fit</h2>
             <div className="overflow-x-auto">

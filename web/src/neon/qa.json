@@ -1819,7 +1819,10 @@
     "change priors and run again",
     "re-run a model",
     "try different assumptions",
-    "sensitivity to priors"
+    "sensitivity to priors",
+    "duplicate a run",
+    "copy a run and change it",
+    "run again with the same data"
    ],
    "keywords": [
     "re-run",
@@ -3906,16 +3909,22 @@
     "download the data",
     "get the numbers in excel",
     "export recommended split",
-    "posterior summary download"
+    "posterior summary download",
+    "can i export to excel",
+    "download an xlsx file",
+    "export to a spreadsheet"
    ],
    "keywords": [
     "download",
     "export",
     "csv",
     "excel",
-    "spreadsheet"
+    "spreadsheet",
+    "excel",
+    "xlsx",
+    "workbook"
    ],
-   "a": "Yes, from the Download tab, as CSV files: channel results, weekly fit and contributions, the recommended split, and a posterior summary. The Optimise budget tab also downloads the split for whatever budget and limits you have set.\n\nEvery chart has a \"Show table\" button too.",
+   "a": "Yes, from the Download tab. The Excel workbook has everything in one file: a summary, channel results, the weekly fit and contributions, the recommended split and the response curves. CSV files are there too, if you prefer: channel results, weekly fit, the recommended split and a posterior summary.\n\nThe Optimise budget tab also downloads the split for whatever budget and limits you set.",
    "links": [
     {
      "label": "My runs",
@@ -3968,7 +3977,7 @@
     "two runs",
     "what changed"
    ],
-   "a": "When you have two finished runs, My runs shows \"Compare two runs\". Pick run A and run B to see each channel's ROI range side by side, plus fit and convergence for both.\n\nIt is the quickest way to see what a new prior, new weeks of data or a different channel grouping changed.",
+   "a": "When you have two finished runs, My runs shows \"Compare two runs\". Pick run A and run B to see each channel's ROI range side by side, plus fit and convergence for both.\n\nIt is the quickest way to see what a new prior, new weeks of data or a different channel grouping changed.\n\nA \"What changed\" box at the top says in plain words which channels moved most, and whether the move is real (the 90% ranges do not overlap) or may be noise (they do).",
    "links": [
     {
      "label": "My runs",
@@ -4029,6 +4038,118 @@
    "links": [],
    "related": [
     "download-results"
+   ]
+  },
+  {
+   "id": "run-notes",
+   "level": "using",
+   "category": "Running a model",
+   "q": "Can I add notes or tags to a run?",
+   "alt": [
+    "label my runs",
+    "add a comment to a run",
+    "how do i tag a run",
+    "remember what a run was for",
+    "organise my runs"
+   ],
+   "keywords": [
+    "notes",
+    "tags",
+    "label"
+   ],
+   "a": "Yes. Open a run and choose \"Add notes\". You can write up to 500 characters and add up to 5 tags, separated by commas, such as client-a or q3. Notes and tags show on My runs next to the run name, so you can tell runs apart later.\n\nThey are private to your account unless you share the run, and a share link shows results only, not your notes.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "rerun-priors",
+    "compare-runs"
+   ]
+  },
+  {
+   "id": "saved-scenarios",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "Can I save the budget splits I try?",
+   "alt": [
+    "save a scenario",
+    "keep my what if scenarios",
+    "store my own split",
+    "compare several scenarios",
+    "save my budget plan"
+   ],
+   "keywords": [
+    "save",
+    "scenario",
+    "scenarios"
+   ],
+   "a": "Yes. On the Optimise budget tab, type a split in \"Try your own split\", then give it a name under \"Saved scenarios\" and choose Save scenario. Each saved scenario shows its total spend, the expected change in weekly revenue with its 90% range, and the chance it beats what you do now, side by side.\n\nYou can keep 10 per run. Load puts a saved split back in the editor, and Delete removes it. They stay with the run until it is deleted.",
+   "links": [],
+   "related": [
+    "scenario-planner",
+    "optimiser-how"
+   ]
+  },
+  {
+   "id": "run-alerts",
+   "level": "new",
+   "category": "Running a model",
+   "q": "Will I be told when my run finishes?",
+   "alt": [
+    "notify me when done",
+    "how do i know when it is finished",
+    "can i leave the tab",
+    "browser notification",
+    "alert when model is ready"
+   ],
+   "keywords": [
+    "notify",
+    "notification",
+    "alert",
+    "finished"
+   ],
+   "a": "While a run waits or runs, the browser tab title changes to \"Finished\" or \"Failed\" with the run's name when it ends and you are on another tab. You can also choose \"Also notify me\" on the run page or My runs to get a browser notification.\n\nYou can close the tab as well: the run carries on and is in My runs when you return. Emails are not available yet.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "how-long-run",
+    "close-tab"
+   ]
+  },
+  {
+   "id": "take-tour",
+   "level": "new",
+   "category": "Getting started",
+   "q": "Is there a quick tour of the results?",
+   "alt": [
+    "show me around",
+    "walk me through the sample",
+    "guided tour",
+    "how do i read the sample result",
+    "tutorial"
+   ],
+   "keywords": [
+    "tour",
+    "walkthrough",
+    "tutorial"
+   ],
+   "a": "Yes. Open the sample result and choose \"Take the 1-minute tour\". It highlights five things in turn: the \"In short\" box, the convergence check, the ranges, the test on weeks the model never saw, and the budget optimiser. Press Esc to leave it at any point.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "sample-explained",
+    "read-results-first"
    ]
   },
   {

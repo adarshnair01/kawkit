@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { supabase } from '../api/supabase'
 import { Matcher, reply, type QaEntry } from './match'
+
+/** Questions Neon could not answer are kept without any user details, so the answers can be improved. Skipped in automated browsers. */
+function logMiss(q: string) {
+  if (navigator.webdriver) return
+  void supabase.rpc('log_neon_miss', { p_question: q.slice(0, 200) }).then(() => undefined, () => undefined)
+}
 
 /**
  * Neon: the site's guide. A chat window that answers from a local file of questions and answers,
@@ -121,8 +128,14 @@ export default function Neon() {
     setMsgs((all) => [...all, { from: 'user', text: q.trim() }])
     const r = reply(matcher, q)
     if (r.kind === 'answer') say(answer(r.entry, r.alternatives))
-    else if (r.kind === 'unsure') say({ from: 'neon', text: 'I’m not certain I have that one. Is it one of these?', chips: [...r.guesses.map((e) => ({ label: e.q, ask: e.id })), { label: 'Browse all topics', topic: '' }], chipsLabel: 'Closest questions' })
-    else say({ from: 'neon', text: 'I don’t have an answer for that. I can only answer from my prepared questions about Kawkit and marketing mix modelling. Try different words, or browse the topics.', chips: [{ label: 'Browse all topics', topic: '' }, ...starters(matcher).slice(0, 3)], chipsLabel: 'Try these' })
+    else if (r.kind === 'unsure') {
+      logMiss(q)
+      say({ from: 'neon', text: 'I’m not certain I have that one. Is it one of these?', chips: [...r.guesses.map((e) => ({ label: e.q, ask: e.id })), { label: 'Browse all topics', topic: '' }], chipsLabel: 'Closest questions' })
+    }
+    else {
+      logMiss(q)
+      say({ from: 'neon', text: 'I don’t have an answer for that. I can only answer from my prepared questions about Kawkit and marketing mix modelling. Try different words, or browse the topics.', chips: [{ label: 'Browse all topics', topic: '' }, ...starters(matcher).slice(0, 3)], chipsLabel: 'Try these' })
+    }
   }
   const pick = (chip: { label: string; ask?: string; topic?: string }) => {
     if (!matcher || typing) return
@@ -187,6 +200,7 @@ export default function Neon() {
             <input id="neon-input" ref={input} className="input" value={text} onChange={(e) => setText(e.target.value)} placeholder="Ask a question…" autoComplete="off" maxLength={300} />
             <button type="submit" className="btn btn-primary" disabled={!text.trim() || !matcher}>Send</button>
           </form>
+          <p className="neon-note">Questions I can’t answer are saved without your name or any account details, so the answers can be improved. Please don’t type personal information.</p>
         </section>
       )}
       <button ref={launcher} type="button" className="neon-launcher" aria-expanded={open} aria-controls="neon-panel" onClick={() => (open ? close() : setOpen(true))}>

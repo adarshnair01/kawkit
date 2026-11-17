@@ -124,6 +124,26 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   `links`, `related`) and run `npm test`; the tests check every question finds its own answer.
 - Based on the approach of LiteBot (MIT, Emir Yüksel); the notification sound was left out.
 
+### Quick wins (notes, scenarios, Excel, alerts, tour, compare summary)
+
+- **Run notes and tags** (migration `0004`): up to 500 characters and 5 tags per run, set from the run page
+  through `set_run_notes`; shown on My runs. Realtime sends Postgres arrays as text, so `normaliseTags` accepts both.
+- **Saved scenarios**: named what-if splits on a run (`scenarios` table, 10 per run, `save_scenario` and
+  `delete_scenario`), listed under "Try your own split" with their expected change and 90% range.
+- **Excel workbook** on the Download tab: summary, channels, weekly fit, recommended split and response curves.
+  Written in the browser by `lib/xlsx.ts` (no styling or formulas) using `fflate` for the zip.
+- **Run-finished alerts**: when a run ends while the tab is in the background the tab title changes, and a browser
+  notification is shown if the user allowed it. Not the same as email, which still needs a provider.
+- **Compare: "What changed"** (`lib/changes.ts`): channels ranked by how far ROI moved, marked as a real shift
+  when the 90% ranges do not overlap.
+- **Guided tour** on the sample result: opt-in, five steps, Esc to leave.
+- **Duplicate and re-run** already existed as "Re-run with different priors" on a run.
+- **Neon log of unanswered questions**: `neon_misses` holds the lower-cased text (max 200 characters), a count and
+  first and last time. No user id or address. Nobody but the service key can read it, and Neon tells people it
+  keeps these. Skipped in automated browsers. To read it, run in the SQL editor:
+  `select question, asked, last_at from public.neon_misses order by asked desc limit 50;`
+  then add answers to `web/src/neon/qa.json`.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

@@ -5,6 +5,7 @@ import { DensityChart } from '../charts/DensityChart'
 import { IntervalBars } from '../charts/IntervalBars'
 import { LineChart } from '../charts/LineChart'
 import { testCandidates } from '../lib/testNext'
+import { downloadXlsx } from '../lib/xlsx'
 import { downloadCsv, fmtCompact, fmtNum, fmtPct, fmtRange, fmtRoi, palette, title } from '../lib/format'
 import { exportPlan, Optimise } from './Optimise'
 import { Summary } from './Summary'
@@ -41,6 +42,59 @@ function exportResults(result: RunResult, name: string) {
     ['channel', 'total_spend', 'contribution_median', 'contribution_low', 'contribution_high', 'share_of_revenue_median', 'roi_median', 'roi_low', 'roi_high', 'prob_roi_above_1', 'confidence', 'marginal_roi_median', 'marginal_roi_low', 'marginal_roi_high', 'half_life_weeks_median', 'half_life_weeks_low', 'half_life_weeks_high', 'saturation_spend_median', 'prior_source', 'prior_roi_low', 'prior_roi_high', 'data_vs_prior'],
     result.channels.map((c) => [c.name, c.total_spend, c.contribution.median, c.contribution.low, c.contribution.high, c.contribution.share.median, c.roi.median, c.roi.low, c.roi.high, c.roi.p_above_1, c.roi.confidence, c.mroi.median, c.mroi.low, c.mroi.high, c.half_life_weeks.median, c.half_life_weeks.low, c.half_life_weeks.high, c.saturation_spend.median, c.prior.source, c.prior.roi.low, c.prior.roi.high, c.prior.verdict]),
   )
+}
+
+function exportWorkbook(result: RunResult, name: string) {
+  const f = result.fit
+  const d = result.diagnostics
+  const plan = result.default_plan
+  downloadXlsx(`kawkit-${name.replace(/\W+/g, '-').toLowerCase()}.xlsx`, [
+    {
+      name: 'Summary',
+      rows: [
+        ['Kawkit results', name],
+        [],
+        ['Convergence', d.verdict], ['Worst R-hat', d.max_rhat], ['Smallest effective sample', d.min_ess_bulk], ['Divergent draws', d.divergences],
+        ['R squared', f.r2], ['Error in sample, MAPE %', f.mape], ['Error on unseen weeks, MAPE %', f.holdout_mape],
+        ['Revenue driven by media, median', f.media_share.median], ['low', f.media_share.low], ['high', f.media_share.high],
+        ['Weeks', f.weeks],
+        [],
+        ['Ranges are 90% credible intervals. ROI = revenue back per unit of spend.'],
+      ],
+    },
+    {
+      name: 'Channels',
+      rows: [
+        ['Channel', 'Total spend', 'ROI median', 'ROI low', 'ROI high', 'Chance ROI above 1', 'Confidence', 'Marginal ROI median', 'Contribution median', 'Contribution low', 'Contribution high', 'Share of revenue', 'Carry-over half-life (weeks)', 'Prior source', 'Data vs prior'],
+        ...result.channels.map((c) => [c.name, c.total_spend, c.roi.median, c.roi.low, c.roi.high, c.roi.p_above_1, c.roi.confidence, c.mroi.median, c.contribution.median, c.contribution.low, c.contribution.high, c.contribution.share.median, c.half_life_weeks.median, c.prior.source, c.prior.verdict]),
+      ],
+    },
+    {
+      name: 'Weekly fit',
+      rows: [
+        ['Date', 'Actual', 'Modelled', 'Band low', 'Band high', 'Baseline', ...result.channels.map((c) => `${c.name} contribution`)],
+        ...f.dates.map((dt, i) => [dt, f.actual[i], f.fitted[i], f.band_low[i], f.band_high[i], f.baseline[i], ...result.channels.map((c) => c.contribution_series.median[i])]),
+      ],
+    },
+    ...(plan
+      ? [{
+          name: 'Recommended split',
+          rows: [
+            ['Channel', 'Current weekly spend', 'Recommended weekly spend', 'Change %', 'Min', 'Max', 'Beyond observed spend'],
+            ...plan.channels.map((c, i) => [c, plan.current[i], plan.recommended[i], plan.current[i] > 0 ? ((plan.recommended[i] - plan.current[i]) / plan.current[i]) * 100 : null, plan.lower[i], plan.upper[i], plan.extrapolated[i] ? 'yes' : 'no']),
+            [],
+            ['Weekly budget', plan.budget], ['Expected weekly revenue change', plan.lift.mean], ['90% low', plan.lift.low], ['90% high', plan.lift.high], ['Chance it beats the current split', plan.prob_better],
+          ],
+        }]
+      : []),
+    {
+      name: 'Response curves',
+      rows: [
+        ['Channel', 'Weekly spend', 'Revenue median', 'Revenue low', 'Revenue high'],
+        ...result.curves.flatMap((c) => c.spend.map((sp, i) => [c.name, sp, c.median[i], c.low[i], c.high[i]])),
+      ],
+    },
+  ])
 }
 
 function exportFit(result: RunResult, name: string) {
@@ -123,9 +177,11 @@ interface Props {
   /** a shared link: no posterior draws, so the interactive optimiser is replaced by the stored plan */
   shared?: boolean
   priors?: Priors
+  /** the owner's run id: enables saved scenarios (not shown for samples or shared links) */
+  runId?: string
 }
 
-export function ResultsView({ name, result, draws, drawsError, shared }: Props) {
+export function ResultsView({ name, result, draws, drawsError, shared, runId }: Props) {
   const [tab, setTab] = useState('overview')
   const [reveal, setReveal] = useState(false)
   const [report, setReport] = useState(false)
@@ -352,7 +408,7 @@ export function ResultsView({ name, result, draws, drawsError, shared }: Props) 
 
         {show('optimise') &&
           (draws ? (
-            <Optimise draws={draws} runName={name} />
+            <Optimise draws={draws} runName={name} runId={runId} />
           ) : shared ? (
             plan ? (
               <div className="card grid gap-2">
@@ -370,8 +426,9 @@ export function ResultsView({ name, result, draws, drawsError, shared }: Props) 
 
         {show('download') && (
           <div className="card grid gap-3">
-            <h3>Download as CSV</h3>
+            <h3>Download</h3>
             <div className="flex flex-wrap gap-2">
+              <button type="button" className="btn btn-primary" onClick={() => exportWorkbook(result, name)}>Excel workbook (everything)</button>
               <button type="button" className="btn" onClick={() => exportResults(result, name)}>Channel results</button>
               <button type="button" className="btn" onClick={() => exportFit(result, name)}>Weekly fit and contributions</button>
               <button type="button" className="btn" disabled={!result.default_plan} onClick={() => result.default_plan && exportPlan(result.default_plan, name)}>Recommended split (default limits)</button>

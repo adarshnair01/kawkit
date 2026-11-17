@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { announceFinished } from '../lib/alerts'
 import { supabase } from './supabase'
-import type { DataSummary, Draws, Heartbeat, Priors, Run, RunResult } from './types'
+import type { DataSummary, Draws, Heartbeat, Priors, Run, RunResult, Scenario } from './types'
 
 export const MAX_FINISHED = 5
 export const OFFLINE_AFTER_MS = 2 * 60 * 1000
@@ -11,6 +12,13 @@ export function friendlyError(e: unknown): string {
   const msg = e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : String(e)
   if (/Failed to fetch|NetworkError|Load failed/i.test(msg)) return 'Could not reach the service. Check your connection and try again.'
   return msg
+}
+
+/** Realtime sends Postgres arrays as text like {a,b}; REST sends real arrays. Accept both. */
+export function normaliseTags(tags: unknown): string[] {
+  if (Array.isArray(tags)) return tags.map(String)
+  if (typeof tags === 'string') return tags.replace(/^\{|\}$/g, '').split(',').map((t) => t.replace(/^"|"$/g, '').trim()).filter(Boolean)
+  return []
 }
 
 export async function listRuns(): Promise<Run[]> {
@@ -69,6 +77,28 @@ export async function renameRun(id: string, name: string): Promise<void> {
   if (error) throw error
 }
 
+export async function setRunNotes(id: string, notes: string, tags: string[]): Promise<void> {
+  const { error } = await supabase.rpc('set_run_notes', { p_run_id: id, p_notes: notes, p_tags: tags })
+  if (error) throw error
+}
+
+export async function listScenarios(runId: string): Promise<Scenario[]> {
+  const { data, error } = await supabase.from('scenarios').select('*').eq('run_id', runId).order('created_at')
+  if (error) throw error
+  return data as Scenario[]
+}
+
+export async function saveScenario(runId: string, name: string, spend: Record<string, number>): Promise<Scenario> {
+  const { data, error } = await supabase.rpc('save_scenario', { p_run_id: runId, p_name: name, p_spend: spend })
+  if (error) throw error
+  return data as Scenario
+}
+
+export async function deleteScenario(id: string): Promise<void> {
+  const { error } = await supabase.rpc('delete_scenario', { p_id: id })
+  if (error) throw error
+}
+
 export async function queuePosition(id: string): Promise<number | null> {
   const { data, error } = await supabase.rpc('queue_position', { p_run_id: id })
   if (error) throw error
@@ -102,7 +132,7 @@ export function useRuns(userId: string | undefined) {
         setRuns((prev) => {
           if (!prev) return prev
           if (payload.eventType === 'DELETE') return prev.filter((r) => r.id !== (payload.old as { id: string }).id)
-          const row = payload.new as Run
+          const row = { ...(payload.new as Run), tags: normaliseTags((payload.new as { tags?: unknown }).tags) }
           const known = prev.some((r) => r.id === row.id)
           return known ? prev.map((r) => (r.id === row.id ? { ...r, ...row } : r)) : [row, ...prev]
         })
@@ -112,6 +142,10 @@ export function useRuns(userId: string | undefined) {
       supabase.removeChannel(channel)
     }
   }, [userId, refresh])
+
+  useEffect(() => {
+    if (runs) announceFinished(runs)
+  }, [runs])
 
   const active = runs?.some((r) => r.status === 'queued' || r.status === 'running') ?? false
   useEffect(() => {

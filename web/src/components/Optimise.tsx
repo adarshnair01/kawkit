@@ -34,7 +34,7 @@ export function exportPlan(plan: Plan, runName: string) {
 }
 
 /** Budget optimiser. Runs in the browser on the posterior draws, so changes are instant and need no server. */
-export function Optimise({ draws, runName }: { draws: Draws; runName: string }) {
+export function Optimise({ draws, runName, runId }: { draws: Draws; runName: string; runId?: string }) {
   const current = draws.current
   const defaultBudget = current.reduce((a, b) => a + b, 0)
   const [budget, setBudget] = useState(String(Math.round(defaultBudget)))
@@ -167,7 +167,7 @@ export function Optimise({ draws, runName }: { draws: Draws; runName: string }) 
           flags={plan.extrapolated}
         />
       </ChartFrame>
-      <ScenarioPlanner draws={draws} />
+      <ScenarioPlanner draws={draws} runId={runId} />
       <TargetPlanner draws={draws} />
     </div>
   )

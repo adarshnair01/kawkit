@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../api/auth'
-import { cancelRun, createShare, friendlyError, getDraws, getResult, getShare, queuePosition, renameRun, revokeShare, SECONDS_PER_RUN, shareUrl, useRuns, useServerStatus, type Share } from '../api/runs'
+import { cancelRun, createShare, friendlyError, getDraws, getResult, getShare, queuePosition, renameRun, revokeShare, setRunNotes, SECONDS_PER_RUN, shareUrl, useRuns, useServerStatus, type Share } from '../api/runs'
 import type { Draws, RunResult } from '../api/types'
 import { ResultsView } from '../components/ResultsView'
+import { NotifyMe } from '../components/NotifyMe'
 import { ServerNotice } from '../components/ServerNotice'
 import { fmtDate, fmtDuration, fmtPct, title } from '../lib/format'
 import { StatusBadge } from './MyRuns'
@@ -27,6 +28,9 @@ export default function RunPage() {
   const [shareOpen, setShareOpen] = useState(false)
   const [shareBusy, setShareBusy] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [noteOpen, setNoteOpen] = useState(false)
+  const [noteText, setNoteText] = useState('')
+  const [tagText, setTagText] = useState('')
   useEffect(() => {
     if (status !== 'finished' || !id) return
     let off = false
@@ -131,6 +135,15 @@ export default function RunPage() {
       setActionError(friendlyError(e))
     }
   }
+  const saveNotes = async () => {
+    try {
+      await setRunNotes(run.id, noteText.trim(), tagText.split(',').map((t) => t.trim()).filter(Boolean))
+      await refresh()
+      setNoteOpen(false)
+    } catch (e) {
+      setActionError(friendlyError(e))
+    }
+  }
   const slots = Math.max(beat?.max_concurrency ?? 1, 1)
   const wait = position === null ? null : Math.ceil((position + 1) / slots) * SECONDS_PER_RUN
   const priorChannels = Object.entries(run.priors ?? {}).filter(([, p]) => p.roi_low !== undefined || p.carryover_weeks !== undefined)
@@ -158,9 +171,30 @@ export default function RunPage() {
         <div className="flex flex-wrap gap-2">
           {!editing && <button type="button" className="btn btn-small" onClick={() => { setNewName(run.name); setEditing(true) }}>Rename</button>}
           <Link to={`/new?from=${run.id}`} className="btn btn-small">Re-run with different priors</Link>
+          <button type="button" className="btn btn-small" aria-expanded={noteOpen} onClick={() => { setNoteText(run.notes ?? ''); setTagText((run.tags ?? []).join(', ')); setNoteOpen((o) => !o) }}>{run.notes || run.tags?.length ? 'Edit notes' : 'Add notes'}</button>
           {run.status === 'finished' && <button type="button" className="btn btn-small" aria-expanded={shareOpen} onClick={() => (shareOpen ? setShareOpen(false) : startShare())}>{share ? 'Sharing: on' : 'Share'}</button>}
         </div>
       </div>
+      {(run.notes || run.tags?.length > 0) && !noteOpen && (
+        <section className="card grid gap-1" aria-label="Notes on this run">
+          {run.tags?.length > 0 && <p className="flex flex-wrap gap-1">{run.tags.map((t) => <span key={t} className="badge">{t}</span>)}</p>}
+          {run.notes && <p style={{ whiteSpace: 'pre-wrap' }}>{run.notes}</p>}
+        </section>
+      )}
+      {noteOpen && (
+        <form className="card grid gap-2" aria-labelledby="notes-h" onSubmit={(e) => { e.preventDefault(); saveNotes() }}>
+          <h2 id="notes-h" className="text-base">Notes on this run</h2>
+          <div>
+            <label className="field" htmlFor="run-notes">Note (up to 500 characters)</label>
+            <textarea id="run-notes" className="input" rows={3} maxLength={500} value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="e.g. With the Black Friday dummy, client A, Q3 review" />
+          </div>
+          <div>
+            <label className="field" htmlFor="run-tags">Tags, separated by commas (up to 5)</label>
+            <input id="run-tags" className="input" value={tagText} onChange={(e) => setTagText(e.target.value)} placeholder="client-a, q3" />
+          </div>
+          <div className="flex gap-2"><button type="submit" className="btn btn-primary">Save notes</button><button type="button" className="btn" onClick={() => setNoteOpen(false)}>Cancel</button></div>
+        </form>
+      )}
       {shareOpen && run.status === 'finished' && (
         <section className="card grid gap-2" aria-labelledby="share-h">
           <h2 id="share-h" className="text-base">Share a read-only link</h2>
@@ -204,6 +238,7 @@ export default function RunPage() {
               </>
             )}
             <p className="text-sm muted">You can close this tab; the run continues and will be in My runs when you come back.</p>
+            <NotifyMe />
             <div><button type="button" className="btn btn-danger" disabled={cancelling || run.cancel_requested} onClick={cancel}>{run.cancel_requested ? 'Cancelling…' : 'Cancel this run'}</button></div>
           </section>
         </>
@@ -222,7 +257,7 @@ export default function RunPage() {
           <p className="mt-1">It will be deleted after 7 days. <Link to={`/new?from=${run.id}`}>Run it again</Link>.</p>
         </section>
       )}
-      {run.status === 'finished' && (result ? <ResultsView name={run.name} result={result} draws={draws} drawsError={drawsError} /> : <p className={drawsError ? 'notice notice-bad' : 'muted'} role="status">{drawsError ?? 'Loading results…'}</p>)}
+      {run.status === 'finished' && (result ? <ResultsView name={run.name} result={result} draws={draws} drawsError={drawsError} runId={run.id} /> : <p className={drawsError ? 'notice notice-bad' : 'muted'} role="status">{drawsError ?? 'Loading results…'}</p>)}
     </div>
   )
 }

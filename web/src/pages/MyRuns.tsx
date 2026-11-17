@@ -4,6 +4,7 @@ import { useAuth } from '../api/auth'
 import { getVerdicts, MAX_FINISHED, useRuns } from '../api/runs'
 import type { Run } from '../api/types'
 import { VerdictBadge } from '../components/ResultsView'
+import { NotifyMe } from '../components/NotifyMe'
 import { ServerNotice } from '../components/ServerNotice'
 import { fmtDate, fmtPct } from '../lib/format'
 
@@ -40,7 +41,7 @@ export default function MyRuns() {
         <tbody>
           {rows.map((r) => (
             <tr key={r.id}>
-              <th scope="row" style={{ fontWeight: 600, whiteSpace: 'normal' }}><Link to={`/runs/${r.id}`}>{r.name}</Link></th>
+              <th scope="row" style={{ fontWeight: 600, whiteSpace: 'normal' }}><Link to={`/runs/${r.id}`}>{r.name}</Link>{r.tags?.map((t) => <span key={t} className="badge ml-1">{t}</span>)}{r.notes && <div className="text-sm muted" style={{ fontWeight: 400 }}>{r.notes.length > 90 ? `${r.notes.slice(0, 90)}…` : r.notes}</div>}</th>
               <td className="num">{fmtDate(r.created_at)}</td>
               <td><StatusBadge run={r} /></td>
               <td>{r.status === 'finished' ? <VerdictBadge verdict={verdicts[r.id]} /> : <span className="muted">–</span>}</td>
@@ -74,6 +75,7 @@ export default function MyRuns() {
         <section className="card" aria-labelledby="active-h">
           <h2 id="active-h" className="mb-2">Waiting or running</h2>
           {table(active, 'Runs waiting or running')}
+          <div className="mt-2"><NotifyMe /></div>
         </section>
       )}
       {finished.length > 0 && (

@@ -375,3 +375,9 @@ html { overflow-x: clip; }
   .neon { right: 0.5rem; bottom: 0.5rem; left: 0.5rem; }
   .neon-panel { width: 100%; height: min(34rem, calc(100vh - 5rem)); }
 }
+
+.neon-note { margin: 0; padding: 0 0.8rem 0.6rem; font-size: 0.72rem; line-height: 1.3; color: var(--muted); background: var(--surface); }
+
+.tour-target { outline: 3px solid var(--accent-ink); outline-offset: 4px; }
+.tour { position: fixed; left: 1rem; bottom: 4.6rem; z-index: 40; width: min(24rem, calc(100vw - 2rem)); padding: 0.9rem 1rem; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent-ink); box-shadow: 0 8px 28px rgba(27, 43, 124, 0.18); }
+@media (min-width: 640px) { .tour { bottom: 1rem; } }

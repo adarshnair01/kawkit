@@ -60,6 +60,8 @@ export interface Run {
   seed: number
   attempts: number
   cancel_requested: boolean
+  notes: string
+  tags: string[]
   error: string | null
   created_at: string
   started_at: string | null
@@ -193,4 +195,12 @@ export interface Heartbeat {
   version: string
   running_runs: number
   max_concurrency: number
+}
+
+export interface Scenario {
+  id: string
+  run_id: string
+  name: string
+  spend: Record<string, number>
+  created_at: string
 }
