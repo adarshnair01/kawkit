@@ -57,3 +57,6 @@ Marketing Mix Modelling (MMM) Dataset for Several eCommerce Brands*, figshare,
 https://doi.org/10.6084/m9.figshare.25314841.v3, licensed CC BY 4.0. Weekly totals were derived from the daily data.
 The economy controls in two examples come from FRED (University of Michigan consumer sentiment, US CPI). Two examples
 use category search interest from Google Trends. Weather from Open-Meteo was tested but is not used.
+
+Neon, the help chat, follows the approach of [LiteBot](https://github.com/emiryuksel/LiteBot) by Emir Yüksel
+(MIT licence): a front-end-only bot that answers from a local JSON file. Neon uses its own matcher and question set.

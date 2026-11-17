@@ -1,0 +1,4204 @@
+{
+ "version": 1,
+ "note": "Neon's answers. Edit this file to change what Neon says: each entry has the question, other ways of asking it, keywords, the answer, links and related questions.",
+ "entries": [
+  {
+   "id": "what-is-kawkit",
+   "level": "new",
+   "category": "Getting started",
+   "q": "What is Kawkit?",
+   "alt": [
+    "what does this tool do",
+    "what is this website for",
+    "explain kawkit",
+    "what can i do here",
+    "tell me about this tool",
+    "what is this for",
+    "what is this thing"
+   ],
+   "keywords": [
+    "kawkit",
+    "what is this",
+    "this thing"
+   ],
+   "a": "Kawkit tells you how to split a marketing budget across channels, and how sure it is.\n\nYou upload weekly spend and revenue. It works out how much revenue each channel brought in, then recommends a split, with every number shown as a range instead of a single figure.\n\nNo code is needed, and you can explore a finished example without an account.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    },
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "what-is-mmm",
+    "how-to-start",
+    "who-is-it-for"
+   ]
+  },
+  {
+   "id": "what-is-mmm",
+   "level": "new",
+   "category": "Getting started",
+   "q": "What is marketing mix modelling?",
+   "alt": [
+    "what is mmm",
+    "what does mmm mean",
+    "explain marketing mix model",
+    "what is a media mix model",
+    "how does mmm work in simple terms"
+   ],
+   "keywords": [
+    "mmm",
+    "marketing mix",
+    "media mix",
+    "mix modelling",
+    "mix modeling"
+   ],
+   "a": "Marketing mix modelling (MMM) explains your sales over time from everything that could have driven them: what you spent on each channel, the season, promotions, and events like Black Friday.\n\nIt looks at weeks when you spent more or less on a channel and asks what happened to sales, after allowing for everything else. From that it estimates what each channel is worth.\n\nIt needs no cookies or user tracking, only weekly totals.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "mmm-vs-attribution",
+    "what-is-bayesian",
+    "what-data-needed"
+   ]
+  },
+  {
+   "id": "who-is-it-for",
+   "level": "new",
+   "category": "Getting started",
+   "q": "Who is Kawkit for?",
+   "alt": [
+    "is this tool for me",
+    "do i need to be a data scientist",
+    "can a marketer use this",
+    "do i need to code",
+    "is it for small businesses",
+    "i am not technical can i use it"
+   ],
+   "keywords": [
+    "audience",
+    "marketer",
+    "data scientist",
+    "beginner",
+    "no code",
+    "coding",
+    "technical",
+    "non-technical",
+    "not technical",
+    "expert"
+   ],
+   "a": "It is built for a marketing or growth manager who owns a budget across about 3 to 10 channels and can export weekly numbers to a spreadsheet. You do not need to code or know statistics.\n\nAnalysts get more out of it too: you can add what you know from experiments, check convergence, and download the detail.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "how-to-start",
+    "what-data-needed"
+   ]
+  },
+  {
+   "id": "how-to-start",
+   "level": "new",
+   "category": "Getting started",
+   "q": "How do I get started?",
+   "alt": [
+    "where do i begin",
+    "how do i use this",
+    "first steps",
+    "how to run my first model",
+    "quick start",
+    "walk me through it"
+   ],
+   "keywords": [
+    "start",
+    "begin",
+    "first",
+    "steps",
+    "tutorial",
+    "guide",
+    "onboarding"
+   ],
+   "a": "1. Open the sample result to see what you will get.\n2. Use \"Check my data\" to see if your own file is ready. It runs in your browser and nothing is sent anywhere.\n3. Sign in, load your data, optionally add what you already know, and submit.\n4. The model fits in the background, usually in a few minutes. Then read the \"In short\" box at the top of the result.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    },
+    {
+     "label": "Check my data",
+     "to": "/check"
+    },
+    {
+     "label": "Start a new run",
+     "to": "/new"
+    }
+   ],
+   "related": [
+    "what-data-needed",
+    "how-long-run",
+    "read-results-first"
+   ]
+  },
+  {
+   "id": "is-it-free",
+   "level": "new",
+   "category": "Getting started",
+   "q": "Is Kawkit free?",
+   "alt": [
+    "how much does it cost",
+    "pricing",
+    "do i have to pay",
+    "is there a paid plan",
+    "cost of using kawkit"
+   ],
+   "keywords": [
+    "free",
+    "price",
+    "pricing",
+    "cost",
+    "pay",
+    "paid",
+    "subscription"
+   ],
+   "a": "Yes. The sample results, the data check and running your own models are all free. There are fair-use limits: one model running and two waiting at a time, and 20 submissions a day.",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "run-limits",
+    "need-account"
+   ]
+  },
+  {
+   "id": "need-account",
+   "level": "new",
+   "category": "Getting started",
+   "q": "Do I need an account?",
+   "alt": [
+    "can i use it without signing up",
+    "do i have to register",
+    "can i try without an account",
+    "what works without login"
+   ],
+   "keywords": [
+    "account",
+    "sign up",
+    "signup",
+    "register",
+    "login",
+    "without account",
+    "guest"
+   ],
+   "a": "Not to look around. Without an account you can explore the sample results, read the lessons page, and check whether your own data is ready.\n\nYou need an account to fit a model on your data, because the file has to be stored and the run takes a few minutes. Signing up takes an email and a password.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    },
+    {
+     "label": "Check my data",
+     "to": "/check"
+    },
+    {
+     "label": "Sign in",
+     "to": "/sign-in"
+    }
+   ],
+   "related": [
+    "how-sign-in",
+    "is-data-private"
+   ]
+  },
+  {
+   "id": "mmm-vs-attribution",
+   "level": "new",
+   "category": "Getting started",
+   "q": "How is this different from last-click attribution or Google Analytics?",
+   "alt": [
+    "mmm vs attribution",
+    "why not just use google analytics",
+    "difference between mmm and multi touch attribution",
+    "last click vs mmm",
+    "why do results differ from ga",
+    "mta vs mmm"
+   ],
+   "keywords": [
+    "attribution",
+    "last click",
+    "last-click",
+    "google analytics",
+    "ga4",
+    "multi touch",
+    "mta",
+    "tracking",
+    "cookies"
+   ],
+   "a": "Last-click reports give all the credit to the final thing a customer clicked. That flatters search and retargeting, and misses channels that work slowly or are never clicked, such as TV, video and outdoor.\n\nMMM does not follow individuals at all. It compares weeks: when spend on a channel went up or down, did sales follow, after allowing for season and events? That lets it value every channel on the same footing, including offline ones, and it keeps working without cookies.\n\nThe two answer different questions, so expect the numbers to differ.",
+   "links": [],
+   "related": [
+    "platform-roas-differs",
+    "what-is-incrementality",
+    "what-is-mmm"
+   ]
+  },
+  {
+   "id": "what-is-bayesian",
+   "level": "new",
+   "category": "Getting started",
+   "q": "What does Bayesian mean here?",
+   "alt": [
+    "why bayesian",
+    "what is a bayesian model",
+    "bayesian vs normal regression",
+    "why not a simple regression",
+    "what makes it bayesian"
+   ],
+   "keywords": [
+    "bayesian",
+    "bayes",
+    "regression",
+    "frequentist",
+    "probability"
+   ],
+   "a": "A Bayesian model starts from a belief about each quantity (the prior), updates it with your data, and returns the whole range of values that remain plausible (the posterior).\n\nThat gives two things an ordinary regression does not. You can feed in what you already know, such as a lift-test result. And uncertainty is measured directly, so every answer comes with an honest range and a probability.",
+   "links": [],
+   "related": [
+    "what-is-prior",
+    "what-is-credible-range",
+    "why-ranges"
+   ]
+  },
+  {
+   "id": "why-ranges",
+   "level": "new",
+   "category": "Getting started",
+   "q": "Why does everything come as a range instead of one number?",
+   "alt": [
+    "why not just give me one number",
+    "why are there ranges",
+    "why intervals",
+    "can i get a single roi figure",
+    "why so uncertain"
+   ],
+   "keywords": [
+    "range",
+    "ranges",
+    "interval",
+    "single number",
+    "uncertainty",
+    "point estimate"
+   ],
+   "a": "Because a single number hides how sure anyone can be. A return of 2.0 that could really be anywhere from 0.5 to 4 should not be treated like one that is between 1.9 and 2.1.\n\nThe middle of each range (the median) is the best single guess if you need one. The width tells you how much to trust it. Wide ranges are a finding, not a fault: they tell you where an experiment would pay off.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "what-is-credible-range",
+    "roi-range-wide",
+    "what-to-test-next"
+   ]
+  },
+  {
+   "id": "sample-explained",
+   "level": "new",
+   "category": "Getting started",
+   "q": "What is the sample result?",
+   "alt": [
+    "what are the examples",
+    "tell me about the sample data",
+    "is the sample real data",
+    "what are the five brands",
+    "where does the example data come from"
+   ],
+   "keywords": [
+    "sample",
+    "example",
+    "examples",
+    "demo",
+    "five brands",
+    "made-up",
+    "conjura"
+   ],
+   "a": "There are six finished results to explore, no account needed.\n\nOne uses made-up data where the true answers are known, so you can see the model recover them. Five use real, anonymised e-commerce brands (home decor, skincare, apparel, food and drink, dental care) from a public dataset. The real ones are messier and each page says plainly how far to trust it.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    },
+    {
+     "label": "See a real brand example",
+     "to": "/sample?example=home"
+    },
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "lessons-page",
+    "read-results-first"
+   ]
+  },
+  {
+   "id": "lessons-page",
+   "level": "using",
+   "category": "Getting started",
+   "q": "What did fitting real brands teach the model?",
+   "alt": [
+    "what is the lessons page",
+    "case study",
+    "what changed after real data",
+    "what went wrong on real data"
+   ],
+   "keywords": [
+    "lessons",
+    "case study",
+    "real brands",
+    "learned",
+    "taught"
+   ],
+   "a": "Fitting five real brands changed the model in six ways. The first real fit credited advertising with 122% of revenue, which is impossible, so the baseline can no longer go negative. The starting assumptions turned out to imply absurd returns and were recalibrated. Calendar events and one economic measure cut errors a lot; weather did not help at all.\n\nThe lessons page records what broke, what changed, and what was tried and thrown away.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "baseline-share",
+    "default-priors",
+    "outside-factors-help"
+   ]
+  },
+  {
+   "id": "what-data-needed",
+   "level": "new",
+   "category": "Your data",
+   "q": "What data do I need?",
+   "alt": [
+    "what should my file contain",
+    "what do i need to upload",
+    "data requirements",
+    "what columns do i need",
+    "what inputs does the model need"
+   ],
+   "keywords": [
+    "data",
+    "need",
+    "requirements",
+    "columns",
+    "inputs",
+    "file",
+    "upload"
+   ],
+   "a": "One spreadsheet with one row per week, containing:\n\n- a date\n- revenue (or whatever you want to explain: sales, orders, sign-ups)\n- what you spent on each channel that week, one column per channel\n- optionally, other things that move sales, such as a promotion flag or price\n\nAt least 52 weeks are needed, and two years or more gives steadier results. Your column names do not have to match a template; you can say which column is which after loading.",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "how-many-weeks",
+    "file-format",
+    "column-mapper",
+    "outside-factors"
+   ]
+  },
+  {
+   "id": "file-format",
+   "level": "using",
+   "category": "Your data",
+   "q": "What file format and column names does it expect?",
+   "alt": [
+    "csv format",
+    "how should i name the columns",
+    "what is the template",
+    "column naming rules",
+    "spend_ prefix",
+    "control_ prefix",
+    "does it accept excel"
+   ],
+   "keywords": [
+    "format",
+    "csv",
+    "template",
+    "prefix",
+    "spend_",
+    "control_",
+    "excel",
+    "xlsx",
+    "naming"
+   ],
+   "a": "It reads CSV files. The built-in layout is:\n\n- date, as YYYY-MM-DD\n- revenue\n- spend_<channel> for each channel, for example spend_tv\n- control_<name> for anything else, for example control_promo\n\nYou do not have to use it. If your columns have other names, a screen appears where you pick what each one is, and common date formats are converted for you. From Excel or Google Sheets, export as CSV, or paste a Google Sheets link.",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "column-mapper",
+    "import-from-link",
+    "date-formats",
+    "limits"
+   ]
+  },
+  {
+   "id": "how-many-weeks",
+   "level": "new",
+   "category": "Your data",
+   "q": "How much history do I need?",
+   "alt": [
+    "how many weeks of data",
+    "minimum data",
+    "is one year enough",
+    "how much data is enough",
+    "can i use 6 months of data",
+    "do i need two years"
+   ],
+   "keywords": [
+    "weeks",
+    "history",
+    "how much",
+    "minimum",
+    "one year",
+    "two years",
+    "52",
+    "104",
+    "months"
+   ],
+   "a": "At least 52 weeks, or the model will not run. 104 weeks or more is recommended.\n\nWith under 78 weeks the model cannot learn a yearly seasonal pattern, because it has not seen a full cycle twice. More history also means more ups and downs in spend to learn from, which narrows the ranges.",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "seasonality",
+    "daily-vs-weekly",
+    "roi-range-wide"
+   ]
+  },
+  {
+   "id": "daily-vs-weekly",
+   "level": "using",
+   "category": "Your data",
+   "q": "Can I upload daily data?",
+   "alt": [
+    "daily or weekly data",
+    "does it support daily rows",
+    "what granularity",
+    "monthly data",
+    "can i use monthly numbers"
+   ],
+   "keywords": [
+    "daily",
+    "weekly",
+    "monthly",
+    "granularity",
+    "frequency",
+    "rows"
+   ],
+   "a": "Yes. Daily rows are added up into weeks starting on Monday, and incomplete weeks at either end are left out. The model itself always works on weeks.\n\nMonthly data is not supported: there would be too few points, and carry-over between weeks could not be seen. Rows must be either 7 days or 1 day apart.",
+   "links": [],
+   "related": [
+    "how-many-weeks",
+    "date-gaps"
+   ]
+  },
+  {
+   "id": "limits",
+   "level": "using",
+   "category": "Your data",
+   "q": "What are the size limits for a file?",
+   "alt": [
+    "how many channels can i have",
+    "maximum rows",
+    "file too large",
+    "max file size",
+    "how many columns"
+   ],
+   "keywords": [
+    "limit",
+    "limits",
+    "maximum",
+    "max",
+    "too large",
+    "15 channels",
+    "5000",
+    "10 mb",
+    "size"
+   ],
+   "a": "A file can have up to 15 spend channels, 5,000 rows and 10 MB, and needs at least 52 weekly rows.\n\nIf you have more than 15 channels, combine small or similar ones, for example all display networks into one. Many small channels are hard to tell apart anyway.",
+   "links": [],
+   "related": [
+    "too-many-channels",
+    "group-channels"
+   ]
+  },
+  {
+   "id": "column-mapper",
+   "level": "using",
+   "category": "Your data",
+   "q": "My columns have different names. What do I do?",
+   "alt": [
+    "how does the column mapper work",
+    "tell which column is which",
+    "my file does not match the template",
+    "map my columns",
+    "rename columns"
+   ],
+   "keywords": [
+    "mapper",
+    "map",
+    "mapping",
+    "which column",
+    "different names",
+    "rename",
+    "headers"
+   ],
+   "a": "Nothing in advance. Load the file and a screen called \"Tell us which column is which\" appears, with a first guess for every column: date, revenue, advertising spend, outside factor, or leave out.\n\nChange anything that is wrong, give each channel a short name, pick how your dates are written, and choose \"Use these columns\".",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "date-formats",
+    "file-format"
+   ]
+  },
+  {
+   "id": "date-formats",
+   "level": "using",
+   "category": "Your data",
+   "q": "Which date formats are accepted?",
+   "alt": [
+    "my dates are dd/mm/yyyy",
+    "date not recognised",
+    "us date format",
+    "how should dates be written",
+    "what date formats can i use"
+   ],
+   "keywords": [
+    "date format",
+    "dates",
+    "dd/mm",
+    "mm/dd",
+    "day first",
+    "month first",
+    "yyyy-mm-dd"
+   ],
+   "a": "Through the column mapper: 2024-03-25, 25/03/2024, 03/25/2024, 2024/03/25, and written dates such as 25 Mar 2024.\n\nIf every date could be read as either day-first or month-first, it assumes day first and tells you, so you can switch it. A file that already uses the template must have dates as YYYY-MM-DD.",
+   "links": [],
+   "related": [
+    "column-mapper",
+    "error-bad-date"
+   ]
+  },
+  {
+   "id": "revenue-or-other-kpi",
+   "level": "using",
+   "category": "Your data",
+   "q": "Can I model something other than revenue?",
+   "alt": [
+    "can i use sales units",
+    "model conversions instead of revenue",
+    "what kpi can i use",
+    "can i use orders or sign ups",
+    "use profit instead of revenue",
+    "leads as the outcome"
+   ],
+   "keywords": [
+    "kpi",
+    "conversions",
+    "orders",
+    "units",
+    "sign-ups",
+    "leads",
+    "profit",
+    "outcome",
+    "target variable"
+   ],
+   "a": "Yes. Put any one number per week in the revenue column: sales, orders, sign-ups, leads or profit.\n\nBear in mind that \"ROI\" then means that number per unit of spend. For orders, an ROI of 0.02 means 2 orders per 100 spent, so \"above 1\" stops being the break-even line. Only one outcome can be modelled per run.",
+   "links": [],
+   "related": [
+    "what-is-roi",
+    "new-vs-returning"
+   ]
+  },
+  {
+   "id": "spend-or-impressions",
+   "level": "pro",
+   "category": "Your data",
+   "q": "Should I use spend, impressions or clicks for each channel?",
+   "alt": [
+    "can i use impressions instead of spend",
+    "clicks as input",
+    "grps for tv",
+    "what if i only have impressions",
+    "use reach instead of spend"
+   ],
+   "keywords": [
+    "impressions",
+    "clicks",
+    "grp",
+    "grps",
+    "reach",
+    "exposure",
+    "media metric"
+   ],
+   "a": "Use spend. The tool reports return per unit spent and recommends a budget, and both need money as the input.\n\nImpressions or GRPs can track exposure more closely when prices change a lot, but then \"ROI\" would mean revenue per impression and the budget advice would be in impressions. If you only have impressions, convert them to an approximate spend using your average cost first.",
+   "links": [],
+   "related": [
+    "what-is-roi",
+    "zero-cost-channels"
+   ]
+  },
+  {
+   "id": "zero-cost-channels",
+   "level": "using",
+   "category": "Your data",
+   "q": "How do I include channels I don't pay for, like email or organic social?",
+   "alt": [
+    "what about email",
+    "organic channels",
+    "free channels",
+    "seo in the model",
+    "owned media",
+    "crm emails"
+   ],
+   "keywords": [
+    "email",
+    "organic",
+    "seo",
+    "owned",
+    "free",
+    "crm",
+    "unpaid",
+    "newsletter"
+   ],
+   "a": "Do not add them as spend channels unless there is a real cost you could raise or lower. A spend of zero gives the model nothing to learn from.\n\nIf the activity varies and matters, add it as an outside factor instead, for example the number of emails sent that week. It then sits in the baseline, so paid channels are not credited with its sales.",
+   "links": [],
+   "related": [
+    "outside-factors",
+    "what-is-baseline"
+   ]
+  },
+  {
+   "id": "group-channels",
+   "level": "pro",
+   "category": "Your data",
+   "q": "How should I group my channels?",
+   "alt": [
+    "how granular should channels be",
+    "should i split facebook and instagram",
+    "combine campaigns",
+    "channel level or campaign level",
+    "how to define a channel",
+    "brand vs generic search"
+   ],
+   "keywords": [
+    "group",
+    "grouping",
+    "granular",
+    "split",
+    "combine",
+    "campaign",
+    "brand search",
+    "generic search",
+    "prospecting",
+    "retargeting"
+   ],
+   "a": "Group by how the money works, not by how the platform reports it. A good channel is one you would actually move budget into or out of, with at least a few percent of total spend and real week-to-week variation.\n\nUseful splits: brand search apart from generic search, and prospecting apart from retargeting, because they behave very differently. Poor splits: many tiny campaigns, or two channels that always rise and fall together, which the model cannot tell apart.",
+   "links": [],
+   "related": [
+    "too-many-channels",
+    "collinearity",
+    "branded-search"
+   ]
+  },
+  {
+   "id": "too-many-channels",
+   "level": "using",
+   "category": "Your data",
+   "q": "What does 'a lot of channels for this many weeks' mean?",
+   "alt": [
+    "too many channels warning",
+    "expect wide intervals warning",
+    "how many channels can the model handle",
+    "many channels few weeks"
+   ],
+   "keywords": [
+    "many channels",
+    "too many",
+    "wide intervals",
+    "weeks per channel"
+   ],
+   "a": "Each channel and outside factor is something the model has to estimate. As a rule of thumb it wants about 10 weeks of data for each one. Below that it still runs, but the ranges get wide.\n\nTo fix it, add more history, or combine small and similar channels.",
+   "links": [],
+   "related": [
+    "group-channels",
+    "roi-range-wide",
+    "limits"
+   ]
+  },
+  {
+   "id": "warn-flat",
+   "level": "using",
+   "category": "Your data",
+   "q": "What does 'spend barely changes' mean?",
+   "alt": [
+    "channel flat warning",
+    "its effect cannot be measured",
+    "constant spend",
+    "always on channel",
+    "i spend the same every week"
+   ],
+   "keywords": [
+    "flat",
+    "barely changes",
+    "constant",
+    "always on",
+    "steady",
+    "same every week",
+    "no variation"
+   ],
+   "a": "The model learns a channel's effect from weeks when its spend was different. If you spend almost the same every week, there is nothing to compare, so the result for that channel will mostly repeat the starting assumption.\n\nThe fix is outside the model: vary the spend on purpose for a few weeks, or run a test, then enter what you find as a prior.",
+   "links": [],
+   "related": [
+    "what-to-test-next",
+    "how-to-lift-test",
+    "mostly-reflects-prior"
+   ]
+  },
+  {
+   "id": "warn-seasonal",
+   "level": "using",
+   "category": "Your data",
+   "q": "What does 'spend mostly follows the season or trend' mean?",
+   "alt": [
+    "channel seasonal warning",
+    "hard to separate from seasonality",
+    "i spend more at christmas"
+   ],
+   "keywords": [
+    "seasonal",
+    "follows the season",
+    "trend",
+    "separate from seasonality"
+   ],
+   "a": "If you always spend more on a channel in the same weeks that sales are high anyway, such as the run-up to Christmas, the model cannot tell whether the ads or the season caused the sales.\n\nThe result for that channel will be uncertain and may be too generous. Adding event flags helps, and deliberately spending against the pattern for a while helps more.",
+   "links": [],
+   "related": [
+    "endogeneity",
+    "events-library",
+    "media-share-too-high"
+   ]
+  },
+  {
+   "id": "warn-sparse",
+   "level": "using",
+   "category": "Your data",
+   "q": "What does 'active in only a few weeks' mean?",
+   "alt": [
+    "channel sparse warning",
+    "its estimate will be wide",
+    "channel only ran for a short time",
+    "one-off campaign"
+   ],
+   "keywords": [
+    "sparse",
+    "active in only",
+    "few weeks",
+    "one-off",
+    "short campaign",
+    "burst"
+   ],
+   "a": "The channel has spend in under 15% of your weeks. That is too little for a firm estimate, so its range will be wide. It is still worth including if the spend was large, because leaving it out would hand its sales to something else.",
+   "links": [],
+   "related": [
+    "roi-range-wide",
+    "new-channel"
+   ]
+  },
+  {
+   "id": "date-gaps",
+   "level": "using",
+   "category": "Your data",
+   "q": "What if weeks are missing from my data?",
+   "alt": [
+    "gaps in dates",
+    "missing weeks",
+    "date gaps warning",
+    "i have a hole in my data"
+   ],
+   "keywords": [
+    "gap",
+    "gaps",
+    "missing weeks",
+    "missing",
+    "hole"
+   ],
+   "a": "The file is accepted with a warning, and the model treats the rows as consecutive weeks. A gap of a week or two does little harm. A long gap breaks carry-over and seasonality around it, so it is better to fill it, even with zeros for spend if you truly spent nothing.",
+   "links": [],
+   "related": [
+    "daily-vs-weekly",
+    "error-spacing"
+   ]
+  },
+  {
+   "id": "outliers",
+   "level": "pro",
+   "category": "Your data",
+   "q": "How should I handle unusual weeks or one-off spikes?",
+   "alt": [
+    "what about outliers",
+    "one week had a huge spike",
+    "anomalies in my data",
+    "stock out week",
+    "site was down one week",
+    "pr event spike"
+   ],
+   "keywords": [
+    "outlier",
+    "outliers",
+    "spike",
+    "anomaly",
+    "unusual",
+    "stock-out",
+    "site down",
+    "one-off",
+    "pr"
+   ],
+   "a": "Do not delete the week. Explain it. Add an outside-factor column that is 1 in that week and 0 elsewhere, for example for a stock-out, a site outage, a product launch or a big PR moment.\n\nThe model then puts the spike in the baseline. Without it, the spike is credited to whichever channel happened to be spending most that week. On the real example brands, a few weeks drove a third to two thirds of all the error.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "outside-factors",
+    "events-library",
+    "baseline-drivers"
+   ]
+  },
+  {
+   "id": "promotions-pricing",
+   "level": "using",
+   "category": "Your data",
+   "q": "How do I account for promotions, discounts or price changes?",
+   "alt": [
+    "sales and discounts",
+    "we ran a promotion",
+    "price change",
+    "how to include promos",
+    "discount depth"
+   ],
+   "keywords": [
+    "promotion",
+    "promotions",
+    "promo",
+    "discount",
+    "discounts",
+    "price",
+    "pricing",
+    "sale"
+   ],
+   "a": "Add them as outside factors. Two good ways:\n\n- a flag: 1 in weeks a promotion ran, 0 otherwise\n- a measure: your average discount percentage, or your average price, each week\n\nWithout this the model sees sales rise in promotion weeks and gives the credit to advertising.",
+   "links": [],
+   "related": [
+    "outside-factors",
+    "baseline-drivers",
+    "outliers"
+   ]
+  },
+  {
+   "id": "new-vs-returning",
+   "level": "pro",
+   "category": "Your data",
+   "q": "Should I model all revenue or only new customers?",
+   "alt": [
+    "new customer revenue",
+    "acquisition only",
+    "returning customers",
+    "first purchases",
+    "should i exclude repeat purchases"
+   ],
+   "keywords": [
+    "new customers",
+    "returning",
+    "repeat",
+    "acquisition",
+    "first purchase",
+    "retention"
+   ],
+   "a": "It depends on the decision. If your advertising is mainly for acquisition, modelling new-customer revenue gives a cleaner read on it, because repeat purchases are driven more by email, loyalty and habit.\n\nIf you care about total sales, model all revenue, and expect a larger baseline. Do not mix the two in one run; run them separately and compare.",
+   "links": [],
+   "related": [
+    "revenue-or-other-kpi",
+    "what-is-baseline",
+    "compare-runs"
+   ]
+  },
+  {
+   "id": "multi-market",
+   "level": "pro",
+   "category": "Your data",
+   "q": "Can I model several countries or products together?",
+   "alt": [
+    "multiple regions",
+    "geo level model",
+    "several markets in one model",
+    "different product lines",
+    "hierarchical model",
+    "national vs regional"
+   ],
+   "keywords": [
+    "country",
+    "countries",
+    "region",
+    "regions",
+    "geo",
+    "market",
+    "markets",
+    "product lines",
+    "hierarchical"
+   ],
+   "a": "Not in one run. Each run models one market and one outcome. For several countries or product lines, run each separately and use Compare to put two side by side.\n\nAdding them into one file is fine only if they share the same advertising and behave alike. Otherwise the result is an average that fits none of them.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "compare-runs",
+    "currency"
+   ]
+  },
+  {
+   "id": "currency",
+   "level": "using",
+   "category": "Your data",
+   "q": "Does currency matter?",
+   "alt": [
+    "what currency should i use",
+    "do spend and revenue need the same currency",
+    "pounds or dollars",
+    "currency symbols in my file"
+   ],
+   "keywords": [
+    "currency",
+    "pounds",
+    "dollars",
+    "euro",
+    "symbol",
+    "gbp",
+    "usd"
+   ],
+   "a": "Use the same currency for spend and revenue, because ROI is one divided by the other. Which currency does not matter.\n\nCurrency symbols and thousands separators in the file are stripped automatically, so \"£1,234\" is read as 1234.",
+   "links": [],
+   "related": [
+    "what-is-roi",
+    "file-format"
+   ]
+  },
+  {
+   "id": "is-data-private",
+   "level": "new",
+   "category": "Your data",
+   "q": "Is my data private? Where is it stored?",
+   "alt": [
+    "who can see my data",
+    "is my file safe",
+    "where does my data go",
+    "data security",
+    "do you sell my data",
+    "is it confidential",
+    "who else can see the file i upload"
+   ],
+   "keywords": [
+    "private",
+    "privacy",
+    "secure",
+    "security",
+    "stored",
+    "who can see",
+    "confidential",
+    "safe",
+    "who can look",
+    "who else",
+    "access"
+   ],
+   "a": "Only you can read your data. That is enforced in the database itself, not only in the app.\n\nUntil you submit, your file stays in your browser. When you submit, it is stored in private storage so the model server can fit it. Results can be seen by others only if you create a share link, which you can switch off at any time.",
+   "links": [
+    {
+     "label": "Account",
+     "to": "/account"
+    }
+   ],
+   "related": [
+    "data-retention",
+    "delete-data",
+    "share-link"
+   ]
+  },
+  {
+   "id": "data-retention",
+   "level": "using",
+   "category": "Your data",
+   "q": "How long is my data kept?",
+   "alt": [
+    "when is my data deleted",
+    "retention policy",
+    "how many runs are kept",
+    "why did my old run disappear",
+    "run was deleted"
+   ],
+   "keywords": [
+    "kept",
+    "retention",
+    "how long",
+    "deleted",
+    "disappear",
+    "five runs",
+    "oldest"
+   ],
+   "a": "Your 5 most recent finished runs are kept. When a 6th finishes, the oldest run and its file are deleted at once, and you are warned before submitting.\n\nFailed and cancelled runs are deleted after 7 days. Accounts with no sign-in for 12 months are deleted.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "delete-data",
+    "download-results"
+   ]
+  },
+  {
+   "id": "delete-data",
+   "level": "using",
+   "category": "Your data",
+   "q": "How do I delete my data or my account?",
+   "alt": [
+    "remove my account",
+    "delete everything",
+    "erase my data",
+    "close my account",
+    "right to be forgotten"
+   ],
+   "keywords": [
+    "delete",
+    "remove",
+    "erase",
+    "close account",
+    "forget"
+   ],
+   "a": "Open the Account page, type DELETE to confirm, and choose \"Delete my account and all my data\". That cancels anything running, signs you out, and removes your runs, files, results and account within 24 hours. It cannot be undone.",
+   "links": [
+    {
+     "label": "Account",
+     "to": "/account"
+    }
+   ],
+   "related": [
+    "data-retention",
+    "is-data-private"
+   ]
+  },
+  {
+   "id": "import-from-link",
+   "level": "using",
+   "category": "Connectors",
+   "q": "Can I import from Google Sheets?",
+   "alt": [
+    "import from a link",
+    "google sheets link",
+    "paste a link",
+    "load data from url",
+    "connect google sheet"
+   ],
+   "keywords": [
+    "google sheets",
+    "sheet",
+    "link",
+    "url",
+    "import"
+   ],
+   "a": "Yes. On the New run or Check my data screen, paste the sheet's link under \"Or import from a link\" and choose Import.\n\nThe sheet must be shared so that anyone with the link can view it (Share, then General access). Any web address that serves a CSV file works too.",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "link-import-fails",
+    "column-mapper",
+    "connectors-available"
+   ]
+  },
+  {
+   "id": "link-import-fails",
+   "level": "using",
+   "category": "Connectors",
+   "q": "The Google Sheets import is not working. Why?",
+   "alt": [
+    "sheet could not be read",
+    "link import error",
+    "google returned a sign in page",
+    "import failed"
+   ],
+   "keywords": [
+    "could not be read",
+    "import failed",
+    "sign-in page",
+    "private sheet",
+    "not working"
+   ],
+   "a": "Almost always the sheet is private. In Google Sheets choose Share, set General access to \"Anyone with the link\", then import again.\n\nIf the address is not a Google Sheet, the site hosting the file may not allow other websites to fetch it. Download the file and upload it instead.",
+   "links": [],
+   "related": [
+    "import-from-link"
+   ]
+  },
+  {
+   "id": "connectors-available",
+   "level": "using",
+   "category": "Connectors",
+   "q": "Which data sources can I connect?",
+   "alt": [
+    "what connectors are there",
+    "can i connect snowflake",
+    "google ads connector",
+    "meta ads integration",
+    "bigquery",
+    "does it connect to my ad accounts",
+    "data integrations"
+   ],
+   "keywords": [
+    "connector",
+    "connectors",
+    "integration",
+    "snowflake",
+    "bigquery",
+    "google ads",
+    "meta ads",
+    "warehouse",
+    "api"
+   ],
+   "a": "Today you can upload a CSV with any column names, import from a Google Sheets or CSV link, add calendar events from the library, and fetch economy figures for the US or UK.\n\nDirect connections to data warehouses such as Snowflake and to ad platforms are not available yet. For now, export a weekly table from them as CSV or to a Google Sheet.",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "import-from-link",
+    "events-library",
+    "economy-connector"
+   ]
+  },
+  {
+   "id": "outside-factors",
+   "level": "new",
+   "category": "Connectors",
+   "q": "What are outside factors, and should I add any?",
+   "alt": [
+    "what is a control variable",
+    "what are controls",
+    "what else should i include",
+    "non media drivers",
+    "what is control_ column"
+   ],
+   "keywords": [
+    "outside factor",
+    "outside factors",
+    "control",
+    "controls",
+    "control variable",
+    "non-media",
+    "other drivers"
+   ],
+   "a": "An outside factor is anything that moves your sales but is not advertising: promotions, price changes, holidays, competitor activity, stock-outs, the wider economy.\n\nYes, add the ones that matter. They go into the baseline, so advertising is not credited with sales it did not cause. On the real example brands, calendar events alone cut the error on unseen weeks by up to a quarter.",
+   "links": [
+    {
+     "label": "See a real brand example",
+     "to": "/sample?example=home"
+    }
+   ],
+   "related": [
+    "events-library",
+    "economy-connector",
+    "baseline-drivers",
+    "how-many-controls"
+   ]
+  },
+  {
+   "id": "events-library",
+   "level": "using",
+   "category": "Connectors",
+   "q": "How do I add Black Friday or Christmas to the model?",
+   "alt": [
+    "what is the event library",
+    "add holidays",
+    "calendar events",
+    "add easter",
+    "holiday flags",
+    "cyber monday"
+   ],
+   "keywords": [
+    "black friday",
+    "christmas",
+    "easter",
+    "holiday",
+    "holidays",
+    "event",
+    "events",
+    "library",
+    "cyber",
+    "calendar"
+   ],
+   "a": "After your data loads, find \"Add outside factors from the library\". Tick the events that matter (Black Friday week, Cyber week, the run-up to Christmas, Christmas and New Year, Easter) and choose \"Add selected to my data\".\n\nThe dates are worked out from your file. An event that never falls inside your dates is left out, and the screen says which.",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "outside-factors",
+    "baseline-drivers",
+    "other-events"
+   ]
+  },
+  {
+   "id": "other-events",
+   "level": "using",
+   "category": "Connectors",
+   "q": "My business has other key dates. How do I add them?",
+   "alt": [
+    "add my own events",
+    "custom events",
+    "valentines day",
+    "back to school",
+    "payday",
+    "singles day",
+    "ramadan",
+    "diwali",
+    "product launch"
+   ],
+   "keywords": [
+    "custom event",
+    "my own",
+    "valentine",
+    "back to school",
+    "payday",
+    "launch",
+    "ramadan",
+    "diwali",
+    "singles day"
+   ],
+   "a": "Add a column to your file that is 1 in the weeks the event applies and 0 in every other week, then mark it as an outside factor (or name it control_<something>).\n\nThis works for anything with a date: a product launch, a sale you run each year, Valentine's Day, a local holiday.",
+   "links": [],
+   "related": [
+    "outside-factors",
+    "promotions-pricing",
+    "outliers"
+   ]
+  },
+  {
+   "id": "economy-connector",
+   "level": "using",
+   "category": "Connectors",
+   "q": "How do I add economic factors like unemployment or inflation?",
+   "alt": [
+    "what is the economy connector",
+    "macro economic factors",
+    "add consumer confidence",
+    "interest rates in the model",
+    "wider economy",
+    "macroeconomic"
+   ],
+   "keywords": [
+    "economy",
+    "economic",
+    "macro",
+    "unemployment",
+    "inflation",
+    "consumer confidence",
+    "interest rate",
+    "retail sales",
+    "fred"
+   ],
+   "a": "Once signed in, load your data and find \"The wider economy\". Pick the United States or the United Kingdom, tick one or two measures (unemployment, inflation, consumer confidence, interest rate, retail sales growth) and choose \"Fetch and add to my data\".\n\nEach week gets the previous month's figure, the latest that would have been published at the time. The figures come from FRED, the Federal Reserve Bank of St. Louis.",
+   "links": [
+    {
+     "label": "Start a new run",
+     "to": "/new"
+    }
+   ],
+   "related": [
+    "how-many-controls",
+    "macro-helps",
+    "economy-left-out"
+   ]
+  },
+  {
+   "id": "macro-helps",
+   "level": "pro",
+   "category": "Connectors",
+   "q": "Do economic factors actually improve the model?",
+   "alt": [
+    "does adding macro help",
+    "is unemployment useful",
+    "should i add all economic indicators",
+    "do macro variables reduce error"
+   ],
+   "keywords": [
+    "improve",
+    "helps",
+    "useful",
+    "all indicators",
+    "macro"
+   ],
+   "a": "Sometimes a lot, often not at all. On the five real brands, unemployment more than halved one brand's error on unseen weeks (25.2% to 11.2%), and consumer confidence with inflation helped another. Nothing helped the other three, and adding every measure at once made four of the five worse.\n\nThese series move slowly, so they can stand in for a change in your trend without causing it. Add one or two that plausibly affect your customers, not all of them.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "how-many-controls",
+    "economy-connector",
+    "outside-factors-help"
+   ]
+  },
+  {
+   "id": "economy-left-out",
+   "level": "using",
+   "category": "Connectors",
+   "q": "Why was an economic measure left out?",
+   "alt": [
+    "economy figure not added",
+    "left out its figures stop",
+    "inflation was not added",
+    "nothing was added economy"
+   ],
+   "keywords": [
+    "left out",
+    "not added",
+    "figures stop",
+    "figures only start"
+   ],
+   "a": "A measure is skipped, with the reason shown, when its figures start after your data does, stop more than three months before your data ends, or do not change over your dates.\n\nFor example, the UK inflation series currently stops in March 2025, so it is left out for data that runs later.",
+   "links": [],
+   "related": [
+    "economy-connector"
+   ]
+  },
+  {
+   "id": "how-many-controls",
+   "level": "pro",
+   "category": "Connectors",
+   "q": "How many outside factors should I add?",
+   "alt": [
+    "can i add too many controls",
+    "is more controls better",
+    "how many control variables",
+    "overfitting with controls"
+   ],
+   "keywords": [
+    "how many",
+    "too many",
+    "overfit",
+    "overfitting",
+    "more controls"
+   ],
+   "a": "Few, and only ones with a clear reason to matter. Every factor you add is something else the model must estimate, and factors that drift slowly can soak up the trend or even the effect of advertising.\n\nA good order: events and promotions first, since their timing is sharp and well known; then at most one or two economy or market measures. Check the Baseline drivers chart afterwards: a factor whose range sits across zero is not earning its place.",
+   "links": [],
+   "related": [
+    "baseline-drivers",
+    "macro-helps",
+    "mediator-warning"
+   ]
+  },
+  {
+   "id": "mediator-warning",
+   "level": "pro",
+   "category": "Connectors",
+   "q": "Can I add website traffic or brand search volume as an outside factor?",
+   "alt": [
+    "add site visits as control",
+    "branded search as a control",
+    "organic traffic control",
+    "should i control for web sessions",
+    "google trends for my brand"
+   ],
+   "keywords": [
+    "traffic",
+    "visits",
+    "sessions",
+    "brand search volume",
+    "branded search",
+    "google trends",
+    "mediator",
+    "organic traffic"
+   ],
+   "a": "Be careful. Traffic and searches for your own brand are partly caused by your advertising. Put them in the baseline and they take credit away from the ads that produced them, so advertising looks weaker than it is.\n\nWhen this was tested on real brands, the brand's own search interest made forecasts worse for two of three and pulled credit from media. Search interest in the product category as a whole is safer, because your ads do not move it much.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "how-many-controls",
+    "branded-search",
+    "outside-factors"
+   ]
+  },
+  {
+   "id": "competitors",
+   "level": "pro",
+   "category": "Connectors",
+   "q": "How do I account for competitors?",
+   "alt": [
+    "competitor activity",
+    "competitor spend",
+    "a competitor launched",
+    "competitor promotions",
+    "market share"
+   ],
+   "keywords": [
+    "competitor",
+    "competitors",
+    "competition",
+    "rival",
+    "market share"
+   ],
+   "a": "If you have a weekly measure, add it as an outside factor: competitor spend estimates, their promotion weeks as a flag, or their share of search.\n\nIf you have nothing, the effect ends up in the trend and the noise. A competitor event on a known date is worth flagging even as a simple 1 for the affected weeks.",
+   "links": [],
+   "related": [
+    "outside-factors",
+    "other-events"
+   ]
+  },
+  {
+   "id": "weather",
+   "level": "pro",
+   "category": "Connectors",
+   "q": "Should I add weather?",
+   "alt": [
+    "does weather affect sales",
+    "temperature in the model",
+    "rain",
+    "weather data"
+   ],
+   "keywords": [
+    "weather",
+    "temperature",
+    "rain",
+    "sunny",
+    "climate"
+   ],
+   "a": "Only if your product is plainly weather-driven, such as ice cream, heating or garden furniture. For the five online brands tested, temperature and rain against the seasonal norm helped none of them.\n\nOrdinary seasonal weather is already covered by the yearly seasonal pattern. What can add something is unusual weather, as a difference from normal for that week of the year.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "seasonality",
+    "outside-factors-help"
+   ]
+  },
+  {
+   "id": "outside-factors-help",
+   "level": "using",
+   "category": "Connectors",
+   "q": "Which outside factors helped most in testing?",
+   "alt": [
+    "what reduced the error",
+    "what worked on real brands",
+    "which controls are worth adding",
+    "best features to add"
+   ],
+   "keywords": [
+    "helped most",
+    "worked",
+    "worth adding",
+    "reduced error",
+    "best"
+   ],
+   "a": "Scored on weeks the model had not seen, across five real brands:\n\n- Calendar events helped most often, cutting one brand's error from 19.3% to 15.8%.\n- Promotion depth helped a little alongside events.\n- Unemployment more than halved one brand's error.\n- Category search interest gave two brands a small gain.\n- Weather helped none. Every economy measure at once made four of five worse.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    },
+    {
+     "label": "See a real brand example",
+     "to": "/sample?example=home"
+    }
+   ],
+   "related": [
+    "events-library",
+    "macro-helps",
+    "how-many-controls"
+   ]
+  },
+  {
+   "id": "what-is-prior",
+   "level": "new",
+   "category": "What you already know",
+   "q": "What is a prior?",
+   "alt": [
+    "what does prior mean",
+    "explain priors",
+    "what is prior knowledge in the model",
+    "what are beliefs"
+   ],
+   "keywords": [
+    "prior",
+    "priors",
+    "belief",
+    "beliefs",
+    "assumption"
+   ],
+   "a": "A prior is what the model assumes about something before it looks at your data. Kawkit's defaults are deliberately weak, so your data leads.\n\nYou can replace them with what you actually know. If a test showed TV returns between 0.8 and 2.0, say so, and the model starts from there instead of from scratch.",
+   "links": [],
+   "related": [
+    "should-i-add-priors",
+    "default-priors",
+    "prior-vs-posterior"
+   ]
+  },
+  {
+   "id": "should-i-add-priors",
+   "level": "new",
+   "category": "What you already know",
+   "q": "Do I have to fill in the priors? What if I leave them blank?",
+   "alt": [
+    "are priors optional",
+    "should i add priors",
+    "can i skip the priors step",
+    "i don't know my roi",
+    "what to enter for roi range",
+    "i have no idea what to enter for the priors"
+   ],
+   "keywords": [
+    "blank",
+    "optional",
+    "skip",
+    "leave empty",
+    "don't know",
+    "have to",
+    "no idea",
+    "what to type",
+    "boxes",
+    "fields"
+   ],
+   "a": "They are all optional. Leave everything blank and the model uses weak defaults and lets your data decide. That is the right choice if you have no solid evidence.\n\nAdd a prior only when you have a real reason, such as an experiment. A guess entered as if it were knowledge makes the answer look more certain than it is.",
+   "links": [
+    {
+     "label": "Start a new run",
+     "to": "/new"
+    }
+   ],
+   "related": [
+    "default-priors",
+    "roi-prior-how",
+    "wrong-prior"
+   ]
+  },
+  {
+   "id": "default-priors",
+   "level": "pro",
+   "category": "What you already know",
+   "q": "What are the default priors?",
+   "alt": [
+    "what does the model assume by default",
+    "default assumptions",
+    "what priors are used if i leave blank",
+    "prior on beta",
+    "prior specification"
+   ],
+   "keywords": [
+    "default",
+    "defaults",
+    "assume",
+    "beta",
+    "alpha",
+    "lambda",
+    "half-normal",
+    "specification"
+   ],
+   "a": "Every channel starts with the same expected return: the one at which advertising as a whole would explain about 30% of your revenue. The spread around it is wide.\n\nCarry-over starts at about a quarter of a week's effect passing into the next week. Saturation speed has a broad prior. Trend, seasonality and outside factors start centred on no effect.\n\nIn addition, the baseline is expected to make up 50% to 90% of revenue, and cannot go below zero in any week.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "baseline-share",
+    "model-spec",
+    "carryover-prior"
+   ]
+  },
+  {
+   "id": "roi-prior-how",
+   "level": "using",
+   "category": "What you already know",
+   "q": "How do I enter an ROI range?",
+   "alt": [
+    "how to fill roi low and high",
+    "what is roi low end high end",
+    "how do i use a lift test result",
+    "enter my experiment result"
+   ],
+   "keywords": [
+    "roi range",
+    "low end",
+    "high end",
+    "enter",
+    "fill in",
+    "experiment result"
+   ],
+   "a": "On step 2 of a new run, each channel has \"ROI, low end\" and \"ROI, high end\". Enter the range you are about 90% sure the true return falls in, for example 0.8 and 2.0.\n\nIf a test gave one number with a margin, use the number minus and plus the margin. Add where it came from in the note box; it is kept with the run. Both ends are needed, and low must be above zero.",
+   "links": [
+    {
+     "label": "Start a new run",
+     "to": "/new"
+    }
+   ],
+   "related": [
+    "how-to-lift-test",
+    "wrong-prior",
+    "priors-impossible"
+   ]
+  },
+  {
+   "id": "carryover-prior",
+   "level": "using",
+   "category": "What you already know",
+   "q": "What should I enter for 'effect lasts about (weeks)'?",
+   "alt": [
+    "how long does advertising last",
+    "carry over weeks field",
+    "how many weeks does tv last",
+    "what to put in effect lasts"
+   ],
+   "keywords": [
+    "effect lasts",
+    "weeks",
+    "carry-over",
+    "carryover",
+    "how long",
+    "lasts"
+   ],
+   "a": "Roughly how many weeks until an ad's effect has almost gone (about 10% left). Leave it blank unless you have a view.\n\nAs a guide: search and retargeting act within about a week; social and display over one to three weeks; TV, video and outdoor over three to eight. The model looks back up to eight weeks.",
+   "links": [],
+   "related": [
+    "what-is-adstock",
+    "half-life"
+   ]
+  },
+  {
+   "id": "priors-impossible",
+   "level": "using",
+   "category": "What you already know",
+   "q": "It says my ROI ranges are impossible. Why?",
+   "alt": [
+    "roi ranges imply more revenue than i had",
+    "priors impossible error",
+    "what your priors imply",
+    "lower the roi ranges"
+   ],
+   "keywords": [
+    "impossible",
+    "imply",
+    "more than all revenue",
+    "lower the ranges"
+   ],
+   "a": "Multiply each channel's spend by the low end of the range you gave. If those add up to more than all your revenue, the ranges cannot all be true at once, and the run is blocked.\n\nThe usual cause is entering platform-reported ROAS, which counts sales the ads did not cause. Use ranges from experiments, or lower them.",
+   "links": [],
+   "related": [
+    "platform-roas-differs",
+    "roi-prior-how"
+   ]
+  },
+  {
+   "id": "wrong-prior",
+   "level": "pro",
+   "category": "What you already know",
+   "q": "What happens if my prior is wrong?",
+   "alt": [
+    "can a prior bias the result",
+    "what if i enter a bad prior",
+    "data disagrees with my prior",
+    "prior conflict warning"
+   ],
+   "keywords": [
+    "wrong",
+    "bad prior",
+    "bias",
+    "conflict",
+    "disagrees"
+   ],
+   "a": "If your data is informative, it pulls the answer away from the prior, and the result is flagged: \"the data disagrees with your prior\". Check where that belief came from.\n\nIf your data is not informative for that channel, a wrong prior simply becomes the answer. That is why the Prior vs posterior tab shows both curves: when they look the same, you are reading your own assumption back.",
+   "links": [],
+   "related": [
+    "prior-vs-posterior",
+    "mostly-reflects-prior"
+   ]
+  },
+  {
+   "id": "how-to-lift-test",
+   "level": "pro",
+   "category": "What you already know",
+   "q": "How do I run a test to measure a channel properly?",
+   "alt": [
+    "how to run a geo test",
+    "what is a lift test",
+    "incrementality test",
+    "holdout test",
+    "how to do an experiment",
+    "conversion lift study"
+   ],
+   "keywords": [
+    "lift test",
+    "geo test",
+    "holdout",
+    "experiment",
+    "incrementality test",
+    "conversion lift",
+    "ab test"
+   ],
+   "a": "The simplest reliable design is a geo test. Pick regions that normally sell alike. Pause or halve the channel in some of them for 4 to 6 weeks and leave the rest alone. The gap in sales between the two groups, divided by the spend you removed, is the channel's return.\n\nPlatform lift studies (Meta, Google) do the same with user groups. Enter the result as that channel's ROI range on your next run, and the other channels' estimates sharpen too.",
+   "links": [],
+   "related": [
+    "what-to-test-next",
+    "roi-prior-how",
+    "what-is-incrementality"
+   ]
+  },
+  {
+   "id": "rerun-priors",
+   "level": "using",
+   "category": "What you already know",
+   "q": "Can I re-run a model with different priors?",
+   "alt": [
+    "change priors and run again",
+    "re-run a model",
+    "try different assumptions",
+    "sensitivity to priors"
+   ],
+   "keywords": [
+    "re-run",
+    "rerun",
+    "run again",
+    "different priors",
+    "sensitivity"
+   ],
+   "a": "Yes. Open the run and choose \"Re-run with different priors\". Your data and earlier entries are loaded for you to change. The new run is separate, so you can use Compare to see how much the answer moved.\n\nIf a small change in a prior moves a channel a lot, your data says little about that channel.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "compare-runs",
+    "wrong-prior"
+   ]
+  },
+  {
+   "id": "how-long-run",
+   "level": "new",
+   "category": "Running a model",
+   "q": "How long does a run take?",
+   "alt": [
+    "how long does it take",
+    "when will my results be ready",
+    "is it fast",
+    "time to fit",
+    "how many minutes"
+   ],
+   "keywords": [
+    "how long",
+    "take",
+    "minutes",
+    "time",
+    "ready",
+    "wait",
+    "duration",
+    "fast"
+   ],
+   "a": "Usually a few minutes once it starts. If others are ahead of you, the run page shows your place in the queue and an estimated wait.\n\nYou can close the tab. The run carries on, and the result will be under My runs when you come back.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "run-status",
+    "server-offline",
+    "close-tab"
+   ]
+  },
+  {
+   "id": "close-tab",
+   "level": "new",
+   "category": "Running a model",
+   "q": "Can I close the tab while it runs?",
+   "alt": [
+    "do i need to keep the page open",
+    "can i leave the page",
+    "will it keep running if i close my laptop"
+   ],
+   "keywords": [
+    "close",
+    "tab",
+    "leave",
+    "keep open",
+    "laptop",
+    "background"
+   ],
+   "a": "Yes. Once submitted, the run is fitted on the model server, not in your browser. Close the tab or your laptop and come back later; it will be under My runs.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "how-long-run",
+    "run-status"
+   ]
+  },
+  {
+   "id": "run-status",
+   "level": "using",
+   "category": "Running a model",
+   "q": "What do the run statuses mean?",
+   "alt": [
+    "what does queued mean",
+    "what is running status",
+    "run states",
+    "my run says queued",
+    "progress bar"
+   ],
+   "keywords": [
+    "status",
+    "queued",
+    "running",
+    "finished",
+    "failed",
+    "cancelled",
+    "progress",
+    "state"
+   ],
+   "a": "- Queued: waiting its turn; the page shows how many are ahead.\n- Running: being fitted; a progress bar shows the stage (main fit, then a check on held-out weeks, then summaries).\n- Finished: results are ready.\n- Failed: something went wrong; the reason is shown.\n- Cancelled: you stopped it.\n\nThe progress bar is an estimate, not an exact count.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "run-failed",
+    "cancel-run",
+    "how-long-run"
+   ]
+  },
+  {
+   "id": "run-limits",
+   "level": "using",
+   "category": "Running a model",
+   "q": "How many models can I run at once?",
+   "alt": [
+    "limit on runs",
+    "why can't i submit another run",
+    "1 running and 2 queued",
+    "too many runs",
+    "submission limit"
+   ],
+   "keywords": [
+    "limit",
+    "at once",
+    "concurrent",
+    "queued",
+    "another run",
+    "20 submissions",
+    "too many"
+   ],
+   "a": "One running and two waiting at a time, and 20 submissions in any 24 hours. If you hit the limit, wait for one to finish or cancel one from My runs.\n\nYour 5 most recent finished runs are kept; older ones are removed when a new one finishes.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "data-retention",
+    "cancel-run"
+   ]
+  },
+  {
+   "id": "cancel-run",
+   "level": "using",
+   "category": "Running a model",
+   "q": "How do I cancel a run?",
+   "alt": [
+    "stop a run",
+    "cancel a model",
+    "i submitted the wrong file"
+   ],
+   "keywords": [
+    "cancel",
+    "stop",
+    "abort",
+    "wrong file"
+   ],
+   "a": "Open the run and choose \"Cancel this run\". A waiting run is removed at once. A running one stops within about half a minute. Cancelled runs do not count towards your 5 and are deleted after 7 days.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "run-status",
+    "run-limits"
+   ]
+  },
+  {
+   "id": "server-offline",
+   "level": "using",
+   "category": "Running a model",
+   "q": "It says the model server is offline. What now?",
+   "alt": [
+    "model server offline",
+    "my run is stuck in the queue",
+    "run never starts",
+    "queue not moving",
+    "why is my run still queued"
+   ],
+   "keywords": [
+    "offline",
+    "stuck",
+    "never starts",
+    "not moving",
+    "still queued",
+    "server"
+   ],
+   "a": "The models are fitted on a dedicated machine. When it is offline your run is safe: it waits in the queue and starts by itself when the server is back. You do not need to resubmit.\n\nPast results, the optimiser, the scenario planner and everything else on the site keep working in the meantime.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "run-status",
+    "how-long-run"
+   ]
+  },
+  {
+   "id": "run-failed",
+   "level": "using",
+   "category": "Running a model",
+   "q": "My run failed. What should I do?",
+   "alt": [
+    "why did my run fail",
+    "run error",
+    "model could not be fitted",
+    "failed status"
+   ],
+   "keywords": [
+    "failed",
+    "fail",
+    "error",
+    "could not be fitted",
+    "went wrong"
+   ],
+   "a": "Open the run; the reason is shown at the top. The common ones:\n\n- The file did not pass the server's checks: fix what it names and upload again.\n- Your ROI ranges are impossible for your data: lower them.\n- The server was interrupted three times: submit it again.\n\nFailed runs do not count towards your 5 kept runs.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "priors-impossible",
+    "did-not-converge",
+    "validation-errors"
+   ]
+  },
+  {
+   "id": "validation-errors",
+   "level": "using",
+   "category": "Running a model",
+   "q": "My file was rejected. What do the errors mean?",
+   "alt": [
+    "file has problems to fix",
+    "upload error",
+    "why was my csv rejected",
+    "row numbers in error",
+    "missing column error"
+   ],
+   "keywords": [
+    "rejected",
+    "problems to fix",
+    "upload error",
+    "missing column",
+    "non-numeric",
+    "negative spend",
+    "duplicate"
+   ],
+   "a": "The message names the problem and the rows, counting the header as row 1. The usual causes:\n\n- a required column is missing, or two columns share a name\n- a date that is not a real date, or appears twice\n- a cell that is blank or not a number, or negative spend\n- rows that are neither 7 days nor 1 day apart\n- fewer than 52 weeks\n\nFix the file and load it again. If only the column names are different, use the column mapper instead.",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "error-bad-date",
+    "error-spacing",
+    "column-mapper"
+   ]
+  },
+  {
+   "id": "error-bad-date",
+   "level": "using",
+   "category": "Running a model",
+   "q": "It says a date is not valid. How do I fix it?",
+   "alt": [
+    "date is not yyyy-mm-dd",
+    "date appears twice",
+    "bad date error",
+    "duplicate date"
+   ],
+   "keywords": [
+    "not yyyy-mm-dd",
+    "bad date",
+    "appears twice",
+    "duplicate date",
+    "invalid date"
+   ],
+   "a": "Either a date is written in a way that was not recognised, is not a real date (such as 30 February), or is repeated.\n\nIf your dates are in another format, the column mapper converts them: pick how they are written under \"How dates are written\". For a repeated date, add the two rows together or remove the duplicate.",
+   "links": [],
+   "related": [
+    "date-formats",
+    "column-mapper"
+   ]
+  },
+  {
+   "id": "error-spacing",
+   "level": "using",
+   "category": "Running a model",
+   "q": "It says rows must be 7 days apart. Why?",
+   "alt": [
+    "rows are neither 7 days nor 1 day apart",
+    "spacing error",
+    "my weeks start on different days"
+   ],
+   "keywords": [
+    "7 days apart",
+    "spacing",
+    "neither 7 days",
+    "different days"
+   ],
+   "a": "The model needs regular weeks. Every row must start on the same weekday, 7 days after the last (or every row must be one day, for daily data). The message lists the rows that break the pattern.\n\nCheck for a week that starts on a different day, or a stray extra row.",
+   "links": [],
+   "related": [
+    "daily-vs-weekly",
+    "date-gaps"
+   ]
+  },
+  {
+   "id": "how-sign-in",
+   "level": "new",
+   "category": "Account",
+   "q": "How do I sign in or create an account?",
+   "alt": [
+    "how to register",
+    "create an account",
+    "forgot my password",
+    "sign up",
+    "login problems",
+    "email link sign in"
+   ],
+   "keywords": [
+    "sign in",
+    "sign up",
+    "register",
+    "password",
+    "login",
+    "log in",
+    "email link",
+    "forgot"
+   ],
+   "a": "Choose Sign in at the top right. Pick \"Create account\" and enter an email and a password of at least 8 characters, or pick \"Email me a link\" to sign in without a password.\n\nYou stay signed in on that device.",
+   "links": [
+    {
+     "label": "Sign in",
+     "to": "/sign-in"
+    }
+   ],
+   "related": [
+    "need-account",
+    "delete-data"
+   ]
+  },
+  {
+   "id": "read-results-first",
+   "level": "new",
+   "category": "Reading results",
+   "q": "How do I read my results? Where do I start?",
+   "alt": [
+    "what should i look at first",
+    "how to interpret the results",
+    "i have my results now what",
+    "explain the results page",
+    "walk me through the results",
+    "how do i make sense of the results"
+   ],
+   "keywords": [
+    "read",
+    "interpret",
+    "understand",
+    "results",
+    "where to start",
+    "look at first",
+    "now what",
+    "make sense"
+   ],
+   "a": "Start with the \"In short\" box at the top. It says what to do, how sure the model is, and how far to trust it, in three sentences.\n\nThen check the Convergence check is green. After that the tabs go deeper: Fit (does the model track your sales), Channels (what each one returns), Prior vs posterior (how much your data taught it), Response curves, and Optimise budget.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "in-short-box",
+    "convergence",
+    "what-is-roi",
+    "optimiser-how"
+   ]
+  },
+  {
+   "id": "in-short-box",
+   "level": "new",
+   "category": "Reading results",
+   "q": "What is the 'In short' box?",
+   "alt": [
+    "what does in short mean",
+    "summary at the top",
+    "what to do how sure how far to trust it",
+    "plain language summary"
+   ],
+   "keywords": [
+    "in short",
+    "summary",
+    "what to do",
+    "how sure",
+    "how far to trust"
+   ],
+   "a": "A three-sentence summary written from your result:\n\n- What to do: where to move budget, what that is expected to add, and the chance it beats your current split.\n- How sure: which channel returns most, and which very likely do or do not pay back.\n- How far to trust it: how well the model predicted weeks it had not seen, and anything to be careful about.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "read-results-first",
+    "prob-better",
+    "accuracy"
+   ]
+  },
+  {
+   "id": "what-is-roi",
+   "level": "new",
+   "category": "Reading results",
+   "q": "What does ROI mean here?",
+   "alt": [
+    "how is roi calculated",
+    "what is return on investment",
+    "roi definition",
+    "is roi the same as roas",
+    "what is roas"
+   ],
+   "keywords": [
+    "roi",
+    "roas",
+    "return on investment",
+    "return on ad spend",
+    "return"
+   ],
+   "a": "ROI is the revenue a channel brought in divided by what you spent on it, over the whole period. An ROI of 2.5 means every 1 spent returned 2.5 in revenue. Above 1 means it returned more revenue than it cost.\n\nIt is the same idea as ROAS. Note it is revenue, not profit: with a 40% margin you need an ROI above 2.5 to make money.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "roi-vs-mroi",
+    "p-above-1",
+    "profit-vs-revenue",
+    "what-is-credible-range"
+   ]
+  },
+  {
+   "id": "roi-vs-mroi",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What is marginal ROI, and how is it different from ROI?",
+   "alt": [
+    "what is mroi",
+    "marginal return",
+    "average vs marginal roi",
+    "which roi should i use for budget decisions",
+    "return on the next dollar"
+   ],
+   "keywords": [
+    "marginal",
+    "mroi",
+    "next dollar",
+    "incremental return",
+    "average vs marginal"
+   ],
+   "a": "ROI is the average return on everything you spent. Marginal ROI is the return on the next unit you would spend, at your recent level.\n\nThey differ because of diminishing returns. A channel can have a healthy ROI of 3 overall while the next unit returns only 0.8, because you are already near its limit. For moving budget, marginal ROI is the one that matters: shift money from low marginal ROI to high.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "what-is-saturation",
+    "optimiser-how",
+    "response-curves"
+   ]
+  },
+  {
+   "id": "what-is-credible-range",
+   "level": "new",
+   "category": "Reading results",
+   "q": "What is a 90% range?",
+   "alt": [
+    "what does 90% credible interval mean",
+    "what is the bar on the chart",
+    "confidence interval",
+    "what do low and high mean",
+    "how to read the range"
+   ],
+   "keywords": [
+    "90%",
+    "credible",
+    "confidence interval",
+    "interval",
+    "low and high",
+    "bar"
+   ],
+   "a": "It is the range the true value falls in with 90% probability, given the model and your data. On the charts the dot is the median (the best single guess) and the bar is the range.\n\nA narrow bar means your data pinned the value down. A wide bar means several quite different values all fit your data about equally well.",
+   "links": [],
+   "related": [
+    "why-ranges",
+    "roi-range-wide",
+    "confidence-label"
+   ]
+  },
+  {
+   "id": "p-above-1",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What does 'chance it is above 1' mean?",
+   "alt": [
+    "probability roi above 1",
+    "chance above break even",
+    "what is the break even line",
+    "97% above 1.0"
+   ],
+   "keywords": [
+    "above 1",
+    "break-even",
+    "break even",
+    "probability",
+    "chance"
+   ],
+   "a": "It is the probability that the channel returned more revenue than it cost. 97% means it almost certainly did; 50% is a coin toss; 5% means it almost certainly did not.\n\nBreak-even at 1 is in revenue terms. If your margin is 50%, your real break-even ROI is 2, so read the range against that instead.",
+   "links": [],
+   "related": [
+    "profit-vs-revenue",
+    "what-is-roi"
+   ]
+  },
+  {
+   "id": "confidence-label",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What do the high, medium and low confidence labels mean?",
+   "alt": [
+    "what is low confidence",
+    "confidence badge",
+    "how is confidence worked out"
+   ],
+   "keywords": [
+    "confidence",
+    "high confidence",
+    "low confidence",
+    "medium",
+    "badge",
+    "label"
+   ],
+   "a": "They compare the width of a channel's ROI range with its middle value. Under half is high confidence, up to the same size is medium, wider than that is low.\n\nLow confidence does not mean the channel is bad. It means your data cannot say much about it yet.",
+   "links": [],
+   "related": [
+    "roi-range-wide",
+    "what-to-test-next"
+   ]
+  },
+  {
+   "id": "roi-range-wide",
+   "level": "using",
+   "category": "Reading results",
+   "q": "Why is the range for one of my channels so wide?",
+   "alt": [
+    "why are my intervals so wide",
+    "roi range is huge",
+    "why is the model so uncertain",
+    "how do i narrow the range",
+    "make results more precise",
+    "why is the bar so long for one channel"
+   ],
+   "keywords": [
+    "wide",
+    "huge",
+    "uncertain",
+    "narrow",
+    "precise",
+    "imprecise",
+    "long bar",
+    "bar so long"
+   ],
+   "a": "Usually one of four reasons: the channel's spend hardly varied; it always moved together with another channel or with the season; it is a small share of spend; or there are few weeks of data.\n\nTo narrow it: add more history, vary the spend on purpose, add events so the season is explained separately, or run a test and enter the result as a prior. The \"What to test next\" box names the channel where that pays off most.",
+   "links": [],
+   "related": [
+    "what-to-test-next",
+    "warn-flat",
+    "collinearity",
+    "how-to-lift-test"
+   ]
+  },
+  {
+   "id": "convergence",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What is the convergence check?",
+   "alt": [
+    "what is r-hat",
+    "what does converged mean",
+    "effective sample size",
+    "divergent draws",
+    "what is rhat",
+    "ess",
+    "divergences"
+   ],
+   "keywords": [
+    "convergence",
+    "converged",
+    "r-hat",
+    "rhat",
+    "effective sample",
+    "ess",
+    "divergent",
+    "divergences"
+   ],
+   "a": "It checks the fitting process itself worked. The model is fitted four times independently; if the four agree, the answer is stable.\n\n- R-hat compares the four fits. 1.01 or less is good.\n- Effective sample size is how much independent information the fit holds. 400 or more is good.\n- Divergent draws are warnings that the fit struggled. Under 0.1% is good.\n\nGreen means go ahead. It says the maths ran properly, not that the model is right about your business.",
+   "links": [],
+   "related": [
+    "did-not-converge",
+    "accuracy"
+   ]
+  },
+  {
+   "id": "did-not-converge",
+   "level": "using",
+   "category": "Reading results",
+   "q": "My model did not converge. What should I do?",
+   "alt": [
+    "results are hidden",
+    "convergence failed",
+    "caution on convergence",
+    "why did it not converge",
+    "sampler did not converge"
+   ],
+   "keywords": [
+    "did not converge",
+    "not converge",
+    "results hidden",
+    "caution",
+    "convergence failed"
+   ],
+   "a": "It means the four independent fits disagreed, so the numbers are not stable. On a fail the results are hidden behind a warning; on caution they are shown, but small differences between channels should not be trusted.\n\nIt usually happens when the data cannot separate the channels: steady spend, few weeks, many channels, or channels that always move together. Try more history, fewer or merged channels, or priors from experiments.",
+   "links": [],
+   "related": [
+    "convergence",
+    "group-channels",
+    "collinearity",
+    "too-many-channels"
+   ]
+  },
+  {
+   "id": "accuracy",
+   "level": "using",
+   "category": "Reading results",
+   "q": "How accurate is the model? How do I read the error figures?",
+   "alt": [
+    "what is a good error",
+    "is 15% error bad",
+    "how to judge model accuracy",
+    "what does typical miss mean",
+    "unseen quarter total off by",
+    "is my model good",
+    "is this level of error acceptable",
+    "what error is normal"
+   ],
+   "keywords": [
+    "accurate",
+    "accuracy",
+    "error",
+    "typical miss",
+    "unseen",
+    "quarter total",
+    "good model",
+    "wape",
+    "mape",
+    "acceptable",
+    "normal error",
+    "percent error",
+    "good or bad"
+   ],
+   "a": "Each run hides its last 13 weeks, fits again without them, and predicts them. Read three things, in this order:\n\n1. Does it beat a simple forecast? The tile shows the model next to a forecast that needs no model. If it cannot beat that, do not use it to forecast sales.\n2. The quarter total. Budgets are set per quarter, and weekly misses that cancel out do not change a decision.\n3. The typical week.\n\nOn made-up data the weekly miss is about 2%. On real brands 15% to 30% is normal, and a few unusual weeks cause most of it.",
+   "links": [
+    {
+     "label": "See a real brand example",
+     "to": "/sample?example=home"
+    },
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "simple-forecast",
+    "reduce-error",
+    "r-squared",
+    "low-error-not-proof"
+   ]
+  },
+  {
+   "id": "simple-forecast",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What is the 'simple forecast' my model is compared with?",
+   "alt": [
+    "what is the benchmark",
+    "naive forecast",
+    "simple forecast comparison",
+    "model does not beat the simple forecast"
+   ],
+   "keywords": [
+    "simple forecast",
+    "benchmark",
+    "naive",
+    "baseline forecast",
+    "does not beat"
+   ],
+   "a": "The better of two forecasts that need no model at all: the average of the previous 13 weeks, or the same weeks a year earlier scaled for how much you have grown.\n\nIf the model cannot beat those, it is not adding forecasting value. It can still be useful for splitting budget between channels, which those simple rules cannot do, and the summary says so when that is the case.",
+   "links": [
+    {
+     "label": "See a real brand example",
+     "to": "/sample?example=home"
+    }
+   ],
+   "related": [
+    "accuracy",
+    "reduce-error"
+   ]
+  },
+  {
+   "id": "r-squared",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What is R² (variation explained)?",
+   "alt": [
+    "what does r squared mean",
+    "is a high r2 good",
+    "variation explained 85%",
+    "low r squared"
+   ],
+   "keywords": [
+    "r²",
+    "r2",
+    "r-squared",
+    "r squared",
+    "variation explained"
+   ],
+   "a": "It is the share of the week-to-week movement in your sales that the model accounts for, on the data it was fitted to. 100% would be a perfect trace.\n\nHigh is not proof of a good model: a model can trace past sales closely and still credit the wrong channels. The error on unseen weeks is the harder and more honest test.",
+   "links": [],
+   "related": [
+    "accuracy",
+    "low-error-not-proof"
+   ]
+  },
+  {
+   "id": "low-error-not-proof",
+   "level": "pro",
+   "category": "Reading results",
+   "q": "If the error is low, are the channel estimates right?",
+   "alt": [
+    "does good fit mean correct attribution",
+    "can a model predict well and still be wrong",
+    "validation of mmm",
+    "how do i know the roi is right"
+   ],
+   "keywords": [
+    "proof",
+    "correct",
+    "right",
+    "validate",
+    "validation",
+    "predict well",
+    "trust the roi"
+   ],
+   "a": "No. Predicting sales well and splitting the credit correctly are different things. If two channels always move together, the model can forecast perfectly while giving all the credit to the wrong one.\n\nSo check more than error: is the fit converged, did your data move the priors, are the ranges narrow, is the baseline believable? The only real proof of a channel's return is an experiment.",
+   "links": [],
+   "related": [
+    "how-to-lift-test",
+    "collinearity",
+    "prior-vs-posterior",
+    "what-is-incrementality"
+   ]
+  },
+  {
+   "id": "reduce-error",
+   "level": "using",
+   "category": "Reading results",
+   "q": "How can I reduce the error?",
+   "alt": [
+    "how to improve accuracy",
+    "make the model more accurate",
+    "error is too high",
+    "improve the fit",
+    "client is worried about the error",
+    "how do i get the error down"
+   ],
+   "keywords": [
+    "reduce",
+    "improve",
+    "lower the error",
+    "more accurate",
+    "too high",
+    "better fit",
+    "bring down",
+    "decrease",
+    "cut the error",
+    "lower"
+   ],
+   "a": "In rough order of what helps most:\n\n1. Add calendar events from the library. Big single weeks cause most of the miss.\n2. Add your promotions and price changes as outside factors.\n3. Flag one-off weeks such as a stock-out, an outage or a launch.\n4. Try one economy measure that plausibly matters to your customers.\n5. Add more history.\n\nThen judge it against the simple forecast and on the quarter total, not only the weekly figure.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "events-library",
+    "promotions-pricing",
+    "outliers",
+    "accuracy"
+   ]
+  },
+  {
+   "id": "what-is-baseline",
+   "level": "new",
+   "category": "Reading results",
+   "q": "What is the baseline?",
+   "alt": [
+    "what does baseline mean",
+    "sales without advertising",
+    "what is base sales",
+    "organic sales",
+    "what would i sell with no ads"
+   ],
+   "keywords": [
+    "baseline",
+    "base sales",
+    "without advertising",
+    "no ads",
+    "organic sales"
+   ],
+   "a": "The baseline is what you would have sold with no advertising at all: your brand's standing, repeat customers, the season, and any outside factors you supplied. On the Fit chart it is the dashed line.\n\nWhatever is above the baseline is what the model credits to your paid channels.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "baseline-share",
+    "media-share-too-high",
+    "baseline-drivers"
+   ]
+  },
+  {
+   "id": "baseline-share",
+   "level": "pro",
+   "category": "Reading results",
+   "q": "How big should the baseline be?",
+   "alt": [
+    "what share of sales is baseline",
+    "baseline 50 to 90 percent",
+    "is my baseline too low",
+    "what is a normal baseline"
+   ],
+   "keywords": [
+    "baseline share",
+    "50%",
+    "90%",
+    "normal baseline",
+    "too low"
+   ],
+   "a": "For most established businesses, 50% to 90% of sales would happen without advertising. The model expects the baseline to fall in that range: it has no preference inside it and resists leaving it, though strong evidence in your data can still move it out.\n\nA young, paid-driven brand can genuinely sit lower. But if your baseline comes out well under 50%, the more common cause is that spend follows sales, and the model cannot separate them.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "media-share-too-high",
+    "endogeneity",
+    "what-is-baseline"
+   ]
+  },
+  {
+   "id": "media-share-too-high",
+   "level": "using",
+   "category": "Reading results",
+   "q": "The model says most of my revenue comes from advertising. Is that right?",
+   "alt": [
+    "revenue driven by media is very high",
+    "media share 80%",
+    "model credits too much to ads",
+    "baseline looks too small",
+    "it says nearly all my sales come from ads"
+   ],
+   "keywords": [
+    "most of my revenue",
+    "media share",
+    "driven by media",
+    "too much",
+    "credits too much",
+    "come from ads",
+    "from advertising",
+    "most sales from ads"
+   ],
+   "a": "Probably not, and the summary will warn you when the share is unusually high. It usually means you spend more in the weeks you expect to sell more. The model sees spend and sales rise together and cannot tell which caused which.\n\nWhat helps: add events and promotions so those weeks are explained; and test your largest channel by holding spend back somewhere. Until then, treat the recommended split as a direction, not a forecast.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "endogeneity",
+    "baseline-share",
+    "events-library",
+    "how-to-lift-test"
+   ]
+  },
+  {
+   "id": "baseline-drivers",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What is the 'baseline drivers' chart?",
+   "alt": [
+    "what else moves sales chart",
+    "effect of outside factors",
+    "how to read control effects",
+    "black friday effect"
+   ],
+   "keywords": [
+    "baseline drivers",
+    "what else moves sales",
+    "effect of",
+    "control effect",
+    "driver"
+   ],
+   "a": "It shows what each outside factor you supplied does to weekly revenue, with its range. For an event it is the change in a week when it happens. For a measure such as unemployment it compares its highest observed value with its lowest.\n\nA bar clear of the \"no effect\" line is a real driver. A bar across the line is not doing much and could be removed.",
+   "links": [
+    {
+     "label": "See a real brand example",
+     "to": "/sample?example=home"
+    }
+   ],
+   "related": [
+    "outside-factors",
+    "how-many-controls",
+    "negative-driver"
+   ]
+  },
+  {
+   "id": "negative-driver",
+   "level": "pro",
+   "category": "Reading results",
+   "q": "Why does an outside factor show a negative effect?",
+   "alt": [
+    "control has a negative effect",
+    "christmas week is negative",
+    "consumer confidence effect is negative",
+    "wrong sign on a control"
+   ],
+   "keywords": [
+    "negative effect",
+    "negative",
+    "wrong sign",
+    "below zero"
+   ],
+   "a": "Often it is real: for many online shops, the week of Christmas and New Year sells less than the weeks before it, so its effect is negative.\n\nFor slow-moving measures such as consumer confidence, a surprising direction usually means the measure is tracing your trend, not causing it. It still helps the forecast, but do not read its direction as cause and effect.",
+   "links": [],
+   "related": [
+    "baseline-drivers",
+    "macro-helps"
+   ]
+  },
+  {
+   "id": "prior-vs-posterior",
+   "level": "using",
+   "category": "Reading results",
+   "q": "How do I read the 'Prior vs posterior' tab?",
+   "alt": [
+    "what is the before and after chart",
+    "dashed curve and solid curve",
+    "what does posterior mean",
+    "how much did the data move my belief"
+   ],
+   "keywords": [
+    "prior vs posterior",
+    "posterior",
+    "before the data",
+    "after the data",
+    "dashed",
+    "solid curve"
+   ],
+   "a": "For each channel there are two curves. The dashed one is the belief before your data (the prior). The solid one is the belief after (the posterior).\n\nA wide dashed curve turning into a narrow solid one means your data was informative. Two curves that look the same mean the result is mostly the assumption you started with. Each channel gets a plain verdict underneath.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "verdicts",
+    "mostly-reflects-prior",
+    "what-is-prior"
+   ]
+  },
+  {
+   "id": "verdicts",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What do 'the data was decisive' and the other verdicts mean?",
+   "alt": [
+    "data refined the belief",
+    "the data was decisive meaning",
+    "data overruled the starting assumption",
+    "verdict under each channel"
+   ],
+   "keywords": [
+    "decisive",
+    "refined",
+    "overruled",
+    "verdict"
+   ],
+   "a": "They say how far your data moved the starting belief for that channel:\n\n- The data was decisive: the range is more than 50% narrower.\n- The data refined the belief: 20% to 50% narrower.\n- This mostly reflects the prior: under 20% narrower.\n- The data overruled the starting assumption: the result landed outside the range the prior gave.",
+   "links": [],
+   "related": [
+    "mostly-reflects-prior",
+    "prior-vs-posterior"
+   ]
+  },
+  {
+   "id": "mostly-reflects-prior",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What does 'this mostly reflects the prior' mean?",
+   "alt": [
+    "mostly reflects the prior",
+    "data could not say much",
+    "estimate reflects the starting assumption",
+    "why did the data not move the prior"
+   ],
+   "keywords": [
+    "mostly reflects",
+    "reflects the prior",
+    "starting assumption",
+    "could not say much"
+   ],
+   "a": "Your data told the model almost nothing new about that channel, so the answer is close to what it assumed at the start. It is the honest result when a channel's spend barely varied, was tiny, or always moved with something else.\n\nDo not base a decision on that number. Vary the spend, or test the channel.",
+   "links": [],
+   "related": [
+    "warn-flat",
+    "what-to-test-next",
+    "how-to-lift-test"
+   ]
+  },
+  {
+   "id": "what-is-adstock",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What is carry-over (adstock)?",
+   "alt": [
+    "what is adstock",
+    "what does carry over mean",
+    "do ads keep working after they run",
+    "lagged effect of advertising",
+    "delayed effect"
+   ],
+   "keywords": [
+    "adstock",
+    "carry-over",
+    "carryover",
+    "lag",
+    "lagged",
+    "delayed",
+    "keeps working"
+   ],
+   "a": "Advertising keeps working after it runs. Someone sees a TV ad this week and buys in three weeks' time. Carry-over is how the model spreads a week's spend over the weeks that follow.\n\nEach channel gets its own rate, learned from your data, looking back up to eight weeks. Without it, slow channels would be badly undervalued.",
+   "links": [],
+   "related": [
+    "half-life",
+    "carryover-prior",
+    "model-spec"
+   ]
+  },
+  {
+   "id": "half-life",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What is the carry-over half-life?",
+   "alt": [
+    "what does half life mean",
+    "half-life in weeks",
+    "how long does the effect last chart"
+   ],
+   "keywords": [
+    "half-life",
+    "half life",
+    "halflife"
+   ],
+   "a": "The number of weeks until half of a week's advertising effect has played out. A half-life of 0.5 means it works almost at once, typical for search. Two or more weeks means a slow build and a long tail, typical for TV and video.",
+   "links": [],
+   "related": [
+    "what-is-adstock",
+    "carryover-prior"
+   ]
+  },
+  {
+   "id": "what-is-saturation",
+   "level": "new",
+   "category": "Reading results",
+   "q": "What are diminishing returns (saturation)?",
+   "alt": [
+    "what is saturation",
+    "what does saturation point mean",
+    "why does more spend return less",
+    "diminishing returns",
+    "is my channel saturated"
+   ],
+   "keywords": [
+    "saturation",
+    "saturated",
+    "diminishing returns",
+    "flattens",
+    "plateau"
+   ],
+   "a": "Each extra unit you spend on a channel adds a little less than the one before. The first 1,000 reaches your keenest customers; the next 1,000 reaches people less likely to buy. Eventually more spend adds almost nothing.\n\nThe model learns this curve for each channel. It is why \"put everything into the best channel\" is rarely right.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "response-curves",
+    "roi-vs-mroi",
+    "optimiser-how"
+   ]
+  },
+  {
+   "id": "response-curves",
+   "level": "using",
+   "category": "Reading results",
+   "q": "How do I read a response curve?",
+   "alt": [
+    "what is the response curve chart",
+    "curve with current spend marked",
+    "revenue against spend curve",
+    "what do the dashed lines on the curve mean"
+   ],
+   "keywords": [
+    "response curve",
+    "curve",
+    "curves",
+    "current spend",
+    "highest week"
+   ],
+   "a": "It shows the weekly revenue a channel is expected to bring in at each level of steady weekly spend, with a shaded range.\n\nWhere the curve is steep, more spend still pays. Where it flattens, you are near saturation. One marker shows where you spend now; another shows the highest week in your data. To the right of that second marker the model has never seen the channel, so it is guessing.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "what-is-saturation",
+    "extrapolation",
+    "roi-vs-mroi"
+   ]
+  },
+  {
+   "id": "contribution",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What is contribution?",
+   "alt": [
+    "what does contribution mean",
+    "contribution over time chart",
+    "share of revenue per channel",
+    "how much revenue did each channel drive"
+   ],
+   "keywords": [
+    "contribution",
+    "share of revenue",
+    "attributed",
+    "drive",
+    "drove"
+   ],
+   "a": "The revenue the model credits to a channel. \"Total contribution\" adds it up over the whole period; \"contribution over time\" shows it week by week, including the weeks after the spend when carry-over is still working.\n\nContribution divided by spend is the ROI.",
+   "links": [],
+   "related": [
+    "what-is-roi",
+    "what-is-adstock",
+    "what-is-baseline"
+   ]
+  },
+  {
+   "id": "platform-roas-differs",
+   "level": "using",
+   "category": "Reading results",
+   "q": "Why is my ROI here lower than what Facebook or Google report?",
+   "alt": [
+    "platform roas is higher",
+    "meta says roas 6 but kawkit says 2",
+    "why don't the numbers match ads manager",
+    "google ads reports more conversions"
+   ],
+   "keywords": [
+    "platform",
+    "ads manager",
+    "facebook reports",
+    "google reports",
+    "meta",
+    "lower than",
+    "don't match"
+   ],
+   "a": "Ad platforms count every sale that touched one of their ads, including people who would have bought anyway, and several platforms often claim the same sale. So their figures add up to more than you actually sold.\n\nThis model only credits a channel with sales that moved when its spend moved. That is closer to the truth of what the spend caused, and it is nearly always lower.",
+   "links": [],
+   "related": [
+    "what-is-incrementality",
+    "mmm-vs-attribution",
+    "priors-impossible"
+   ]
+  },
+  {
+   "id": "what-is-incrementality",
+   "level": "using",
+   "category": "Reading results",
+   "q": "What is incrementality?",
+   "alt": [
+    "what does incremental mean",
+    "incremental sales",
+    "would those sales have happened anyway",
+    "causal effect of ads"
+   ],
+   "keywords": [
+    "incrementality",
+    "incremental",
+    "causal",
+    "would have happened anyway",
+    "cause"
+   ],
+   "a": "Incremental sales are the ones that happened because of the advertising and would not have happened without it. That is the only kind worth paying for.\n\nA model of past data estimates it by comparing weeks. An experiment measures it directly, by switching the advertising off for some people or places and seeing what is lost. The model is the map; experiments are the survey points that keep it honest.",
+   "links": [],
+   "related": [
+    "how-to-lift-test",
+    "platform-roas-differs",
+    "low-error-not-proof"
+   ]
+  },
+  {
+   "id": "profit-vs-revenue",
+   "level": "pro",
+   "category": "Reading results",
+   "q": "The tool works in revenue. How do I think about profit?",
+   "alt": [
+    "roi on profit",
+    "what about margin",
+    "is roi above 1 profitable",
+    "break even roas with margins",
+    "optimise for profit"
+   ],
+   "keywords": [
+    "profit",
+    "margin",
+    "profitable",
+    "gross margin",
+    "break-even roas"
+   ],
+   "a": "Divide 1 by your margin to get your real break-even ROI. At a 40% margin it is 2.5; at 25% it is 4. Read each channel's range against that line, not against 1.\n\nOr model profit directly: put weekly gross profit in the revenue column, and ROI above 1 then does mean profitable. The recommended split is the same either way if your margin is the same across channels.",
+   "links": [],
+   "related": [
+    "what-is-roi",
+    "p-above-1",
+    "revenue-or-other-kpi"
+   ]
+  },
+  {
+   "id": "optimiser-how",
+   "level": "new",
+   "category": "Budget and planning",
+   "q": "How does the budget optimiser work?",
+   "alt": [
+    "how is the recommended split worked out",
+    "what does optimise budget do",
+    "how does it decide where to move money",
+    "explain the recommendation"
+   ],
+   "keywords": [
+    "optimiser",
+    "optimizer",
+    "optimise",
+    "optimize",
+    "recommended split",
+    "recommendation",
+    "allocate",
+    "suggested split",
+    "come up with"
+   ],
+   "a": "It looks for the weekly spend per channel that gives the most expected revenue for your budget, within limits you set. It moves money from channels where the next unit returns little to channels where it returns more, until no move helps.\n\nIt does this across 500 versions of the model that all fit your data, which is how it can say how likely the new split is to beat your current one. It runs in your browser, so changing a number updates the answer at once.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "prob-better",
+    "optimiser-limits",
+    "scenario-planner",
+    "roi-vs-mroi"
+   ]
+  },
+  {
+   "id": "prob-better",
+   "level": "new",
+   "category": "Budget and planning",
+   "q": "What does 'chance the new split beats your current one' mean?",
+   "alt": [
+    "probability the recommendation is better",
+    "94% likely better",
+    "how sure is the recommendation",
+    "what is prob better"
+   ],
+   "keywords": [
+    "chance",
+    "beats",
+    "likely better",
+    "probability",
+    "how sure"
+   ],
+   "a": "The model is not one answer but 500 that all fit your data. The recommended split is tried under each. If it earns more than your current split in 470 of them, the chance is 94%.\n\nAbove about 90% is a strong signal. Near 50% means the limits or budget leave little room, or the model is too unsure to call it.",
+   "links": [],
+   "related": [
+    "optimiser-how",
+    "expected-lift"
+   ]
+  },
+  {
+   "id": "expected-lift",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "How much more revenue will the recommended split bring?",
+   "alt": [
+    "expected change in weekly revenue",
+    "what is the expected lift",
+    "how much will i gain",
+    "revenue uplift from reallocation"
+   ],
+   "keywords": [
+    "expected change",
+    "lift",
+    "uplift",
+    "gain",
+    "how much more"
+   ],
+   "a": "The Recommendation panel shows the expected change in weekly revenue from media, with a 90% range. If the range is all above zero, the gain is very likely real. If it straddles zero, it may be nothing.\n\nIt assumes you hold the new spend steady and that the future behaves like the past. Treat it as a direction and a rough size, and move in steps.",
+   "links": [],
+   "related": [
+    "prob-better",
+    "how-to-act",
+    "extrapolation"
+   ]
+  },
+  {
+   "id": "optimiser-limits",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "How do I set limits or lock a channel in the optimiser?",
+   "alt": [
+    "minimum and maximum per channel",
+    "lock a channel",
+    "what are the default limits",
+    "i can't cut tv below a contract",
+    "change the weekly budget"
+   ],
+   "keywords": [
+    "limits",
+    "minimum",
+    "maximum",
+    "min",
+    "max",
+    "lock",
+    "constraint",
+    "contract",
+    "weekly budget"
+   ],
+   "a": "In \"Budget and limits\", set the weekly budget and a minimum and maximum for each channel, or tick Lock to keep a channel at its current spend. Limits start at 50% to 150% of what you spend now, and the budget starts at your average over the last 13 weeks.\n\nUse limits for real constraints: a contract minimum, or a cap on how fast you are willing to move. \"Reset to defaults\" undoes your changes.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "optimiser-how",
+    "impossible-budget",
+    "how-to-act"
+   ]
+  },
+  {
+   "id": "impossible-budget",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "It says the budget is below the minimums (or above the maximums). Why?",
+   "alt": [
+    "budget is below the sum of the channel minimums",
+    "budget above the maximums",
+    "the minimums were used"
+   ],
+   "keywords": [
+    "below the sum",
+    "above the sum",
+    "minimums were used",
+    "maximums were used"
+   ],
+   "a": "Your budget and limits cannot both be met. If the channel minimums already add up to more than the budget, the plan uses the minimums and tells you. The same happens in reverse when the maximums add up to less than the budget.\n\nChange the budget, or loosen a limit.",
+   "links": [],
+   "related": [
+    "optimiser-limits"
+   ]
+  },
+  {
+   "id": "extrapolation",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "What does 'beyond your data' mean?",
+   "alt": [
+    "beyond data warning",
+    "extrapolation flag",
+    "spend more than the highest week",
+    "the model is guessing"
+   ],
+   "keywords": [
+    "beyond your data",
+    "beyond data",
+    "extrapolation",
+    "extrapolating",
+    "guessing",
+    "highest week"
+   ],
+   "a": "The plan would spend more on a channel than 1.2 times the highest week in your data. The model has never seen that channel at that level, so it is stretching its curve past the evidence.\n\nIt may still be right, but treat that part with caution and scale up in steps while you watch the result.",
+   "links": [],
+   "related": [
+    "response-curves",
+    "how-to-act"
+   ]
+  },
+  {
+   "id": "scenario-planner",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "Can I try my own budget split?",
+   "alt": [
+    "what is the scenario planner",
+    "try your own split",
+    "what if i cut tv by half",
+    "what if analysis",
+    "test a budget scenario",
+    "what happens if i spend more"
+   ],
+   "keywords": [
+    "scenario",
+    "what if",
+    "try your own",
+    "own split",
+    "cut",
+    "spend more"
+   ],
+   "a": "Yes. On the Optimise budget tab, under \"Try your own split\", type any weekly spend per channel. You see the expected change in revenue with its range, the chance it beats what you do now, and what each extra unit returns.\n\nThere are quick buttons to cut or raise everything by 20%. Nothing is refitted, so it answers instantly.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "target-mode",
+    "optimiser-how",
+    "extrapolation"
+   ]
+  },
+  {
+   "id": "target-mode",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "How much budget do I need to hit a revenue target?",
+   "alt": [
+    "work back from a target",
+    "what budget do i need",
+    "target mode",
+    "how do i reach my revenue goal",
+    "spend needed to hit target",
+    "i need more revenue how much should i spend"
+   ],
+   "keywords": [
+    "target",
+    "goal",
+    "how much budget",
+    "budget needed",
+    "reach",
+    "hit",
+    "more revenue",
+    "extra revenue",
+    "need more"
+   ],
+   "a": "On the Optimise budget tab, under \"Work back from a target\", enter the extra weekly revenue you want. It finds the smallest budget the model expects to deliver it, the split to use, and the chance of getting there.\n\nEach channel may go from half to twice its current spend. If the target cannot be reached within that, it says so and gives the most that is possible, because returns flatten as spend grows.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "scenario-planner",
+    "what-is-saturation"
+   ]
+  },
+  {
+   "id": "what-to-test-next",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "What is 'What to test next'?",
+   "alt": [
+    "which channel should i test",
+    "where should i run an experiment",
+    "what to test next box",
+    "which channel is most uncertain",
+    "which channel should i experiment on"
+   ],
+   "keywords": [
+    "test next",
+    "which channel to test",
+    "experiment on",
+    "most uncertain",
+    "which channel"
+   ],
+   "a": "At the top of the Channels tab, it names the channel where an experiment would be worth most: the one where a lot of money rides on a very uncertain return. It shows the weekly revenue at stake for each channel.\n\nTesting a small channel, or one the model is already sure about, teaches you little. This points you at the one that would change your decisions.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "how-to-lift-test",
+    "roi-range-wide",
+    "roi-prior-how"
+   ]
+  },
+  {
+   "id": "how-to-act",
+   "level": "new",
+   "category": "Budget and planning",
+   "q": "How should I act on the recommendation?",
+   "alt": [
+    "should i follow the recommended split",
+    "how to use the results in practice",
+    "what do i do with this",
+    "should i move all my budget",
+    "how fast should i change spend"
+   ],
+   "keywords": [
+    "act",
+    "follow",
+    "in practice",
+    "move all",
+    "how fast",
+    "implement",
+    "next steps"
+   ],
+   "a": "Move in steps, not all at once. A sensible pattern:\n\n1. Shift 10% to 20% of the way towards the recommended split.\n2. Hold it for 4 to 8 weeks.\n3. Add the new weeks to your data and run again.\n\nAct most boldly where the chance of improvement is high and the channel is well measured. Where a channel is marked low confidence or \"mostly reflects the prior\", test it before betting on it.",
+   "links": [],
+   "related": [
+    "prob-better",
+    "what-to-test-next",
+    "rerun-new-data",
+    "extrapolation"
+   ]
+  },
+  {
+   "id": "cut-channel",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "The model says a channel has ROI below 1. Should I switch it off?",
+   "alt": [
+    "should i stop a channel with low roi",
+    "channel does not pay back",
+    "kill a channel",
+    "turn off display"
+   ],
+   "keywords": [
+    "switch off",
+    "turn off",
+    "stop",
+    "kill",
+    "below 1",
+    "does not pay back",
+    "low roi"
+   ],
+   "a": "Not straight away. First check how sure the model is: a low middle value with a wide range, or one that mostly reflects the prior, is not evidence. Check too whether break-even at 1 is the right line for your margin.\n\nIf it is well measured and clearly below your break-even, cut it in steps and watch total sales. Some channels look poor on their own but support others, such as video building demand that search then collects.",
+   "links": [],
+   "related": [
+    "p-above-1",
+    "mostly-reflects-prior",
+    "halo-effects",
+    "how-to-act"
+   ]
+  },
+  {
+   "id": "rerun-new-data",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "How often should I re-run the model?",
+   "alt": [
+    "when should i refresh the model",
+    "update with new data",
+    "how often to run mmm",
+    "re-run with new weeks"
+   ],
+   "keywords": [
+    "how often",
+    "refresh",
+    "update",
+    "new data",
+    "new weeks",
+    "monthly",
+    "quarterly"
+   ],
+   "a": "Every quarter is a good rhythm, and after any big change: a new channel, a large shift in budget, or a test result. Add the new weeks to your file and submit again.\n\nRunning weekly adds little, since one more week barely changes two years of history. Use Compare to see what moved between runs.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "compare-runs",
+    "how-to-act"
+   ]
+  },
+  {
+   "id": "model-spec",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "What exactly is the model?",
+   "alt": [
+    "model specification",
+    "what equations does it use",
+    "technical details of the model",
+    "what is under the hood",
+    "how is it fitted",
+    "which sampler",
+    "pymc"
+   ],
+   "keywords": [
+    "specification",
+    "equation",
+    "technical",
+    "under the hood",
+    "sampler",
+    "nuts",
+    "pymc",
+    "nutpie",
+    "chains",
+    "draws"
+   ],
+   "a": "Weekly revenue is modelled as a baseline plus each channel's contribution, with normal noise.\n\n- Baseline: intercept, linear trend, two yearly sine and cosine pairs (with 78 weeks or more), and your outside factors.\n- Each channel: spend is scaled, passed through normalised geometric adstock over 8 weeks, then a logistic saturation curve, and multiplied by a non-negative effect.\n\nIt is written in PyMC and sampled with NUTS (nutpie): 4 chains of 1,000 draws after 1,000 warm-up steps, and each run stores its random seed so it can be reproduced exactly.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "default-priors",
+    "what-is-adstock",
+    "what-is-saturation",
+    "seasonality"
+   ]
+  },
+  {
+   "id": "seasonality",
+   "level": "using",
+   "category": "How the model works",
+   "q": "How does the model handle seasonality and trend?",
+   "alt": [
+    "does it account for seasonality",
+    "seasonal patterns",
+    "how is trend modelled",
+    "yearly cycle",
+    "fourier terms"
+   ],
+   "keywords": [
+    "seasonality",
+    "seasonal",
+    "season",
+    "trend",
+    "yearly",
+    "fourier",
+    "cycle"
+   ],
+   "a": "It fits a straight-line trend and a smooth yearly pattern, so regular highs and lows through the year go into the baseline, not to advertising. The yearly pattern is only used when you have 78 weeks or more.\n\nA smooth curve cannot follow a single huge week such as Black Friday. Add those from the event library.",
+   "links": [],
+   "related": [
+    "events-library",
+    "how-many-weeks",
+    "trend-changes"
+   ]
+  },
+  {
+   "id": "trend-changes",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "My growth rate changed part-way through. Can the model handle that?",
+   "alt": [
+    "non linear trend",
+    "trend changes over time",
+    "business grew then flattened",
+    "structural break",
+    "changepoints"
+   ],
+   "keywords": [
+    "growth rate",
+    "non-linear",
+    "trend change",
+    "structural break",
+    "changepoint",
+    "flattened"
+   ],
+   "a": "Only partly. The trend is one straight line. A trend that can change pace each quarter was tested and made forecasts worse on all five real brands, because it carries its latest pace forward and overshoots, so it was not adopted.\n\nIf there was a clear break, such as a relaunch or a new market, add an outside factor that is 0 before it and 1 after. Or use only the data since the break, if that still leaves a year or more.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "seasonality",
+    "other-events",
+    "reduce-error"
+   ]
+  },
+  {
+   "id": "collinearity",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "Two of my channels always move together. Is that a problem?",
+   "alt": [
+    "correlated channels",
+    "multicollinearity",
+    "channels spend in the same weeks",
+    "model cannot separate two channels",
+    "collinear spend"
+   ],
+   "keywords": [
+    "move together",
+    "correlated",
+    "collinear",
+    "collinearity",
+    "multicollinearity",
+    "same weeks",
+    "separate"
+   ],
+   "a": "Yes. If two channels always rise and fall in the same weeks, the model sees their combined effect but cannot say how to divide it. Typically both get wide ranges, or one gets the credit somewhat arbitrarily.\n\nEither merge them into one channel, since you cannot learn them apart anyway, or stagger their spend for a while, or test one of them.",
+   "links": [],
+   "related": [
+    "group-channels",
+    "roi-range-wide",
+    "how-to-lift-test"
+   ]
+  },
+  {
+   "id": "endogeneity",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "We spend more when we expect to sell more. Does that bias the result?",
+   "alt": [
+    "reverse causality",
+    "endogeneity",
+    "spend follows sales",
+    "budget set as a percent of revenue",
+    "we scale spend in peak season"
+   ],
+   "keywords": [
+    "endogeneity",
+    "reverse causality",
+    "bias",
+    "spend when",
+    "percent of revenue",
+    "peak season"
+   ],
+   "a": "Yes, and it is the commonest way these models mislead. If budgets follow expected demand, spend and sales rise together for reasons that have nothing to do with the ads working, and the model credits the advertising.\n\nIt cannot be fully fixed from past data. It is reduced by explaining demand separately (events, promotions, seasonality) and by the expectation that most sales are baseline. It is only removed by spending against the pattern on purpose, which is what a test does.",
+   "links": [
+    {
+     "label": "Lessons from five real brands",
+     "to": "/lessons"
+    }
+   ],
+   "related": [
+    "media-share-too-high",
+    "baseline-share",
+    "how-to-lift-test",
+    "warn-seasonal"
+   ]
+  },
+  {
+   "id": "branded-search",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "How should I treat branded search?",
+   "alt": [
+    "brand search roi looks too high",
+    "should brand keywords be a channel",
+    "branded vs non-branded search",
+    "people searching for my name"
+   ],
+   "keywords": [
+    "branded",
+    "brand search",
+    "brand keywords",
+    "non-branded",
+    "navigational"
+   ],
+   "a": "Keep it apart from generic search, and read its result sceptically. People searching for your name were mostly coming anyway; the ad often just takes the click that the free result below it would have got.\n\nBecause branded search rises whenever demand rises, a model of past data tends to flatter it. A simple test settles it: switch it off for two weeks in one region and see whether total sales fall.",
+   "links": [],
+   "related": [
+    "group-channels",
+    "endogeneity",
+    "what-is-incrementality",
+    "how-to-lift-test"
+   ]
+  },
+  {
+   "id": "halo-effects",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "Does the model capture channels helping each other?",
+   "alt": [
+    "synergy between channels",
+    "halo effect",
+    "does tv drive search",
+    "interaction effects",
+    "upper funnel lower funnel"
+   ],
+   "keywords": [
+    "synergy",
+    "halo",
+    "interaction",
+    "help each other",
+    "upper funnel",
+    "lower funnel",
+    "drives search"
+   ],
+   "a": "No. Each channel's effect is added independently. If TV makes people search for you, the sale tends to be credited to whichever of the two varied most clearly, usually search.\n\nSo be cautious about cutting an awareness channel just because its own return looks modest. Test it by cutting it somewhere and watching total sales, including the channels it may be feeding.",
+   "links": [],
+   "related": [
+    "cut-channel",
+    "long-term-effects",
+    "how-to-lift-test"
+   ]
+  },
+  {
+   "id": "long-term-effects",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "Does this measure long-term brand building?",
+   "alt": [
+    "brand effects",
+    "long term impact of advertising",
+    "does it capture brand equity",
+    "awareness campaigns undervalued"
+   ],
+   "keywords": [
+    "long-term",
+    "long term",
+    "brand building",
+    "brand equity",
+    "awareness"
+   ],
+   "a": "No. It measures what advertising does within about eight weeks. Slower effects, such as a stronger brand that lifts sales for years, show up in the baseline and are not credited to the campaigns that built it.\n\nThat means brand and awareness channels are undervalued here. Use this for the short-term picture, and judge long-term brand spend with brand tracking and longer tests.",
+   "links": [],
+   "related": [
+    "what-is-adstock",
+    "halo-effects",
+    "what-is-baseline"
+   ]
+  },
+  {
+   "id": "new-channel",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "I just started a new channel. Can it be modelled?",
+   "alt": [
+    "channel with only a few weeks of data",
+    "recently launched channel",
+    "new channel roi",
+    "tiktok only started last quarter"
+   ],
+   "keywords": [
+    "new channel",
+    "just started",
+    "recently launched",
+    "only a few weeks"
+   ],
+   "a": "Include it, so its sales are not given to another channel, but expect a wide range until it has run for a few months with some variation. A channel active in under 15% of your weeks gets a warning.\n\nIf you have a benchmark or a platform lift study for it, enter that as a prior.",
+   "links": [],
+   "related": [
+    "warn-sparse",
+    "roi-prior-how"
+   ]
+  },
+  {
+   "id": "time-varying",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "Does a channel's effectiveness change over time in the model?",
+   "alt": [
+    "time varying coefficients",
+    "creative fatigue",
+    "performance changed after ios 14",
+    "roi changes over time"
+   ],
+   "keywords": [
+    "over time",
+    "time-varying",
+    "fatigue",
+    "ios",
+    "changed"
+   ],
+   "a": "No. Each channel has one return for the whole period, which is an average. If a channel has clearly changed, for example after a tracking change or a new creative approach, the average blends before and after.\n\nA practical workaround is to model only the recent period, if that leaves at least a year, or to run two periods separately and compare them.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "compare-runs",
+    "trend-changes"
+   ]
+  },
+  {
+   "id": "small-budget",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "Is my business too small for this?",
+   "alt": [
+    "minimum spend for mmm",
+    "does mmm work for small brands",
+    "low sales volume",
+    "is my data enough"
+   ],
+   "keywords": [
+    "too small",
+    "small budget",
+    "small brand",
+    "low volume",
+    "minimum spend"
+   ],
+   "a": "Size matters less than variation. What the model needs is channels that are each a meaningful share of spend and that go up and down over two years or so.\n\nVery low weekly sales are a real limit, though. With a few dozen orders a week, chance alone moves sales by 15% to 20%, and no model can see through that. In that case model a steadier outcome, or use the tool for the direction of budget, not to forecast.",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "accuracy",
+    "how-many-weeks",
+    "group-channels"
+   ]
+  },
+  {
+   "id": "vs-other-tools",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "How does this compare with Robyn, Meridian or PyMC-Marketing?",
+   "alt": [
+    "kawkit vs robyn",
+    "is this like google meridian",
+    "difference from pymc marketing",
+    "other mmm tools",
+    "lightweightmmm"
+   ],
+   "keywords": [
+    "robyn",
+    "meridian",
+    "pymc-marketing",
+    "lightweightmmm",
+    "compare",
+    "other tools",
+    "alternatives"
+   ],
+   "a": "Those are code libraries for data scientists; Kawkit is a no-code service built on the same family of methods. It uses the geometric adstock and logistic saturation found in PyMC-Marketing, in a Bayesian model like Meridian's. Robyn takes a non-Bayesian route.\n\nThe libraries offer more: several regions in one model, effects that change over time, reach and frequency. Kawkit trades that for minutes instead of days, and for plain-language output.",
+   "links": [],
+   "related": [
+    "model-spec",
+    "multi-market",
+    "time-varying"
+   ]
+  },
+  {
+   "id": "reproducible",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "Will I get the same answer if I run the same data twice?",
+   "alt": [
+    "is the model reproducible",
+    "random seed",
+    "results changed between runs",
+    "why are two runs slightly different"
+   ],
+   "keywords": [
+    "same answer",
+    "reproducible",
+    "seed",
+    "random",
+    "twice",
+    "slightly different"
+   ],
+   "a": "Each run has its own random seed, so two separate submissions of the same file give slightly different numbers, within the ranges shown. That is expected with this kind of fitting.\n\nIf two runs of the same data differ a lot, the model is not well pinned down by your data: check the convergence check and how wide the ranges are.",
+   "links": [],
+   "related": [
+    "convergence",
+    "compare-runs",
+    "roi-range-wide"
+   ]
+  },
+  {
+   "id": "share-link",
+   "level": "using",
+   "category": "Sharing and export",
+   "q": "How do I share a result with someone?",
+   "alt": [
+    "send results to my boss",
+    "share a link",
+    "can others see my results",
+    "read only link",
+    "how long does a share link last"
+   ],
+   "keywords": [
+    "share",
+    "sharing",
+    "send",
+    "link",
+    "boss",
+    "colleague",
+    "read-only"
+   ],
+   "a": "Open a finished run and choose Share. You get a link that anyone can open without an account, for 30 days. Choose \"Stop sharing\" to switch it off at once.\n\nPeople with the link see the results only. They cannot see your uploaded file, your other runs or your account, and they get the stored recommendation without the interactive optimiser.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "download-results",
+    "print-report",
+    "is-data-private"
+   ]
+  },
+  {
+   "id": "download-results",
+   "level": "using",
+   "category": "Sharing and export",
+   "q": "Can I download my results?",
+   "alt": [
+    "export to csv",
+    "download the data",
+    "get the numbers in excel",
+    "export recommended split",
+    "posterior summary download"
+   ],
+   "keywords": [
+    "download",
+    "export",
+    "csv",
+    "excel",
+    "spreadsheet"
+   ],
+   "a": "Yes, from the Download tab, as CSV files: channel results, weekly fit and contributions, the recommended split, and a posterior summary. The Optimise budget tab also downloads the split for whatever budget and limits you have set.\n\nEvery chart has a \"Show table\" button too.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "print-report",
+    "share-link"
+   ]
+  },
+  {
+   "id": "print-report",
+   "level": "using",
+   "category": "Sharing and export",
+   "q": "Can I get a PDF report?",
+   "alt": [
+    "print the results",
+    "save as pdf",
+    "printable report",
+    "report for a presentation"
+   ],
+   "keywords": [
+    "pdf",
+    "print",
+    "report",
+    "presentation",
+    "slides"
+   ],
+   "a": "Yes. Choose \"Open printable report\" above the results. It puts every section on one page, with the recommended split. Then choose \"Print or save as PDF\" and pick Save as PDF in your browser's print window.",
+   "links": [],
+   "related": [
+    "share-link",
+    "download-results"
+   ]
+  },
+  {
+   "id": "compare-runs",
+   "level": "using",
+   "category": "Sharing and export",
+   "q": "How do I compare two runs?",
+   "alt": [
+    "compare results side by side",
+    "what changed between runs",
+    "compare two models"
+   ],
+   "keywords": [
+    "compare",
+    "side by side",
+    "two runs",
+    "what changed"
+   ],
+   "a": "When you have two finished runs, My runs shows \"Compare two runs\". Pick run A and run B to see each channel's ROI range side by side, plus fit and convergence for both.\n\nIt is the quickest way to see what a new prior, new weeks of data or a different channel grouping changed.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "rerun-priors",
+    "rerun-new-data"
+   ]
+  },
+  {
+   "id": "rename-run",
+   "level": "using",
+   "category": "Sharing and export",
+   "q": "Can I rename a run?",
+   "alt": [
+    "change the name of a run",
+    "edit run name"
+   ],
+   "keywords": [
+    "rename",
+    "name of a run",
+    "run name"
+   ],
+   "a": "Yes. Open the run and choose Rename.",
+   "links": [
+    {
+     "label": "My runs",
+     "to": "/runs"
+    }
+   ],
+   "related": [
+    "compare-runs"
+   ]
+  },
+  {
+   "id": "mobile",
+   "level": "using",
+   "category": "Sharing and export",
+   "q": "Does it work on a phone?",
+   "alt": [
+    "mobile support",
+    "can i use it on my phone",
+    "tablet",
+    "which browsers are supported"
+   ],
+   "keywords": [
+    "phone",
+    "mobile",
+    "tablet",
+    "browser",
+    "safari",
+    "chrome",
+    "responsive"
+   ],
+   "a": "Yes, down to a small phone screen, in current versions of Chrome, Edge, Firefox and Safari. Charts are easier to read on a larger screen, and every chart has a table view.",
+   "links": [],
+   "related": [
+    "download-results"
+   ]
+  },
+  {
+   "id": "neon-who",
+   "level": "new",
+   "category": "About Neon",
+   "q": "Who are you?",
+   "alt": [
+    "what is neon",
+    "are you a bot",
+    "are you ai",
+    "are you a real person",
+    "what can you do",
+    "how can you help me"
+   ],
+   "keywords": [
+    "neon",
+    "who are you",
+    "bot",
+    "robot",
+    "human",
+    "real person",
+    "what can you do"
+   ],
+   "a": "I'm Neon, Kawkit's guide. I answer from a fixed set of questions and answers about the tool and about marketing mix modelling, written by the people who built it.\n\nI am not a live AI and I cannot see your data or your results, so I can explain what a number means but not tell you what yours is. Ask in your own words, or pick a topic below.",
+   "links": [],
+   "related": [
+    "how-to-start",
+    "read-results-first",
+    "what-data-needed"
+   ]
+  },
+  {
+   "id": "neon-topics",
+   "level": "new",
+   "category": "About Neon",
+   "q": "What can I ask you?",
+   "alt": [
+    "help",
+    "what topics do you cover",
+    "show me the questions",
+    "list of questions",
+    "menu"
+   ],
+   "keywords": [
+    "help",
+    "topics",
+    "menu",
+    "questions",
+    "options",
+    "what can i ask"
+   ],
+   "a": "I can help with:\n\n- Getting started and what the tool does\n- Preparing your data and connecting sources\n- Adding what you already know (priors)\n- Running a model and what the statuses mean\n- Reading results: ROI, ranges, accuracy, baseline\n- Budget planning: optimiser, scenarios, targets, what to test\n- How the model works, for the technically minded",
+   "links": [],
+   "related": [
+    "how-to-start",
+    "what-data-needed",
+    "read-results-first",
+    "optimiser-how",
+    "model-spec"
+   ]
+  },
+  {
+   "id": "hello",
+   "level": "new",
+   "category": "About Neon",
+   "q": "Hello",
+   "alt": [
+    "hi",
+    "hey",
+    "hi there",
+    "good morning",
+    "good afternoon",
+    "hello neon",
+    "hiya"
+   ],
+   "keywords": [
+    "hello",
+    "hi",
+    "hey",
+    "morning",
+    "afternoon",
+    "greetings"
+   ],
+   "a": "Hello, I'm Neon. Ask me anything about Kawkit or about marketing mix modelling, from \"what is this?\" to \"why is my baseline so low?\".",
+   "links": [],
+   "related": [
+    "what-is-kawkit",
+    "how-to-start",
+    "neon-topics"
+   ]
+  },
+  {
+   "id": "thanks",
+   "level": "new",
+   "category": "About Neon",
+   "q": "Thank you",
+   "alt": [
+    "thanks",
+    "thanks a lot",
+    "cheers",
+    "great thanks",
+    "perfect",
+    "got it",
+    "that was helpful"
+   ],
+   "keywords": [
+    "thanks",
+    "thank",
+    "cheers",
+    "helpful",
+    "perfect",
+    "got it"
+   ],
+   "a": "You're welcome. Ask me anything else whenever you like.",
+   "links": [],
+   "related": [
+    "neon-topics"
+   ]
+  },
+  {
+   "id": "bye",
+   "level": "new",
+   "category": "About Neon",
+   "q": "Goodbye",
+   "alt": [
+    "bye",
+    "see you",
+    "that's all",
+    "no more questions"
+   ],
+   "keywords": [
+    "bye",
+    "goodbye",
+    "see you",
+    "that's all"
+   ],
+   "a": "Goodbye, and good luck with the budget.",
+   "links": [],
+   "related": []
+  },
+  {
+   "id": "contact",
+   "level": "new",
+   "category": "About Neon",
+   "q": "How do I contact support or report a problem?",
+   "alt": [
+    "who do i contact",
+    "report a bug",
+    "something is broken",
+    "talk to a human",
+    "get more help",
+    "feedback"
+   ],
+   "keywords": [
+    "contact",
+    "support",
+    "bug",
+    "broken",
+    "human",
+    "feedback",
+    "report a problem"
+   ],
+   "a": "I can only answer from my prepared answers, and there is no live support chat. If something looks broken, note what you did and what you saw, and send it to whoever shared Kawkit with you.\n\nIf a run failed, the reason is shown on its page, and I can explain most of them.",
+   "links": [],
+   "related": [
+    "run-failed",
+    "validation-errors",
+    "server-offline"
+   ]
+  }
+ ]
+}

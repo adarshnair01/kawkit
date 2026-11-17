@@ -10,6 +10,7 @@ import MyRuns from './pages/MyRuns'
 import NewRun from './pages/NewRun'
 import RunPage from './pages/RunPage'
 import Sample from './pages/Sample'
+import Neon from './neon/Neon'
 import Shared from './pages/Shared'
 import SignIn from './pages/SignIn'
 
@@ -82,6 +83,7 @@ export default function App() {
           <Link to="/lessons">Lessons from five real brands</Link>
         </div>
       </footer>
+      <Neon />
     </div>
   )
 }

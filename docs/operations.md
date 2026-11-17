@@ -110,6 +110,20 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   brands changed, and a free data check at `/check` that runs entirely in the browser and carries the checked
   data over to New run after sign-in.
 
+### Neon, the help chat
+
+- A chat button on every page ("Ask Neon"). It answers from `web/src/neon/qa.json` (137 questions, tagged for
+  new, everyday and expert users) in the browser; nothing is sent to a server and it is not live AI. The panel
+  says so. The JSON is loaded only when someone opens the chat.
+- Matching (`web/src/neon/match.ts`) scores each question against the entry's question, alternate wordings,
+  keywords and answer text, with rarer words counting for more, a synonym list and a light stemmer. Low
+  scores get "is it one of these?" or an honest "I don't have an answer for that" with a topic browser.
+- Measured once on 40 questions written after tuning stopped: right answer first 31/40 (78%), in the top
+  three 35/40 (88%). Off-topic questions (weather, recipes) get the fallback.
+- To add or change answers, edit `qa.json` (fields: `id`, `level`, `category`, `q`, `alt`, `keywords`, `a`,
+  `links`, `related`) and run `npm test`; the tests check every question finds its own answer.
+- Based on the approach of LiteBot (MIT, Emir Yüksel); the notification sound was left out.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on
