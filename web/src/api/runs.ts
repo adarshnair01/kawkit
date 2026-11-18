@@ -57,12 +57,18 @@ export async function downloadUpload(path: string): Promise<string> {
   return data.text()
 }
 
-export async function submitRun(userId: string, name: string, csv: string, summary: DataSummary, priors: Priors): Promise<string> {
+export async function submitRun(userId: string, name: string, csv: string, summary: DataSummary, priors: Priors, breakdown?: { csv: string; spec: Record<string, { dims: string[] }> }): Promise<string> {
   const id = crypto.randomUUID()
   const path = `${userId}/${id}.csv`
   const up = await supabase.storage.from('uploads').upload(path, new Blob([csv], { type: 'text/csv' }), { contentType: 'text/csv' })
   if (up.error) throw up.error
-  const { data, error } = await supabase.rpc('submit_run', { p_name: name, p_upload_path: path, p_summary: summary, p_priors: priors, p_settings: {} })
+  if (breakdown) {
+    // kept in the run's own folder so retention and account deletion remove it with the run
+    const b = await supabase.storage.from('uploads').upload(`${userId}/${id}/breakdown.csv`, new Blob([breakdown.csv], { type: 'text/csv' }), { contentType: 'text/csv' })
+    if (b.error) throw b.error
+  }
+  const settings = breakdown ? { breakdown: breakdown.spec } : {}
+  const { data, error } = await supabase.rpc('submit_run', { p_name: name, p_upload_path: path, p_summary: summary, p_priors: priors, p_settings: settings })
   if (error) throw error
   return data as string
 }

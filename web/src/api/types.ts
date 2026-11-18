@@ -166,6 +166,11 @@ export interface Plan {
   lift_pct: { mean: number; low: number; high: number }
   prob_better: number
   notes: string[]
+  /** breakdown plans only */
+  mode?: 'keep' | 'resplit'
+  by_channel?: { name: string; current: number; recommended: number; lower: number; upper: number; items_resplit: boolean; p_resplit_helps: number | null }[]
+  lift_between?: number
+  lift_within?: number
 }
 
 export interface RunResult {
@@ -176,6 +181,8 @@ export interface RunResult {
   curves: Curve[]
   default_plan: Plan | null
   draws_path: string
+  breakdown?: BreakdownResults
+  default_plan_resplit?: Plan | null
 }
 
 export interface Draws {
@@ -187,6 +194,32 @@ export interface Draws {
   beta: number[][]
   lam: number[][]
   alpha: number[][]
+  /** present for runs with a breakdown: `channels` are then items, and these say which channel each is in */
+  groups?: { channel_names: string[]; channel_of: number[] }
+}
+
+export interface BreakdownItem {
+  name: string
+  levels: Record<string, string>
+  total_spend: number
+  spend_share: number
+  roi: Interval & { p_above_channel: number }
+  contribution_share: Interval
+  separable: 'yes' | 'partly' | 'no'
+  shrink: number
+}
+export interface BreakdownChannel {
+  name: string
+  dims: string[]
+  items: BreakdownItem[]
+  effects: { dim: string; level: string; effect: Interval; p_above_1: number }[]
+  tau: ({ dim: string } & Interval)[]
+}
+export interface BreakdownResults {
+  channels: BreakdownChannel[]
+  range_widen: number
+  warnings?: DataWarning[]
+  channel_only?: { name: string; roi: Interval }[]
 }
 
 export interface Heartbeat {

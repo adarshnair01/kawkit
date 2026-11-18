@@ -166,6 +166,7 @@ export default function RunPage() {
   }
   const slots = Math.max(beat?.max_concurrency ?? 1, 1)
   const wait = position === null ? null : Math.ceil((position + 1) / slots) * SECONDS_PER_RUN
+  const breakdownSpec = (run.settings as { breakdown?: Record<string, { dims: string[] }> } | undefined)?.breakdown
   const priorChannels = Object.entries(run.priors ?? {}).filter(([, p]) => p.roi_low !== undefined || p.carryover_weeks !== undefined)
 
   return (
@@ -187,6 +188,7 @@ export default function RunPage() {
           <p className="text-sm muted mt-1">
             Submitted {fmtDate(run.created_at)} · {run.data_summary?.weeks ?? '?'} weeks, {run.data_summary?.channels?.length ?? '?'} channels
             {priorChannels.length > 0 ? ` · your priors on ${priorChannels.map(([c]) => title(c)).join(', ')}` : ' · default priors'}
+            {breakdownSpec && ` · broken down: ${Object.entries(breakdownSpec).map(([c, v]) => `${title(c)} by ${v.dims.join(' and ')}`).join('; ')}`}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -236,6 +238,11 @@ export default function RunPage() {
         </section>
       )}
       {actionError && <div className="notice notice-bad" role="alert">{actionError}</div>}
+      {run.status === 'finished' && breakdownSpec && result && !result.breakdown && (
+        <div className="notice notice-warn" role="alert">
+          <strong>This run was fitted without its breakdown.</strong> The model server that ran it is an older version and ignored the breakdown file, so these are channel-level results. Update the worker on the server, then <Link to={`/new?from=${run.id}`}>run it again</Link>.
+        </div>
+      )}
 
       {(run.status === 'queued' || run.status === 'running') && (
         <>

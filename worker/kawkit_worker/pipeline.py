@@ -6,8 +6,10 @@ from typing import Callable
 
 import numpy as np
 
+from . import hier as H
 from . import model as M
-from .summarise import mape, predict, summarise
+from .breakdown import BreakdownError, build_items
+from .summarise import interval, mape, predict, summarise, thin
 from .validate import validate_csv
 
 HOLDOUT_WEEKS = 13
@@ -36,7 +38,8 @@ def benchmark(y: np.ndarray, n_fit: int) -> dict:
 
 def run_pipeline(csv_bytes: bytes, priors: dict | None, seed: int, settings: dict | None = None,
                  on_progress: Callable[[float], None] | None = None,
-                 should_stop: Callable[[], bool] | None = None, cores: int | None = None) -> dict:
+                 should_stop: Callable[[], bool] | None = None, cores: int | None = None,
+                 breakdown_bytes: bytes | None = None) -> dict:
     settings = settings or {}
     draws = int(min(max(settings.get("draws", 1000), 100), 2000))
     tune = int(min(max(settings.get("tune", 1000), 100), 2000))
@@ -52,23 +55,34 @@ def run_pipeline(csv_bytes: bytes, priors: dict | None, seed: int, settings: dic
         raise M.ModelError("The file did not pass the server's checks: " + " ".join(e["message"] for e in v.errors[:3]))
     ds = v.dataset
     clean = M.clean_priors(priors, ds.channels)
-    design = M.build_design(ds)
+    bd = None
+    if settings.get("breakdown"):
+        if breakdown_bytes is None:
+            raise M.ModelError("The run asks for a breakdown but its breakdown file is missing. Submit it again.")
+        try:
+            bd = build_items(ds, breakdown_bytes, settings["breakdown"])
+        except BreakdownError as e:
+            raise M.ModelError(str(e)) from e
+        ds = bd.dataset
+    design = H.build_hier_design(ds, bd.items) if bd else M.build_design(ds)
     prior_check = M.check_priors_plausible(design, clean)
     if on_progress:
         on_progress(0.03)
 
-    fit = M.fit(design, clean, seed=seed, chains=chains, draws=draws, tune=tune, cores=cores,
-                on_progress=progress(0.03, 0.75), should_stop=should_stop)
+    fit_fn = H.fit_hier if bd else M.fit
+    fit = fit_fn(design, clean, seed=seed, chains=chains, draws=draws, tune=tune, cores=cores,
+                 on_progress=progress(0.03, 0.7 if bd else 0.75), should_stop=should_stop)
     if on_progress:
-        on_progress(0.75)
+        on_progress(0.7 if bd else 0.75)
 
     # out-of-sample error: fit again without the last 13 weeks, predict them
     holdout_mape = None
     holdout = None
     if len(ds.y) - HOLDOUT_WEEKS >= 52:
-        hd = M.build_design(ds, holdout=HOLDOUT_WEEKS)
-        hfit = M.fit(hd, clean, seed=seed + 7, chains=2, draws=max(draws // 2, 100), tune=max(tune // 2, 100),
-                     cores=cores, retry_on_caution=False, on_progress=progress(0.75, 0.93), should_stop=should_stop)
+        hd = H.build_hier_design(ds, bd.items, holdout=HOLDOUT_WEEKS) if bd else M.build_design(ds, holdout=HOLDOUT_WEEKS)
+        hfit = fit_fn(hd, clean, seed=seed + 7, chains=2, draws=max(draws // 2, 100), tune=max(tune // 2, 100),
+                      cores=cores, retry_on_caution=False,
+                      on_progress=progress(0.7 if bd else 0.75, 0.86 if bd else 0.93), should_stop=should_stop)
         mu, _ = predict(hd, hfit.post)
         holdout_mape = mape(ds.y[hd.n_fit:], mu.mean(axis=0)[hd.n_fit:])
         # what the model, fitted without these weeks, predicted for them
@@ -89,9 +103,19 @@ def run_pipeline(csv_bytes: bytes, priors: dict | None, seed: int, settings: dic
             "benchmark": benchmark(ds.y, hd.n_fit),
         }
     if on_progress:
-        on_progress(0.94)
+        on_progress(0.86 if bd else 0.94)
 
     out = summarise(fit, holdout_mape, seed)
+    if bd:
+        out["breakdown"]["warnings"] = bd.warnings
+        out["breakdown"]["input"] = bd.summary
+        # the same data without the breakdown, so the channel answers can be compared
+        flat = M.fit(M.build_design(ds), clean, seed=seed + 3, chains=2, draws=max(draws // 2, 100),
+                     tune=max(tune // 2, 100), cores=cores, retry_on_caution=False,
+                     on_progress=progress(0.86, 0.94), should_stop=should_stop)
+        _, fcontrib = predict(flat.design, thin(flat.post))
+        froi = fcontrib.sum(axis=1) / flat.design.spend.sum(axis=0)
+        out["breakdown"]["channel_only"] = [{"name": n, "roi": interval(froi[:, c])} for c, n in enumerate(flat.design.channels)]
     out["diagnostics"]["prior_check"] = prior_check
     out["fit"]["holdout"] = holdout
     out["summary"] = v.summary

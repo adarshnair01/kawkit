@@ -12,7 +12,9 @@ export function Summary({ result }: { result: RunResult }) {
   // what to do
   let action = 'No budget recommendation is available for this run.'
   if (plan) {
-    const moves = plan.channels.map((c, i) => ({ c, d: plan.recommended[i] - plan.current[i], pct: plan.current[i] > 0 ? (plan.recommended[i] - plan.current[i]) / plan.current[i] : 0 }))
+    // with a breakdown the plan is per item; the headline speaks about channels
+    const rows = plan.by_channel ? plan.by_channel.map((b) => ({ name: b.name, current: b.current, recommended: b.recommended })) : plan.channels.map((c, i) => ({ name: c, current: plan.current[i], recommended: plan.recommended[i] }))
+    const moves = rows.map((r) => ({ c: r.name, d: r.recommended - r.current, pct: r.current > 0 ? (r.recommended - r.current) / r.current : 0 }))
     const up = moves.filter((m) => m.pct > 0.03).sort((a, b) => b.d - a.d)
     const down = moves.filter((m) => m.pct < -0.03).sort((a, b) => a.d - b.d)
     if (!up.length || !down.length) action = 'Your current split is already close to the best the model can find within the default limits.'
@@ -40,6 +42,8 @@ export function Summary({ result }: { result: RunResult }) {
   if (prior.length) caveats.push(`the data could not say much about ${list(prior.map((c) => title(c.name)))}, so ${prior.length === 1 ? 'that estimate mostly reflects' : 'those estimates mostly reflect'} the starting assumption`)
   if (wide.length) caveats.push(`the range for ${list(wide.map((c) => title(c.name)))} is wide`)
   if (conflict.length) caveats.push(`the data disagrees with the belief you gave for ${list(conflict.map((c) => title(c.name)))}`)
+  const blind = (result.breakdown?.channels ?? []).filter((b) => b.items.every((i) => i.separable === 'no'))
+  if (blind.length) caveats.push(`the data could not tell apart the parts inside ${list(blind.map((b) => title(b.name)))}, so those breakdowns are close to the channel average`)
   if (f.media_share.median > 0.6) caveats.push(`the model credits ${Math.round(f.media_share.median * 100)}% of revenue to advertising, more than is usual, so the recommendation is likely overconfident`)
   const h = f.holdout
   let trust: string

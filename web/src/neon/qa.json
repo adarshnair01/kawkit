@@ -4341,6 +4341,155 @@
    ]
   },
   {
+   "id": "breakdown-what",
+   "level": "new",
+   "category": "Your data",
+   "q": "Can I see which platform or campaign inside a channel worked best?",
+   "alt": [
+    "break a channel down",
+    "campaign level results",
+    "platform level roi",
+    "split search into brand and non brand",
+    "deep dive into a channel",
+    "which campaign performs best",
+    "sub channel analysis"
+   ],
+   "keywords": [
+    "breakdown",
+    "campaign",
+    "platform",
+    "deep dive",
+    "sub-channel",
+    "dimension"
+   ],
+   "a": "Yes. On New run, after your main file is checked, the \"Break channels down\" step takes a second file with one row per week, channel and breakdown, for example date, channel, platform, campaign, spend. For each channel you choose what to break it down by: one column, or several combined.\n\nThe model then estimates every item together with its channel. You get a Breakdown tab with each item's ROI range, and the budget optimiser can move money between items as well as between channels.\n\nWhere the data can't tell items apart, Kawkit says so instead of inventing a difference.",
+   "links": [
+    {
+     "label": "Start a new run",
+     "to": "/new"
+    },
+    {
+     "label": "See an example",
+     "to": "/sample?example=breakdown"
+    }
+   ],
+   "related": [
+    "breakdown-file",
+    "breakdown-cannot-separate"
+   ]
+  },
+  {
+   "id": "breakdown-file",
+   "level": "using",
+   "category": "Your data",
+   "q": "What should my breakdown file look like?",
+   "alt": [
+    "breakdown file format",
+    "long format spend file",
+    "columns for the breakdown",
+    "dimension columns",
+    "template for breakdown"
+   ],
+   "keywords": [
+    "breakdown file",
+    "long format",
+    "template",
+    "dimensions"
+   ],
+   "a": "One row per week, channel and breakdown value:\n- date, in YYYY-MM-DD (daily rows are added up into the weeks of your main file)\n- channel, using the same names as your main file\n- spend\n- any other columns, such as platform, campaign or region. Each one is offered as a way to break a channel down.\n\nEach channel's items should add up to its spend in the main file. If they cover less, the rest is kept as \"Not broken down\"; if they add up to more than 2% over, the check explains where. At most 12 items per channel; rare values are folded into \"Other\".",
+   "links": [
+    {
+     "label": "Start a new run",
+     "to": "/new"
+    }
+   ],
+   "related": [
+    "breakdown-what",
+    "breakdown-combine"
+   ]
+  },
+  {
+   "id": "breakdown-combine",
+   "level": "pro",
+   "category": "How the model works",
+   "q": "What happens when I break a channel down by two columns, like platform and region?",
+   "alt": [
+    "combine dimensions",
+    "platform and region together",
+    "two breakdowns at once",
+    "cross product of breakdowns",
+    "interaction between platform and region"
+   ],
+   "keywords": [
+    "combine",
+    "two dimensions",
+    "additive",
+    "interaction"
+   ],
+   "a": "The effects are combined additively. The model learns one effect per platform and one per region, and an item's scale is the channel's scale times its platform effect times its region effect. Each effect is learned from many items, so it is far better pinned down than twelve separate platform-and-region numbers.\n\nThat assumes a platform behaves the same way in every region. If you know a specific combination is different, tell us, because interactions are not part of the model yet.",
+   "links": [],
+   "related": [
+    "breakdown-what",
+    "breakdown-cannot-separate"
+   ]
+  },
+  {
+   "id": "breakdown-cannot-separate",
+   "level": "using",
+   "category": "Reading results",
+   "q": "Why does it say the data can't tell my items apart?",
+   "alt": [
+    "items have the same roi",
+    "brand and non brand look identical",
+    "why are the breakdown ranges so wide",
+    "items overlap",
+    "cannot separate campaigns"
+   ],
+   "keywords": [
+    "separate",
+    "tell apart",
+    "overlap",
+    "collinear",
+    "constant mix"
+   ],
+   "a": "A model can only learn the difference between two items if their spend moved differently over time. If brand and non-brand search always rose and fell together, or you always split a channel 60/40, then any difference in their ROI would produce the same sales either way, and no model can find it.\n\nIn that case the items come back close to the channel average with wide ranges, marked \"can't tell\", and the optimiser will not move money between them. The channel as a whole is still measured well.\n\nTo learn the difference, change the mix on purpose for a few weeks, ideally in a planned test, then re-run.",
+   "links": [
+    {
+     "label": "What to test next",
+     "to": "/sample"
+    }
+   ],
+   "related": [
+    "what-to-test-next",
+    "roi-range-wide"
+   ]
+  },
+  {
+   "id": "breakdown-optimiser",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "How does the optimiser work with a breakdown?",
+   "alt": [
+    "resplit inside a channel",
+    "move money between campaigns",
+    "optimise within a channel",
+    "two level optimiser",
+    "keep the mix of each channel"
+   ],
+   "keywords": [
+    "resplit",
+    "within channel",
+    "between channels",
+    "mix"
+   ],
+   "a": "You choose how money may move:\n- Between channels only: each channel keeps its mix of items. This is the safe default.\n- Also re-split inside channels: items can move up or down by a quarter of their share, but only in channels where the re-split helps in at least 80% of the model's draws. Elsewhere the mix is kept and the plan says why.\n\nThe result splits the expected gain into the part from moving money between channels and the part from re-splitting inside them. The second rests on weaker evidence, so check it before acting.",
+   "links": [],
+   "related": [
+    "optimiser-how",
+    "breakdown-cannot-separate"
+   ]
+  },
+  {
    "id": "neon-who",
    "level": "new",
    "category": "About Neon",

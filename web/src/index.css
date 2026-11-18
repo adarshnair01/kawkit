@@ -444,3 +444,8 @@ html { overflow-x: clip; }
 .cmd-keys div { display: grid; grid-template-columns: 11rem 1fr; gap: 0.8rem; align-items: center; }
 .cmd-keys dd { margin: 0; }
 kbd { font: inherit; font-size: 0.8rem; font-weight: 600; padding: 0.1rem 0.45rem; border: 1px solid var(--border); background: var(--bg, #f6f7fc); }
+
+.bd-channel { border: 1px solid var(--border); padding: 0.7rem 0.9rem; margin: 0; min-width: 0; }
+.bd-channel legend { padding: 0 0.3rem; }
+
+.bd-total th, .bd-total td { background: var(--accent-soft); font-weight: 600; }

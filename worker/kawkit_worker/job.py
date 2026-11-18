@@ -26,8 +26,12 @@ def run_job(run: dict, conn, cores: int) -> None:
                 os._exit(1)
             conn.send(("progress", float(p)))
 
-        out = run_pipeline(csv_bytes, run.get("priors") or {}, int(run["seed"]), run.get("settings") or {},
-                           on_progress=on_progress, cores=cores)
+        settings = run.get("settings") or {}
+        breakdown_bytes = None
+        if settings.get("breakdown"):
+            breakdown_bytes = supa.download("uploads", f"{run['user_id']}/{run['id']}/breakdown.csv")
+        out = run_pipeline(csv_bytes, run.get("priors") or {}, int(run["seed"]), settings,
+                           on_progress=on_progress, cores=cores, breakdown_bytes=breakdown_bytes)
         draws_path = f"{run['user_id']}/{run['id']}/draws.json"
         supa.upload("results", draws_path, json.dumps(out.pop("draws"), separators=(",", ":")).encode(),
                     "application/json")

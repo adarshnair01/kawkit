@@ -8,7 +8,7 @@ import numpy as np
 
 from . import model as M
 from .model import Design, Fit
-from .optimise import current_split, optimise
+from .optimise import current_split, optimise, optimise_items
 
 KEEP = 500
 N_CURVE = 40
@@ -36,6 +36,10 @@ def thin(post: dict[str, np.ndarray], keep: int = KEEP) -> dict[str, np.ndarray]
     return {k: v[idx] for k, v in post.items()}
 
 
+def is_hier(design: Design) -> bool:
+    return getattr(design, "items", None) is not None
+
+
 def predict(design: Design, post: dict[str, np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
     """Return (mu, contributions) for all rows of the design, in revenue units.
 
@@ -47,6 +51,13 @@ def predict(design: Design, post: dict[str, np.ndarray]) -> tuple[np.ndarray, np
         mu = mu + post["fourier"] @ design.fourier.T
     if "delta" in post:
         mu = mu + post["delta"] @ design.zs.T
+    if is_hier(design):
+        from . import hier as H
+
+        ic = H.item_contrib(design, post, max_draws=d)  # (D, T, I)
+        contrib = np.stack([ic[:, :, design.items.channel == c].sum(axis=2) for c in range(len(design.channels))], axis=2)
+        mu = mu + contrib.sum(axis=2)
+        return mu * design.ymax, contrib * design.ymax
     contrib = np.empty((d, design.T, len(design.channels)))
     for i in range(d):
         ad = M.adstock_np(design.xs, post["alpha"][i])
@@ -70,9 +81,14 @@ def prior_roi_draws(design: Design, priors: dict, c: int, n: int, rng: np.random
     beta = np.abs(rng.normal(0, design.beta_scale[c], n))
     alpha = rng.beta(a, b, n)
     lam = rng.gamma(3.0, 1.0, n)
-    x = design.xs[: design.n_fit, c]
     spend = float(design.spend[: design.n_fit, c].sum())
     out = np.empty(n)
+    if is_hier(design):  # the channel's items together, each at the typical item scale
+        x = design.xs_item[: design.n_fit][:, design.items.channel == c]
+        for i in range(n):
+            out[i] = beta[i] * M.saturation_np(M.adstock_np(x, alpha[i]), lam[i]).sum() * design.ymax / spend
+        return out
+    x = design.xs[: design.n_fit, c]
     for i in range(n):
         out[i] = beta[i] * M.saturation_np(M.adstock_np(x, alpha[i]), lam[i]).sum() * design.ymax / spend
     return out
@@ -105,6 +121,31 @@ def confidence_label(low: float, median: float, high: float) -> str:
         return "low"
     rel = (high - low) / median
     return "high" if rel < 0.5 else "medium" if rel <= 1 else "low"
+
+
+def channel_response(design: Design, post: dict[str, np.ndarray], c: int, xs: np.ndarray, current_items=None) -> np.ndarray:
+    """(D, len(xs)) weekly revenue from channel c at steady weekly spend xs, in revenue units.
+    With a breakdown the channel's spend is spread over its items in today's proportions."""
+    xs = np.atleast_1d(np.asarray(xs, dtype=float))
+    xmax = design.xmax[c]
+    if not is_hier(design):
+        return post["beta"][:, c][:, None] * design.ymax * np.tanh(post["lam"][:, c][:, None] * xs[None, :] / (2 * xmax))
+    m = np.where(design.items.channel == c)[0]
+    cur = np.asarray(current_items)[m]
+    sh = cur / cur.sum() if cur.sum() > 0 else np.full(len(m), 1.0 / len(m))
+    w = np.exp(post["logw"][:, m])  # (D, k)
+    out = np.zeros((len(post["sigma"]), len(xs)))
+    for k in range(len(m)):
+        out += (post["beta"][:, c] * w[:, k])[:, None] * design.ymax * np.tanh(post["lam"][:, c][:, None] * xs[None, :] * sh[k] / (2 * xmax))
+    return out
+
+
+def widen_logw(post: dict[str, np.ndarray], k: float) -> dict[str, np.ndarray]:
+    """Widen the spread of item scales around each item's median by k (see hier.ITEM_RANGE_WIDEN)."""
+    if k == 1.0 or "logw" not in post:
+        return post
+    med = np.median(post["logw"], axis=0, keepdims=True)
+    return {**post, "logw": med + k * (post["logw"] - med)}
 
 
 def make_draws(design: Design, post: dict[str, np.ndarray]) -> dict:
@@ -155,6 +196,8 @@ def summarise(fit: Fit, holdout_mape: float | None, seed: int) -> dict:
     roi = total_contrib / total_spend
     revenue_total = float(y.sum())
     current = current_split(design.spend)
+    hier = is_hier(design)
+    cur_items = current_split(design.items.spend) if hier else None
     channels = []
     curves = []
     for c, name in enumerate(design.channels):
@@ -163,10 +206,22 @@ def summarise(fit: Fit, holdout_mape: float | None, seed: int) -> dict:
         roi_c = roi[:, c]
         roi_iv = interval(roi_c)
         # marginal ROI: revenue from one more unit of steady weekly spend at the current level
-        u = lam * current[c] / (2 * xmax)
-        mroi = beta * design.ymax * lam / (2 * xmax) / np.cosh(u) ** 2
+        if hier:
+            eps = max(xmax / 200.0, 1e-9)
+            r_hi = channel_response(design, post, c, [current[c] + eps], cur_items)[:, 0]
+            r_lo = channel_response(design, post, c, [max(current[c] - eps, 0.0)], cur_items)[:, 0]
+            mroi = (r_hi - r_lo) / (current[c] + eps - max(current[c] - eps, 0.0))
+        else:
+            u = lam * current[c] / (2 * xmax)
+            mroi = beta * design.ymax * lam / (2 * xmax) / np.cosh(u) ** 2
         half_life = np.log(0.5) / np.log(np.clip(alpha, 1e-6, 1 - 1e-6))
-        saturation = xmax * 2 * math.atanh(0.9) / lam  # weekly spend at 90% of the maximum effect
+        if hier:  # weekly spend at 90% of the channel's maximum effect, found on a grid
+            gx = np.linspace(0.0, 25.0 * xmax, 600)
+            gr = channel_response(design, post, c, gx, cur_items)
+            top = (post["beta"][:, c] * np.exp(post["logw"][:, design.items.channel == c]).sum(axis=1)) * design.ymax
+            saturation = gx[np.minimum((gr >= 0.9 * top[:, None]).argmax(axis=1), len(gx) - 1)]
+        else:
+            saturation = xmax * 2 * math.atanh(0.9) / lam  # weekly spend at 90% of the maximum effect
         lo_t, med_t, hi_t = q(contrib[:, :, c])
 
         prior = prior_roi_draws(design, priors, c, 2000, rng)
@@ -210,7 +265,7 @@ def summarise(fit: Fit, holdout_mape: float | None, seed: int) -> dict:
 
         top = max(1.5 * float(design.spend[:, c].max()), 1.0)
         xs = np.linspace(0, top, N_CURVE)
-        resp = beta[:, None] * design.ymax * np.tanh(lam[:, None] * xs[None, :] / (2 * xmax))
+        resp = channel_response(design, post, c, xs, cur_items)
         c_lo, c_med, c_hi = q(resp)
         curves.append({"name": name, "spend": r(xs, 6), "median": r(c_med, 5), "low": r(c_lo, 5), "high": r(c_hi, 5),
                        "current": float(current[c]), "max_weekly": float(design.spend[:, c].max())})
@@ -231,9 +286,20 @@ def summarise(fit: Fit, holdout_mape: float | None, seed: int) -> dict:
             })
 
     media = total_contrib.sum(axis=1) / revenue_total
-    draws = make_draws(design, post)
-    plan_draws = {**draws, "beta": post["beta"], "lam": post["lam"], "xmax": design.xmax}
-    default_plan = optimise(plan_draws, current)
+    breakdown = None
+    default_plan_resplit = None
+    if hier:
+        from . import hier as H
+
+        draws = H.item_draws(design, post, cur_items, H.ITEM_RANGE_WIDEN)
+        plan_draws = {**draws, "beta": np.asarray(draws["beta"]), "lam": np.asarray(draws["lam"]), "xmax": np.asarray(draws["xmax"])}
+        default_plan = optimise_items(plan_draws, cur_items, "keep")
+        default_plan_resplit = optimise_items(plan_draws, cur_items, "resplit")
+        breakdown = H.breakdown_results(design, post, H.ITEM_RANGE_WIDEN)
+    else:
+        draws = make_draws(design, post)
+        plan_draws = {**draws, "beta": post["beta"], "lam": post["lam"], "xmax": design.xmax}
+        default_plan = optimise(plan_draws, current)
 
     return {
         "diagnostics": fit.diagnostics,
@@ -244,4 +310,5 @@ def summarise(fit: Fit, holdout_mape: float | None, seed: int) -> dict:
         "curves": curves,
         "default_plan": default_plan,
         "draws": draws,
+        **({"breakdown": breakdown, "default_plan_resplit": default_plan_resplit} if hier else {}),
     }

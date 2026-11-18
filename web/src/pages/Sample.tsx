@@ -9,6 +9,7 @@ interface SampleFile {
   run: Pick<Run, 'name' | 'priors' | 'data_summary'>
   result: RunResult
   truth?: Record<string, number>
+  item_truth?: Record<string, number>
   source?: { vertical: string; subvertical: string; territory: string; currency: string; citation: string; doi: string; license: string; license_url: string }
 }
 
@@ -57,6 +58,7 @@ const MACRO_LABELS: Record<string, string> = {
 
 const EXAMPLES = {
   synthetic: { label: 'Made-up data', file: 'sample', draws: 'draws', csv: 'sample.csv' },
+  breakdown: { label: 'Made-up data, channels broken down', file: 'breakdown', draws: 'breakdown-draws', csv: 'breakdown-main.csv' },
   home: { label: 'Home decor brand', file: 'real-home', draws: 'real-home-draws', csv: 'real-home.csv' },
   beauty: { label: 'Skincare brand', file: 'real-beauty', draws: 'real-beauty-draws', csv: 'real-beauty.csv' },
   apparel: { label: 'Apparel brand', file: 'real-apparel', draws: 'real-apparel-draws', csv: 'real-apparel.csv' },
@@ -98,10 +100,11 @@ export default function Sample() {
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-semibold" style={{ minWidth: '9.5rem' }}>Known answers</span>
         {button('synthetic')}
+        {button('breakdown')}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-semibold" style={{ minWidth: '9.5rem' }}>Real, anonymised brands</span>
-        {(Object.keys(EXAMPLES) as Key[]).filter((k) => k !== 'synthetic').map(button)}
+        {(Object.keys(EXAMPLES) as Key[]).filter((k) => k !== 'synthetic' && k !== 'breakdown').map(button)}
       </div>
     </div>
   )
@@ -131,6 +134,34 @@ export default function Sample() {
         <Tour />
       </div>
       {picker}
+      {key === 'breakdown' && sample.item_truth && (
+        <>
+          <p className="muted">
+            A finished run on made-up data where three channels are split into parts: social into three platforms, search into brand and non-brand (always split in the same proportions), and display into platform and region. Download the <a href={csv} download>main file</a> and the <a href={`${import.meta.env.BASE_URL}sample/breakdown-long.csv`} download>breakdown file</a> to see what you would upload. Open the Breakdown tab for the results, and Optimise budget to move money between channels and inside them.
+          </p>
+          <details className="card">
+            <summary className="font-semibold cursor-pointer">Because the data is made up, the true ROI of every part is known. Compare it with the model’s ranges.</summary>
+            <div className="overflow-x-auto mt-2">
+              <table className="data num">
+                <caption className="sr-only">True ROI of each item against the model’s estimate</caption>
+                <thead><tr><th scope="col">Item</th><th scope="col">True ROI</th><th scope="col">Model median</th><th scope="col">Model 90% range</th><th scope="col">Truth inside range</th></tr></thead>
+                <tbody>
+                  {(sample.result.breakdown?.channels ?? []).flatMap((c) => c.items).map((it) => {
+                    const t = sample.item_truth![it.name]
+                    return (
+                      <tr key={it.name}>
+                        <th scope="row" style={{ fontWeight: 500 }}>{it.name.split(' / ').map((p, i) => (i ? p : title(p))).join(' / ')}</th>
+                        <td>{fmtRoi(t)}</td><td>{fmtRoi(it.roi.median)}</td><td>{fmtRoi(it.roi.low)} to {fmtRoi(it.roi.high)}</td><td>{t >= it.roi.low && t <= it.roi.high ? 'Yes' : 'No'}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-sm muted mt-2">Search is the case to look at: brand and non-brand have very different true returns, but because their spend never changed proportion the data cannot show it, so the model says so and keeps their ranges wide.</p>
+          </details>
+        </>
+      )}
       {key === 'synthetic' && sample.truth && (
         <>
           <p className="muted">
@@ -159,7 +190,7 @@ export default function Sample() {
           </details>
         </>
       )}
-      {key !== 'synthetic' && src && (
+      {key !== 'synthetic' && key !== 'breakdown' && src && (
         <>
           <p className="muted">
             Real, anonymised data from one online brand: {src.vertical}{src.subvertical !== 'Other' ? ` (${src.subvertical})` : ''}, based in the {src.territory}. {s.weeks} weeks from {s.start} to {s.end}, {fmtNum(s.revenue_total)} {src.currency} in revenue, {s.channels.length} paid channels{s.controls.length ? ` and ${s.controls.length} outside factors in the baseline` : ''}. Daily rows were summed to weeks; revenue is merchandise value after discounts. No priors were given.{' '}

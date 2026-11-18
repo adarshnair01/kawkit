@@ -165,36 +165,70 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
 - **Jump bar and shortcuts** (`components/CommandBar.tsx`): Ctrl/⌘+K, ?, /, N, G then R. My runs gets a search box
   once there are three or more runs.
 
-### Breakdown (hierarchical) model: step 1, measured
+### Breakdown: channels split into items (platform, campaign, region)
 
-Code: `worker/kawkit_worker/hier.py` (model), `synth.make_hier_dataset` (known-truth data), `worker/scripts/hier_bench.py`
-(study), `worker/tests/test_hier.py`. Not yet wired into runs, the file format or the optimiser.
+Users upload a second file next to the main one and choose, per channel, which dimensions to break it down by.
+The model estimates the items together with their channel.
 
-Design: each item's scale = channel scale x exp(sum of per-dimension effects). Effects are partially pooled
-(sum-to-zero, tau ~ HalfNormal(0.5), non-centred). Items in a channel share carry-over and saturation speed.
-Dimensions combine additively. Sampled with target_accept 0.98, because the pooling can form a funnel when the
-data cannot separate items (0.9 gave divergences in that case, and one failing run in 78).
+**Files**
+- Main file: unchanged. A channel's `spend_<channel>` column is its total.
+- Breakdown file, long form: `date, channel, spend` plus any other columns, each offered as a dimension. Daily rows are
+  added into the main file's weeks. Stored at `uploads/{user}/{run}/breakdown.csv`; the run's `settings.breakdown` holds
+  `{channel: {dims: [...]}}`. Retention, orphan clean-up and account deletion remove it with the run.
+- Checks (browser `web/src/breakdown/parse.ts` mirrors worker `breakdown.py`; the server's verdict wins): at most 12 items per channel; levels
+  under 2% of the channel's spend, or beyond the top 7 per dimension, fold into "Other"; spelling and case variants merge; items
+  covering under 98% of the main file's channel total leave the rest as "Not broken down"; items adding up to more than 2% over
+  are an error; items active in under 20% of weeks are flagged. The browser also rates how separable items are from how their
+  spend shares move over time (before any run).
 
-Measured on made-up data with known answers, 6 seeds per scenario, 156 weeks, 5 channels (4 cores):
+**Model** (`worker/kawkit_worker/hier.py`): item scale = channel scale x exp(sum of per-dimension effects). Effects are
+partially pooled (sum-to-zero, tau ~ HalfNormal(0.5), non-centred). Items in a channel share carry-over and saturation speed.
+Several dimensions combine additively, so each effect is learned from many items. No effect is shared across channels. One item
+per channel and no dimensions is the channel-only model (tested). Sampled with `target_accept` 0.98: the pooling can form a funnel
+when items cannot be separated, and 0.9 gave divergences there. A run with a breakdown also fits the channel-only model on the same
+data, so the Breakdown tab can show channel ROI with and without it (about 15 s more).
 
-| Scenario | item 90% ranges holding the truth | channel ranges: breakdown vs channel-only | holdout error: breakdown vs channel-only | time: breakdown vs channel-only |
+**Results** (`breakdown` in the result JSON): per item ROI with 90% range, share of spend and of the channel's revenue,
+chance above the channel average, and "can the data tell it apart?" (from how far the item's scale moved from its prior);
+per dimension value, a multiplicative effect with range. `draws.json` is then item-level: every item is a "channel" with
+`groups.channel_of` saying which channel it is in, so the scenario planner works on items unchanged.
+
+**Optimiser** (`optimise_items` in `optimise.py`, mirrored by `optimiseItems` in `optimize.ts`, parity fixture
+`web/src/optimizer/items.fixture.json`, regenerate with `uv run python -m scripts.make_item_fixture`):
+1. Per channel, the expected response is built on a grid of channel totals. Mode "keep" spreads each total over the items in
+   today's proportions. Mode "resplit" lets each item's share move by at most 25%.
+2. Resplit is used for a channel only if it helps in at least 80% of the posterior draws at today's spend. Otherwise the mix
+   is kept and the plan says the data cannot tell the items apart.
+3. The existing channel optimiser then runs on those curves, and item spends are filled in.
+4. The plan reports the gain from moving money between channels and the extra gain from re-splitting inside them separately.
+The default plan (`default_plan`) is "keep"; `default_plan_resplit` is also stored for shared links.
+
+**Measured** (made-up data with known answers, 156 weeks, 5 channels, 4 cores; `worker/scripts/hier_bench.py`, 6 seeds each):
+
+| Scenario | item 90% ranges holding the truth | channel ranges: breakdown vs channel-only | holdout error: breakdown vs channel-only | time |
 |---|---|---|---|---|
-| A: 3 separable platforms | 14/18 | 26/30 vs 23/30 | 1.59% vs 2.01% | 25s vs 16s |
-| B: 2 items, constant mix (cannot be separated) | 10/12 | 29/30 vs 28/30 | 1.96% vs 2.07% | 24s vs 16s |
-| C: platform x region, additive | 19/24 | 24/30 vs 25/30 | 1.98% vs 2.07% | 27s vs 15s |
-| D: all 5 channels split, 15 items | 78/90 | 28/30 vs 18/30 | 2.10% vs 3.67% | 46s vs 15s |
-| E: items have different saturation speeds (assumption broken) | 14/18 | 26/30 vs 25/30 | 1.79% vs 1.90% | 25s vs 16s |
+| A: 3 separable platforms | 14/18 | 26/30 vs 23/30 | 1.59% vs 2.01% | 25 s vs 16 s |
+| B: 2 items, constant mix (cannot be separated) | 10/12 | 29/30 vs 28/30 | 1.96% vs 2.07% | 24 s vs 16 s |
+| C: platform x region, additive | 19/24 | 24/30 vs 25/30 | 1.98% vs 2.07% | 27 s vs 15 s |
+| D: all 5 channels split, 15 items | 78/90 | 28/30 vs 18/30 | 2.10% vs 3.67% | 46 s vs 15 s |
+| E: items saturate at different speeds (assumption broken) | 14/18 | 26/30 vs 25/30 | 1.79% vs 1.90% | 25 s vs 16 s |
 
-- Inseparable items are not ranked confidently: P(best item beats worst) averaged 0.47 in B, against 0.84 to 0.87
-  when the items can be separated. The channel total stays right either way.
-- Item ranges are mildly overconfident: 135/162 (83%) hold the truth against a nominal 90%. Channel ranges:
-  133/150 (89%). A looser pooling prior (tau 0.8) did not fix it; a tighter one (0.25) made the inseparable case
-  confidently wrong. Before this is shown to users, item ranges need either a calibrated widening (a larger
-  study should fix the factor) or a label saying they are optimistic.
-- When the data was generated with item-level structure, the channel-only model was the worse one (D: 18/30 channel
-  ranges). When it wasn't (A, C, E), the two are close.
-- Time is 1.5x to 3x, and not yet measured on the Mac mini.
-- Run the study with `uv run python -m scripts.hier_bench [scenario ...]`; slow tests with `uv run pytest -m slow tests/test_hier.py`.
+- Inseparable items are not ranked confidently (P(best beats worst) 0.47 in B, 0.84 to 0.87 when separable).
+- **Calibration** (`scripts/hier_calib.py`, 10 fresh seeds, 270 items): item ranges held the truth 83% of the time at nominal 90%.
+  Widening log-ROI ranges about their median by 1.2 gave 91.9% on seeds 7 to 11 and 90.4% on seeds 12 to 16 (held out), so
+  `hier.ITEM_RANGE_WIDEN = 1.2` is applied to item ROI ranges and to the item scales the optimiser sees. Channel ranges needed
+  none (89%). A looser pooling prior (tau 0.8) did not help; a tighter one (0.25) made the inseparable case confidently wrong.
+  Scenario E (assumption broken) stays at about 83% even widened.
+- **End to end, as the product shows it** (`scripts/hier_pipeline_check.py`, 6 fresh seeds, a dataset with social, search and display
+  broken down): item ranges held the truth in 49 of 53 cases (92%) and channel ranges in 27 of 30 (90%). The best item beat the
+  worst by median in 6/6 (social), 5/6 (display) and 5/6 (search, where the ranges overlap almost completely).
+- Of the 50 calibration fits, 48 passed the sampler checks first time. Production runs retry once with a longer warm-up.
+- Not yet measured: time on the Mac mini; real brands (the five Conjura examples have no natural breakdown in the weekly files).
+- Example for visitors: Sample result > "Made-up data, channels broken down" (`worker/scripts/make_breakdown_sample.py`).
+- **After deploying, update the worker on the Mac** (`git pull && ./launchd/restart.sh`). An older worker ignores the breakdown;
+  the run page then says "This run was fitted without its breakdown".
+- Studies: `uv run python -m scripts.hier_bench [scenario]`, `scripts.hier_calib out.json`, `scripts.hier_pipeline_check`;
+  slow tests: `uv run pytest -m slow tests/test_hier.py`.
 
 ## Different from the design, on purpose
 

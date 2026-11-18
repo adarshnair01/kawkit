@@ -11,6 +11,8 @@ import { EVENTS, withEvents, type EventKey } from '../connectors/events'
 import { fetchLink, LinkError, resolveLink } from '../connectors/link'
 import { applyMapping, checkMapping, DATE_FORMATS, detectDateFormat, guessColumns, isCanonical, readSheet, type Column, type DateFormat, type Role, type Sheet } from '../connectors/mapping'
 import { fmtCompact, fmtNum, fmtPct, palette, title } from '../lib/format'
+import { analyse, readLong, trimmedCsv, type LongFile, type Spec } from '../breakdown/parse'
+import { BreakdownCard } from '../components/BreakdownCard'
 import { availableFixes } from '../validation/fix'
 import { MAX_BYTES, validateCsv, type Validation } from '../validation/validate'
 
@@ -80,6 +82,10 @@ export default function NewRun({ guest = false }: { guest?: boolean }) {
   const [country, setCountry] = useState<Country>('US')
   const [indicators, setIndicators] = useState<Indicator[]>([])
   const [econBusy, setEconBusy] = useState(false)
+  const [bdFile, setBdFile] = useState<LongFile | null>(null)
+  const [bdName, setBdName] = useState('')
+  const [bdSpec, setBdSpec] = useState<Spec>({})
+  const [bdError, setBdError] = useState<string | null>(null)
   const [econNote, setEconNote] = useState<{ ok: boolean; text: string } | null>(null)
 
   /** Check a file that is already in the model's layout and show its summary. */
@@ -90,6 +96,9 @@ export default function NewRun({ guest = false }: { guest?: boolean }) {
     setValidation(v)
     setError(null)
     setLoadError(null)
+    setBdFile(null)
+    setBdSpec({})
+    setBdError(null)
     setName((n) => n || label.replace(/\.csv$/i, '').slice(0, 60))
     setTimeout(() => summaryRef.current?.focus(), 50)
   }
@@ -226,6 +235,23 @@ export default function NewRun({ guest = false }: { guest?: boolean }) {
       setLoadError('That example could not be loaded. Try again.')
     }
   }
+  const onBreakdownFile = async (f: File | undefined) => {
+    if (!f) return
+    setBdError(null)
+    if (f.size > MAX_BYTES) return setBdError('The breakdown file is larger than 10 MB.')
+    const parsed = readLong(await f.text())
+    if (typeof parsed === 'string') return setBdError(parsed)
+    setBdFile(parsed)
+    setBdName(f.name)
+    setBdSpec({})
+  }
+  const clearBreakdown = () => {
+    setBdFile(null)
+    setBdSpec({})
+    setBdError(null)
+  }
+  const analysis = useMemo(() => (bdFile && validation?.dataset ? analyse(validation.dataset, bdFile, bdSpec) : null), [bdFile, bdSpec, validation])
+  const bdBlocking = !!analysis && (analysis.errors.length > 0 || analysis.plans.some((p) => !!p.error))
   const fixes = useMemo(() => (csv && validation && validation.errors.length ? availableFixes(validation.errors) : []), [csv, validation])
   const applyFix = (apply: (t: string) => string) => {
     if (csv) accept(apply(csv), fileName)
@@ -268,6 +294,15 @@ export default function NewRun({ guest = false }: { guest?: boolean }) {
         load(text, `${run.name}.csv`)
         setName(`${run.name} (re-run)`.slice(0, 80))
         setForms(Object.fromEntries(Object.entries(run.priors ?? {}).map(([ch, p]) => [ch, { low: p.roi_low?.toString() ?? '', high: p.roi_high?.toString() ?? '', weeks: p.carryover_weeks?.toString() ?? '', note: p.note ?? '' }])))
+        const bd = (run.settings as { breakdown?: Spec } | undefined)?.breakdown
+        if (bd) {
+          const parsed = readLong(await downloadUpload(`${run.user_id}/${run.id}/breakdown.csv`))
+          if (typeof parsed !== 'string') {
+            setBdFile(parsed)
+            setBdName('Breakdown from the earlier run.csv')
+            setBdSpec(bd)
+          }
+        }
         setStep('priors')
       } catch (e) {
         if (!cancelled) setLoadError(`Could not load that run’s data: ${friendlyError(e)}`)
@@ -303,14 +338,15 @@ export default function NewRun({ guest = false }: { guest?: boolean }) {
   const finished = runs?.filter((r) => r.status === 'finished') ?? []
   const oldest = finished.length >= MAX_FINISHED ? finished[finished.length - 1] : null
   const impossible = !!implied && implied.low > 1
-  const canSubmit = !!csv && !!validation?.summary && validation.errors.length === 0 && parsed.problems.length === 0 && !impossible && name.trim().length > 0 && activeCount < 3 && !busy
+  const canSubmit = !!csv && !!validation?.summary && validation.errors.length === 0 && parsed.problems.length === 0 && !bdBlocking && !impossible && name.trim().length > 0 && activeCount < 3 && !busy
 
   const submit = async () => {
     if (!session || !csv || !validation?.summary) return
     setBusy(true)
     setError(null)
     try {
-      const id = await submitRun(session.user.id, name.trim(), csv, validation.summary, parsed.priors)
+      const breakdown = bdFile && Object.keys(bdSpec).length ? { csv: trimmedCsv(bdFile, bdSpec), spec: bdSpec } : undefined
+      const id = await submitRun(session.user.id, name.trim(), csv, validation.summary, parsed.priors, breakdown)
       navigate(`/runs/${id}`)
     } catch (e) {
       setError(friendlyError(e))
@@ -541,6 +577,9 @@ export default function NewRun({ guest = false }: { guest?: boolean }) {
                       </>
                     )}
                   </section>
+                  {!guest && (
+                    <BreakdownCard channels={ds.channels} file={bdFile} fileName={bdName} spec={bdSpec} analysis={analysis} error={bdError} onFile={onBreakdownFile} onClear={clearBreakdown} onSpec={setBdSpec} />
+                  )}
                   <div className="flex flex-wrap gap-2">
                     {guest ? (
                       <button type="button" className="btn btn-primary" onClick={keepAndSignIn}>Sign in to run the model on this data</button>

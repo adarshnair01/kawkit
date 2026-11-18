@@ -180,3 +180,22 @@ def make_hier_dataset(seed: int = 11, weeks: int = 156, noise: float = 0.02, bas
         chan_roi[ch] = float(sum(item_contrib_total[i] for i in idx) / sum(items_obj.spend[:, i].sum() for i in idx))
     truth = HierTruth(item_names=item_names, item_roi=dict(zip(item_names, true_roi)), channel_roi=chan_roi)
     return ds, items_obj, truth
+
+
+def hier_csvs(ds, items, dims_by_channel: dict[str, list[str]]) -> tuple[bytes, bytes]:
+    """(main wide CSV, long breakdown CSV) for a make_hier_dataset result, as a user would upload them."""
+    header = ["date", "revenue", *[f"spend_{c}" for c in ds.channels], "control_promo"]
+    main = [",".join(header)]
+    for w, d in enumerate(ds.dates):
+        main.append(",".join([d, f"{ds.y[w]:.0f}", *[f"{v:.0f}" for v in ds.spend[w]], f"{ds.controls[w, 0]:.0f}"]))
+    all_dims = list(dict.fromkeys(d for dims in dims_by_channel.values() for d in dims))
+    long = [",".join(["date", "channel", *all_dims, "spend"])]
+    for ch, dims in dims_by_channel.items():
+        c = ds.channels.index(ch)
+        for i in np.where(items.channel == c)[0]:
+            parts = items.names[i].split(" / ")[1:]
+            by_dim = dict(zip(dims, parts))
+            cells = [by_dim.get(d, "") for d in all_dims]
+            for w, d in enumerate(ds.dates):
+                long.append(",".join([d, ch, *cells, f"{items.spend[w, i]:.0f}"]))
+    return ("\n".join(main) + "\n").encode(), ("\n".join(long) + "\n").encode()

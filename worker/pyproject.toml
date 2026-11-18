@@ -1,6 +1,6 @@
 [project]
 name = "kawkit-worker"
-version = "0.1.0"
+version = "0.2.0"
 description = "Kawkit model worker: pulls runs from the Supabase queue and fits a Bayesian MMM"
 requires-python = ">=3.12,<3.13"
 license = { text = "MIT" }

@@ -165,9 +165,26 @@ try {
     ok(`real example "${k}" shows the outside-factors test and baseline drivers`, (await page.getByRole('table', { name: /Error on unseen weeks/ }).count()) === 3 && (await page.getByRole('heading', { name: /baseline drivers/ }).count()) === 1)
     await axe(`real example ${k}`)
   }
-  await page.getByRole('button', { name: 'Made-up data' }).click()
+  await page.getByRole('button', { name: 'Made-up data', exact: true }).click()
   await page.getByText('the true ROIs are known').waitFor()
   ok('switching back to the made-up example works', true)
+
+  // breakdown example: items inside channels, with known truth, and the two-level optimiser
+  await go('/sample?example=breakdown')
+  await page.getByRole('tab', { name: 'Breakdown' }).click()
+  await page.getByRole('heading', { name: /Social, broken down by Platform/ }).waitFor({ timeout: 20000 })
+  ok('the breakdown example lists items with their ROI ranges and separability', (await page.getByRole('heading', { name: /Search, broken down by Term/ }).count()) === 1 && (await page.getByRole('heading', { name: /Display, broken down by Platform and Region/ }).count()) === 1 && (await page.getByText('The data can’t tell these items apart.').count()) >= 1)
+  ok('the summary speaks about channels, not items', (await page.locator('.summary').first().innerText()).includes('Move budget') && !/Search \/ brand/.test(await page.locator('.summary').first().innerText()))
+  await axe('sample breakdown tab')
+  await page.getByRole('tab', { name: 'Optimise budget' }).click()
+  await page.getByRole('radio', { name: /Also re-split inside channels/ }).check()
+  await page.getByText(/cannot tell its items apart/).waitFor({ timeout: 10000 })
+  ok('re-splitting is held back where the data cannot tell items apart', (await page.getByText(/Where it comes from/).count()) === 1)
+  await page.getByRole('radio', { name: /Between channels only/ }).check()
+  ok('between-channels mode has no within-channel gain', (await page.getByText(/from re-splitting inside them/).count()) === 0)
+  await axe('sample breakdown optimiser')
+  await page.getByRole('tab', { name: 'Fit' }).click()
+  await go('/sample')
 
   // ---------------------------------------------------------------- lessons page, and the free data check
   await go('/lessons')
@@ -276,6 +293,38 @@ try {
   await page.getByRole('button', { name: 'Home decor brand' }).click()
   await page.getByRole('heading', { name: /Home decor brand \(real example\).csv looks good/ }).waitFor({ timeout: 20000 })
   ok('"No data yet?" loads a real brand that passes the checks', true)
+
+  // ---------------------------------------------------------------- breakdown file: preview checks, then a real run
+  {
+    const { readFileSync } = await import('node:fs')
+    const dir = new URL('../web/public/sample/', import.meta.url)
+    await page.getByLabel('Choose a CSV file').setInputFiles({ name: 'bd-main.csv', mimeType: 'text/csv', buffer: readFileSync(new URL('breakdown-main.csv', dir)) })
+    await page.getByRole('heading', { name: /bd-main.csv looks good/ }).waitFor({ timeout: 20000 })
+    await page.getByRole('heading', { name: 'Break channels down (optional)' }).waitFor()
+    await page.getByLabel('Choose a breakdown CSV file').setInputFiles({ name: 'bd-long.csv', mimeType: 'text/csv', buffer: readFileSync(new URL('breakdown-long.csv', dir)) })
+    await page.getByRole('group', { name: 'Break Social down by' }).getByLabel('Platform').check()
+    await page.getByRole('group', { name: 'Break Search down by' }).getByLabel('Term').check()
+    await page.getByRole('group', { name: 'Break Display down by' }).getByLabel('Platform').check()
+    await page.getByRole('group', { name: 'Break Display down by' }).getByLabel('Region').check()
+    await page.getByText(/^3 items:/).waitFor()
+    ok('the breakdown preview shows items and rates how separable they are', (await page.getByText('The mix barely changes: the model will not be able to separate these').count()) === 1 && (await page.getByText('Items move independently: the model can tell them apart').count()) >= 1 && (await page.getByText(/combined additively/).count()) === 1)
+    await axe('new run (breakdown)')
+    // a breakdown that does not add up is rejected in plain words
+    const longText = readFileSync(new URL('breakdown-long.csv', dir), 'utf8').split('\n').map((l, i) => (i && l.includes(',social,') ? l.replace(/,(\d+)$/, (_, n) => `,${Number(n) * 2}`) : l)).join('\n')
+    await page.getByRole('button', { name: 'Remove this file' }).click()
+    await page.getByLabel('Choose a breakdown CSV file').setInputFiles({ name: 'bd-double.csv', mimeType: 'text/csv', buffer: Buffer.from(longText) })
+    await page.getByRole('group', { name: 'Break Social down by' }).getByLabel('Platform').check()
+    await page.getByText(/adds up to .* more than social's total/).waitFor()
+    ok('a breakdown that adds up to too much is explained and stops the run', await page.getByRole('button', { name: 'Continue' }).count() === 1)
+    await page.getByRole('button', { name: 'Remove this file' }).click()
+    await page.getByLabel('Choose a breakdown CSV file').setInputFiles({ name: 'bd-long.csv', mimeType: 'text/csv', buffer: readFileSync(new URL('breakdown-long.csv', dir)) })
+    await page.getByRole('group', { name: 'Break Social down by' }).getByLabel('Platform').check()
+    await page.getByRole('group', { name: 'Break Display down by' }).getByLabel('Platform').check()
+    await page.getByRole('group', { name: 'Break Display down by' }).getByLabel('Region').check()
+    await page.getByText(/^3 items:/).waitFor()
+    await go('/new')
+    await page.getByRole('heading', { name: 'Bring in your data' }).waitFor()
+  }
 
   // ---------------------------------------------------------------- connectors
   // a spreadsheet with its own column names and day-first dates goes through the column mapper
@@ -430,6 +479,35 @@ try {
   await go('/account')
   await page.getByRole('heading', { name: 'Delete my account' }).waitFor()
   await axe('account')
+
+  // ---------------------------------------------------------------- a real run with a breakdown (last, so it does not change the checks above)
+  {
+    const { readFileSync } = await import('node:fs')
+    const dir = new URL('../web/public/sample/', import.meta.url)
+    await go('/new')
+    await page.getByLabel('Choose a CSV file').setInputFiles({ name: 'bd-main.csv', mimeType: 'text/csv', buffer: readFileSync(new URL('breakdown-main.csv', dir)) })
+    await page.getByRole('heading', { name: /bd-main.csv looks good/ }).waitFor({ timeout: 20000 })
+    await page.getByLabel('Choose a breakdown CSV file').setInputFiles({ name: 'bd-long.csv', mimeType: 'text/csv', buffer: readFileSync(new URL('breakdown-long.csv', dir)) })
+    await page.getByRole('group', { name: 'Break Social down by' }).getByLabel('Platform').check()
+    await page.getByRole('group', { name: 'Break Display down by' }).getByLabel('Platform').check()
+    await page.getByRole('group', { name: 'Break Display down by' }).getByLabel('Region').check()
+    await page.getByText(/^3 items:/).waitFor()
+    await page.getByRole('button', { name: 'Continue' }).click()
+    await page.getByLabel('Run name').fill('E2E breakdown run')
+    await page.getByRole('button', { name: 'Submit run' }).click()
+    await page.getByRole('heading', { name: /E2E breakdown run/ }).waitFor({ timeout: 30000 })
+    ok('a run with a breakdown is submitted', (await page.getByText(/broken down: Social by platform; Display by platform and region/).count()) === 1)
+    // an up-to-date worker returns the Breakdown tab; an older one runs without it and the page says so
+    await page.getByRole('tab', { name: 'Fit' }).waitFor({ timeout: 420000 })
+    const hasTab = (await page.getByRole('tab', { name: 'Breakdown' }).count()) === 1
+    const hasNotice = (await page.getByText('This run was fitted without its breakdown.').count()) === 1
+    ok('the breakdown run finishes with a Breakdown tab, or says the server is out of date', hasTab !== hasNotice, hasTab ? 'worker is current' : 'worker is older')
+    if (hasTab) {
+      await page.getByRole('tab', { name: 'Breakdown' }).click()
+      await page.getByRole('heading', { name: /Social, broken down by Platform/ }).waitFor()
+      await axe('run breakdown tab')
+    }
+  }
 
   // ---------------------------------------------------------------- phone width
   await page.setViewportSize({ width: 360, height: 780 })

@@ -8,7 +8,9 @@ import { testCandidates } from '../lib/testNext'
 import { downloadXlsx } from '../lib/xlsx'
 import { downloadCsv, fmtCompact, fmtNum, fmtPct, fmtRange, fmtRoi, palette, title } from '../lib/format'
 import { exportPlan, Optimise } from './Optimise'
+import { OptimiseBreakdown } from './OptimiseBreakdown'
 import { Summary } from './Summary'
+import { BreakdownView } from './BreakdownView'
 import { CurveExplorer } from './CurveExplorer'
 import { Term } from './Term'
 import { useToast } from './Toast'
@@ -256,6 +258,7 @@ export function ResultsView({ name, result, draws, drawsError, shared, runId }: 
   const tabs = [
     { id: 'overview', label: 'Fit' },
     { id: 'channels', label: 'Channels' },
+    ...(result.breakdown ? [{ id: 'breakdown', label: 'Breakdown' }] : []),
     { id: 'priors', label: 'Prior vs posterior' },
     { id: 'curves', label: 'Response curves' },
     { id: 'optimise', label: 'Optimise budget' },
@@ -336,6 +339,8 @@ export function ResultsView({ name, result, draws, drawsError, shared, runId }: 
             )}
           </div>
         )}
+
+        {show('breakdown') && result.breakdown && <BreakdownView breakdown={result.breakdown} channels={ch} />}
 
         {show('channels') && (
           <div className="grid gap-4">
@@ -430,7 +435,7 @@ export function ResultsView({ name, result, draws, drawsError, shared, runId }: 
 
         {show('optimise') &&
           (draws ? (
-            <Optimise draws={draws} runName={name} runId={runId} />
+            draws.groups ? <OptimiseBreakdown draws={draws} runName={name} runId={runId} /> : <Optimise draws={draws} runName={name} runId={runId} />
           ) : shared ? (
             plan ? (
               <div className="card grid gap-2">

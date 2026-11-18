@@ -18,7 +18,7 @@ def results_prefix(user_id: str, run_id: str) -> str:
 
 
 def _delete_run_files(supa: Supa, rows: list[dict]) -> None:
-    supa.remove("uploads", [r["upload_path"] for r in rows])
+    supa.remove("uploads", [r["upload_path"] for r in rows] + [f"{r['user_id']}/{r['run_id']}/breakdown.csv" for r in rows])
     for r in rows:
         prefix = results_prefix(r["user_id"], r["run_id"])
         files = [f"{prefix}/{f['name']}" for f in supa.list("results", prefix) if f.get("id")]
@@ -70,8 +70,14 @@ def housekeeping(supa: Supa) -> dict:
         if folder.get("id"):
             continue
         user = folder["name"]
-        stale = [f"{user}/{f['name']}" for f in supa.list("uploads", user)
+        entries = supa.list("uploads", user)
+        stale = [f"{user}/{f['name']}" for f in entries
                  if f.get("id") and f["name"].rsplit(".", 1)[0] not in known and _older_than_a_day(f)]
+        # {run}/breakdown.csv folders whose run is gone
+        for sub in entries:
+            if not sub.get("id") and sub["name"] not in known:
+                stale += [f"{user}/{sub['name']}/{f['name']}" for f in supa.list("uploads", f"{user}/{sub['name']}")
+                          if f.get("id") and _older_than_a_day(f)]
         supa.remove("uploads", stale)
         out["orphans"] += len(stale)
     for folder in supa.list("results"):

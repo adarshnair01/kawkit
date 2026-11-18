@@ -1,0 +1,11 @@
+date,channel,platform,campaign,spend
+2024-01-01,social,meta,spring_sale,1200
+2024-01-01,social,tiktok,spring_sale,800
+2024-01-01,social,youtube,always_on,450
+2024-01-01,search,brand,always_on,900
+2024-01-01,search,generic,always_on,1300
+2024-01-08,social,meta,spring_sale,1350
+2024-01-08,social,tiktok,spring_sale,500
+2024-01-08,social,youtube,always_on,470
+2024-01-08,search,brand,always_on,880
+2024-01-08,search,generic,always_on,1500

@@ -117,3 +117,27 @@ def test_no_breakdown_gives_the_channel_only_answer():
     assert np.median(hier.post["beta"], axis=0) == pytest.approx(np.median(flat.post["beta"], axis=0), rel=0.15)
     assert np.median(hier.post["alpha"], axis=0) == pytest.approx(np.median(flat.post["alpha"], axis=0), abs=0.08)
     assert np.median(hier.post["lam"], axis=0) == pytest.approx(np.median(flat.post["lam"], axis=0), rel=0.2)
+
+
+@pytest.mark.slow
+def test_a_run_with_a_breakdown_produces_item_results_and_a_two_level_plan():
+    from kawkit_worker.pipeline import run_pipeline
+    from kawkit_worker.synth import hier_csvs
+
+    ds, items, truth = make_hier_dataset(seed=3, breakdowns=SOCIAL)
+    main, long = hier_csvs(ds, items, {"social": ["platform"]})
+    out = run_pipeline(main, {}, seed=5, settings={"draws": 400, "tune": 400, "breakdown": {"social": {"dims": ["platform"]}}},
+                       breakdown_bytes=long)
+    assert out["diagnostics"]["verdict"] in ("pass", "caution")
+    bd = out["breakdown"]
+    social = next(c for c in bd["channels"] if c["name"] == "social")
+    assert [i["name"] for i in social["items"]] == sorted((i["name"] for i in social["items"]), key=lambda n: -next(x["total_spend"] for x in social["items"] if x["name"] == n))
+    by_name = {i["name"]: i for i in social["items"]}
+    assert by_name["social / meta"]["roi"]["median"] > by_name["social / youtube"]["roi"]["median"]
+    assert {c["name"] for c in bd["channel_only"]} == set(ds.channels)
+    assert out["draws"]["groups"]["channel_names"] == ds.channels
+    assert len(out["draws"]["channels"]) == items.n
+    assert out["default_plan"]["mode"] == "keep" and out["default_plan_resplit"]["mode"] == "resplit"
+    assert out["default_plan"]["expected_recommended"] >= out["default_plan"]["expected_current"]
+    assert [c["name"] for c in out["channels"]] == ds.channels  # channel-level results are unchanged in shape
+    assert out["fit"]["holdout"] is not None

@@ -47,11 +47,11 @@ export interface Limits {
 }
 
 /** Allocate a budget across channels given expected-response curves. Exported for the brute-force test. */
-export function allocate(curve: CurveFn, lower: number[], upper: number[], budget: number): number[] {
+export function allocate(curve: CurveFn, lower: number[], upper: number[], budget: number, steps: number = STEPS): number[] {
   const n = lower.length
   const x = [...lower]
   let remaining = budget - x.reduce((a, b) => a + b, 0)
-  const step = budget > 0 ? budget / STEPS : 0
+  const step = budget > 0 ? budget / steps : 0
 
   while (step > 0 && remaining > 1e-9) {
     const s = Math.min(step, remaining)
@@ -278,4 +278,201 @@ export function budgetForTarget(draws: Draws, current: number[], target: number,
     } else lo = mid
   }
   return finish(plan, true, best.lift.mean)
+}
+
+
+// ------------------------------------------------------------------ breakdown: channels made of items
+
+const N_CHANNEL_GRID = 41
+const INNER_STEPS = 200
+export const SHARE_SLACK = 0.25 // an item's share of its channel may move by this much, relative
+export const PROB_GATE = 0.8 // re-split a channel only when the draws say the re-split helps at least this often
+
+export interface ItemPlan extends Plan {
+  mode: 'keep' | 'resplit'
+  by_channel: { name: string; current: number; recommended: number; lower: number; upper: number; items_resplit: boolean; p_resplit_helps: number | null }[]
+  lift_between: number
+  lift_within: number
+}
+
+export interface ItemLimits {
+  budget?: number
+  channelLower?: number[]
+  channelUpper?: number[]
+  slack?: number
+  gate?: number
+}
+
+/**
+ * Two-level optimiser. `draws` is item level (every item is a "channel") with draws.groups saying which channel each
+ * item is in. Money moves between channels first, then (mode "resplit") between a channel's items, only in channels
+ * where the re-split helps in at least `gate` of the draws. Mirror of optimise_items() in optimise.py.
+ */
+export function optimiseItems(draws: Draws, current: number[], mode: 'keep' | 'resplit' = 'keep', limits: ItemLimits = {}): ItemPlan {
+  const groups = draws.groups!
+  const chan = groups.channel_of
+  const nItems = current.length
+  const nChan = groups.channel_names.length
+  const slack = limits.slack ?? SHARE_SLACK
+  const gate = limits.gate ?? PROB_GATE
+  const sum = (a: number[]) => a.reduce((s, v) => s + v, 0)
+  const members: number[][] = Array.from({ length: nChan }, () => [])
+  chan.forEach((c, i) => members[c].push(i))
+  const curC = members.map((m) => sum(m.map((i) => current[i])))
+  const share = current.map((v, i) => (curC[chan[i]] > 0 ? v / curC[chan[i]] : 1 / members[chan[i]].length))
+  const lowerC = limits.channelLower ?? curC.map((v) => 0.5 * v)
+  const upperC = (limits.channelUpper ?? curC.map((v) => 1.5 * v)).map((u, c) => Math.max(u, lowerC[c]))
+  const requested = limits.budget ?? sum(curC)
+  const notes: string[] = []
+  let budget = requested
+  if (budget < sum(lowerC) - 1e-9) {
+    budget = sum(lowerC)
+    notes.push('The budget is below the sum of the channel minimums, so the minimums were used.')
+  } else if (budget > sum(upperC) + 1e-9) {
+    budget = sum(upperC)
+    notes.push('The budget is above the sum of the channel maximums, so the maximums were used.')
+  }
+
+  const tops = current.map((v, i) => Math.max(upperC[chan[i]] * share[i] * (1 + slack), v * 1.5))
+  const curve = averagedCurves(draws, tops)
+  const D = draws.beta.length
+  const resp = (i: number, d: number, x: number) => response(draws, d, i, x)
+
+  const splitInside = (c: number, xTotal: number, steps: number): number[] => {
+    const m = members[c]
+    const lo = m.map((i) => (1 - slack) * share[i] * xTotal)
+    const hi = m.map((i, k) => Math.max(Math.min((1 + slack) * share[i] * xTotal, tops[i]), lo[k]))
+    return allocate((k, v) => curve(m[k], v), lo, hi, xTotal, steps)
+  }
+
+  const useResplit: boolean[] = new Array(nChan).fill(false)
+  const pHelps: number[] = new Array(nChan).fill(0)
+  if (mode === 'resplit') {
+    for (let c = 0; c < nChan; c++) {
+      const m = members[c]
+      if (m.length < 2 || curC[c] <= 0) continue
+      const best = splitInside(c, curC[c], INNER_STEPS)
+      let helps = 0
+      for (let d = 0; d < D; d++) {
+        let diff = 0
+        m.forEach((i, k) => {
+          diff += resp(i, d, best[k]) - resp(i, d, current[i])
+        })
+        if (diff > 0) helps++
+      }
+      pHelps[c] = helps / D
+      useResplit[c] = pHelps[c] >= gate
+    }
+  }
+
+  // each channel's expected response as a function of its total, on a grid
+  const grids: number[][] = []
+  const values: number[][] = []
+  for (let c = 0; c < nChan; c++) {
+    const top = Math.max(upperC[c], 1e-9)
+    const gx = Array.from({ length: N_CHANNEL_GRID }, (_, k) => (top * k) / (N_CHANNEL_GRID - 1))
+    const gv = gx.map((xv) => {
+      if (useResplit[c] && xv > 0) {
+        const part = splitInside(c, xv, INNER_STEPS)
+        return members[c].reduce((s, i, j) => s + curve(i, part[j]), 0)
+      }
+      return members[c].reduce((s, i) => s + curve(i, xv * share[i]), 0)
+    })
+    grids.push(gx)
+    values.push(gv)
+  }
+  const interp = (c: number, v: number) => {
+    const gx = grids[c]
+    const top = gx[gx.length - 1]
+    const pos = (Math.min(Math.max(v, 0), top) / (top || 1)) * (N_CHANNEL_GRID - 1)
+    const i = Math.min(Math.floor(pos), N_CHANNEL_GRID - 2)
+    const f = pos - i
+    return values[c][i] * (1 - f) + values[c][i + 1] * f
+  }
+  const xc = allocate(interp, lowerC, upperC, budget)
+
+  let x: number[] = new Array(nItems).fill(0)
+  let keepMix: number[] = new Array(nItems).fill(0)
+  for (let c = 0; c < nChan; c++) {
+    const m = members[c]
+    m.forEach((i) => (keepMix[i] = xc[c] * share[i]))
+    const part = useResplit[c] && xc[c] > 0 ? splitInside(c, xc[c], 400) : m.map((i) => keepMix[i])
+    m.forEach((i, k) => (x[i] = part[k]))
+  }
+  const total = (v: number[]) => v.reduce((s, val, i) => s + curve(i, val), 0)
+  const feasibleNow =
+    Math.abs(sum(curC) - budget) <= 1e-6 * Math.max(budget, 1) && curC.every((v, c) => v >= lowerC[c] - 1e-9 && v <= upperC[c] + 1e-9)
+  if (feasibleNow && total(current) > total(x)) {
+    x = [...current]
+    keepMix = [...current]
+  }
+
+  const lift: number[] = []
+  const between: number[] = []
+  const liftPct: number[] = []
+  let curMean = 0
+  let recMean = 0
+  for (let d = 0; d < D; d++) {
+    let cur = 0
+    let rec = 0
+    let keep = 0
+    for (let i = 0; i < nItems; i++) {
+      cur += resp(i, d, current[i])
+      rec += resp(i, d, x[i])
+      keep += resp(i, d, keepMix[i])
+    }
+    curMean += cur / D
+    recMean += rec / D
+    lift.push(rec - cur)
+    between.push(keep - cur)
+    liftPct.push(((rec - cur) / Math.max(cur, 1e-9)) * 100)
+  }
+  const sorted = [...lift].sort((a, b) => a - b)
+  const sortedPct = [...liftPct].sort((a, b) => a - b)
+  const itemLower = [...x]
+  const itemUpper = [...x]
+  for (let c = 0; c < nChan; c++) {
+    if (!useResplit[c]) continue
+    members[c].forEach((i) => {
+      itemLower[i] = (1 - slack) * share[i] * xc[c]
+      itemUpper[i] = (1 + slack) * share[i] * xc[c]
+    })
+  }
+  const byChannel = groups.channel_names.map((name, c) => {
+    const m = members[c]
+    if (mode === 'resplit' && m.length > 1 && !useResplit[c]) {
+      notes.push(`${name}: the data cannot tell its items apart well enough to move money between them (the re-split helps in ${(pHelps[c] * 100).toFixed(0)}% of draws, under ${(gate * 100).toFixed(0)}%). Test before moving.`)
+    }
+    return {
+      name,
+      current: curC[c],
+      recommended: sum(m.map((i) => x[i])),
+      lower: lowerC[c],
+      upper: upperC[c],
+      items_resplit: useResplit[c],
+      p_resplit_helps: m.length > 1 && mode === 'resplit' ? pHelps[c] : null,
+    }
+  })
+  const maxWeekly = draws.max_weekly ?? draws.xmax
+  const meanOf = (a: number[]) => sum(a) / a.length
+  return {
+    budget,
+    requested_budget: requested,
+    channels: draws.channels,
+    current: [...current],
+    recommended: x,
+    lower: itemLower,
+    upper: itemUpper,
+    extrapolated: x.map((v, i) => v > EXTRAPOLATION * maxWeekly[i]),
+    expected_current: curMean,
+    expected_recommended: recMean,
+    lift: { mean: meanOf(lift), median: percentile(sorted, 0.5), low: percentile(sorted, 0.05), high: percentile(sorted, 0.95) },
+    lift_pct: { mean: curMean > 0 ? ((recMean - curMean) / curMean) * 100 : 0, low: percentile(sortedPct, 0.05), high: percentile(sortedPct, 0.95) },
+    prob_better: lift.filter((v) => v > 0).length / D,
+    notes,
+    mode,
+    by_channel: byChannel,
+    lift_between: meanOf(between),
+    lift_within: meanOf(lift) - meanOf(between),
+  }
 }

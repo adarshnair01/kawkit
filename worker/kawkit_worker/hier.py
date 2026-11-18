@@ -157,7 +157,7 @@ def build_hier_model(design: HDesign, priors: dict[str, dict]):
 
 def fit_hier(design: HDesign, priors: dict[str, dict], **kw) -> Fit:
     kw.setdefault("target_accept", 0.98)  # the pooling can form a funnel when the data cannot separate items
-    extra = ["logw", *(["tau"] if design.items.groups else [])]
+    extra = ["logw", *(["tau", *[f"z_{i}" for i in range(len(design.items.groups))]] if design.items.groups else [])]
     return M.fit(design, priors, builder=build_hier_model, extra_names=extra, **kw)
 
 
@@ -211,3 +211,89 @@ def roi_draws(design: HDesign, post: dict[str, np.ndarray], max_draws: int = 500
     chan_contrib = np.stack([contrib[:, it.channel == c].sum(axis=1) for c in range(C)], axis=1)
     chan_roi = chan_contrib / np.maximum(design.spend[:n].sum(axis=0), 1e-9)
     return item_roi, chan_roi
+
+
+# ------------------------------------------------------------------ results for the breakdown
+
+ITEM_RANGE_WIDEN = 1.2  # from the calibration study (docs/operations.md): at 1.0 item ranges held the truth 83% of the time, at 1.2 about 91%
+
+
+def _prior_logw_sd(n_levels: int, n: int = 4000, seed: int = 0) -> float:
+    rng = np.random.default_rng(seed)
+    tau = np.abs(rng.normal(0, TAU_SCALE, n))
+    z = rng.normal(0, 1, (n, n_levels))
+    return float(np.std(tau[:, None] * (z - z.mean(axis=1, keepdims=True))))
+
+
+def item_levels(items: Items, i: int) -> dict[str, str]:
+    return {items.groups[g].dim: items.groups[g].levels[lvl] for g, lvl in items.level_of[i]}
+
+
+def breakdown_results(design: HDesign, post: dict[str, np.ndarray], k: float) -> dict:
+    """What the results screen shows for broken-down channels: item ROI, share, separability, dimension effects."""
+    from .summarise import interval
+
+    D = len(post["sigma"])
+    it = design.items
+    item_roi, chan_roi = roi_draws(design, post, max_draws=D)
+    # the calibration study widened the item ROI ranges themselves (log scale, around each median)
+    log_roi = np.log(np.maximum(item_roi, 1e-12))
+    med = np.median(log_roi, axis=0, keepdims=True)
+    item_roi = np.exp(med + k * (log_roi - med))
+    contrib = item_contrib(design, post, max_draws=D)[:, : design.n_fit].sum(axis=1)  # (D, I)
+    out = []
+    for c, ch in enumerate(design.channels):
+        members = [i for i in range(it.n) if it.channel[i] == c]
+        if len(members) < 2:
+            continue
+        groups = [(gi, g) for gi, g in enumerate(it.groups) if g.channel == c]
+        total_c = contrib[:, members].sum(axis=1)
+        spend_c = float(it.spend[: design.n_fit, members].sum())
+        items_out = []
+        for i in members:
+            logw = post["logw"][:, i]
+            lv = max((len(it.groups[g].levels) for g, _ in it.level_of[i]), default=2)
+            prior_sd = _prior_logw_sd(max(lv, 2))
+            shrink = float(1 - np.std(logw) / max(prior_sd, 1e-9))
+            separable = "yes" if shrink >= 0.5 else "partly" if shrink >= 0.2 else "no"
+            roi_i = item_roi[:, i]
+            spend_i = float(it.spend[: design.n_fit, i].sum())
+            items_out.append({
+                "name": it.names[i], "levels": item_levels(it, i), "total_spend": spend_i,
+                "spend_share": spend_i / max(spend_c, 1e-9),
+                "roi": {**interval(roi_i), "p_above_channel": float(np.mean(roi_i > chan_roi[:, c]))},
+                "contribution_share": interval(contrib[:, i] / np.maximum(total_c, 1e-9)),
+                "separable": separable, "shrink": round(shrink, 3),
+            })
+        effects = []
+        for gi, g in groups:
+            if "tau" not in post or g.col0 < 0:
+                continue
+            z = post[f"z_{gi}"]
+            u = post["tau"][:, gi][:, None] * (z - z.mean(axis=1, keepdims=True))
+            med = np.median(u, axis=0, keepdims=True)
+            eff = np.exp(med + k * (u - med))
+            for li, lvl in enumerate(g.levels):
+                effects.append({"dim": g.dim, "level": lvl, "effect": interval(eff[:, li]), "p_above_1": float(np.mean(eff[:, li] > 1))})
+        out.append({
+            "name": ch, "dims": [g.dim for _, g in groups], "items": items_out, "effects": effects,
+            "tau": [{"dim": g.dim, **interval(post["tau"][:, gi])} for gi, g in groups if "tau" in post],
+        })
+    return {"channels": out, "range_widen": k}
+
+
+def item_draws(design: HDesign, post: dict[str, np.ndarray], current_items: np.ndarray, k: float) -> dict:
+    """Item-level draws for the browser optimiser: every item is a 'channel', and groups say which channel it is in."""
+    from .summarise import r, widen_logw
+
+    wide = widen_logw(post, k)
+    it = design.items
+    chan = it.channel
+    beta = wide["beta"][:, chan] * np.exp(wide["logw"])
+    return {
+        "channels": it.names, "ymax": design.ymax, "xmax": [float(design.xmax[c]) for c in chan],
+        "max_weekly": [float(v) for v in it.spend.max(axis=0)], "current": [float(v) for v in current_items],
+        "beta": [r(row, 5) for row in beta], "lam": [r(row, 5) for row in wide["lam"][:, chan]],
+        "alpha": [r(row, 5) for row in wide["alpha"][:, chan]],
+        "groups": {"channel_names": design.channels, "channel_of": [int(c) for c in chan]},
+    }

@@ -139,3 +139,38 @@ describe('optimiser', () => {
     expect(far.budget).toBeCloseTo(total * 2, 6)
   })
 })
+
+import fixture from './items.fixture.json'
+import { optimiseItems } from './optimize'
+
+describe('item optimiser (matches the python one)', () => {
+  const draws = fixture.draws as unknown as Draws
+  const cur = draws.current
+  for (const mode of ['keep', 'resplit'] as const) {
+    it(`gives the python plan in ${mode} mode`, () => {
+      const py = (fixture.plans as Record<string, { recommended: number[]; lift: { mean: number }; by_channel: { items_resplit: boolean }[] }>)[mode]
+      const plan = optimiseItems(draws, cur, mode)
+      plan.recommended.forEach((v, i) => expect(v).toBeCloseTo(py.recommended[i], 0))
+      expect(plan.lift.mean).toBeCloseTo(py.lift.mean, 1)
+      expect(plan.by_channel.map((c) => c.items_resplit)).toEqual(py.by_channel.map((c) => c.items_resplit))
+    })
+  }
+  it('holds the mix in a channel it cannot separate and re-splits the one it can', () => {
+    const plan = optimiseItems(draws, cur, 'resplit')
+    expect(plan.by_channel[0].items_resplit).toBe(true)
+    expect(plan.by_channel[1].items_resplit).toBe(false)
+    expect(plan.notes.join(' ')).toMatch(/cannot tell its items apart/)
+    expect(plan.lift_within).toBeGreaterThan(0)
+    expect(sum(plan.recommended)).toBeCloseTo(plan.budget, 6)
+  })
+  it('keep mode never changes an item share inside a channel', () => {
+    const plan = optimiseItems(draws, cur, 'keep')
+    const chan = draws.groups!.channel_of
+    for (let c = 0; c < 3; c++) {
+      const idx = chan.map((v, i) => (v === c ? i : -1)).filter((i) => i >= 0)
+      const tot = sum(idx.map((i) => plan.recommended[i]))
+      const tot0 = sum(idx.map((i) => cur[i]))
+      idx.forEach((i) => expect(plan.recommended[i] / tot).toBeCloseTo(cur[i] / tot0, 6))
+    }
+  })
+})
