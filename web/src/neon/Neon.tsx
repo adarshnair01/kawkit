@@ -46,10 +46,12 @@ export default function Neon() {
   const [msgs, setMsgs] = useState<Msg[]>([])
   const [text, setText] = useState('')
   const [typing, setTyping] = useState(false)
+  const [tick, setTick] = useState(0)
   const location = useLocation()
   const input = useRef<HTMLInputElement>(null)
   const launcher = useRef<HTMLButtonElement>(null)
   const log = useRef<HTMLDivElement>(null)
+  const pending = useRef<string | null>(null)
 
   const starters = (m: Matcher) => {
     const ids = STARTERS.find(([re]) => re.test(location.pathname))![1]
@@ -83,6 +85,29 @@ export default function Neon() {
   useEffect(() => {
     if (open) setTimeout(() => input.current?.focus(), 30)
   }, [open])
+
+  // other parts of the site can ask Neon a question: window.dispatchEvent(new CustomEvent('neon:ask', { detail: { id } }))
+  useEffect(() => {
+    const onAsk = (e: Event) => {
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id
+      if (!id) return
+      pending.current = id
+      setOpen(true)
+      setTick((n) => n + 1)
+    }
+    window.addEventListener('neon:ask', onAsk)
+    return () => window.removeEventListener('neon:ask', onAsk)
+  }, [])
+  useEffect(() => {
+    if (!matcher || !pending.current) return
+    const e = matcher.get(pending.current)
+    pending.current = null
+    if (e) {
+      setMsgs((all) => [...all, { from: 'user', text: e.q }])
+      say(answer(e))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matcher, tick])
   useEffect(() => {
     log.current?.scrollTo({ top: log.current.scrollHeight })
   }, [msgs, typing])

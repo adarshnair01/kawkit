@@ -293,6 +293,10 @@ export default function Sample() {
           </p>
         </>
       )}
+      <div className="notice flex flex-wrap items-center justify-between gap-3">
+        <span><strong>Go on, move the money.</strong> No account needed: change the budget split and watch the expected revenue and its range update.</span>
+        <button type="button" className="btn btn-small btn-primary" onClick={() => { window.dispatchEvent(new CustomEvent('kawkit:tab', { detail: { id: 'optimise' } })); setTimeout(() => document.getElementById('scn-h')?.scrollIntoView({ block: 'start' }), 120) }}>Try moving the budget</button>
+      </div>
       <ResultsView key={key} name={key === 'synthetic' ? 'sample' : `real-${key}`} result={sample.result} draws={draws} />
       <p className="notice">Want this for your own data? <Link to="/sign-in">Sign in</Link> and upload a CSV.</p>
     </div>

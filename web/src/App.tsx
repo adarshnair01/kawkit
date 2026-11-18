@@ -8,8 +8,11 @@ import Home from './pages/Home'
 import Lessons from './pages/Lessons'
 import MyRuns from './pages/MyRuns'
 import NewRun from './pages/NewRun'
+import Play from './pages/Play'
 import RunPage from './pages/RunPage'
 import Sample from './pages/Sample'
+import { CommandBar } from './components/CommandBar'
+import { ToastProvider } from './components/Toast'
 import Neon from './neon/Neon'
 import Shared from './pages/Shared'
 import SignIn from './pages/SignIn'
@@ -32,6 +35,7 @@ export default function App() {
   const nav = ({ isActive }: { isActive: boolean }) =>
     `px-2 py-1.5 rounded-md text-sm font-semibold no-underline ${isActive ? 'bg-[var(--accent-soft)] text-[var(--accent-ink)]' : 'text-[var(--text)]'}`
   return (
+    <ToastProvider>
     <div className="min-h-screen flex flex-col">
       <a href="#main" className="skip-link" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus() }}>Skip to content</a>
       <header className="site border-b border-[var(--border)] bg-[var(--surface)]">
@@ -45,6 +49,7 @@ export default function App() {
           </Link>
           <nav aria-label="Main" className="flex flex-wrap items-center gap-1 flex-1">
             <NavLink to="/sample" className={nav}>Sample result</NavLink>
+            <NavLink to="/play" className={nav}>Play</NavLink>
             {!session && <NavLink to="/check" className={nav}>Check my data</NavLink>}
             {session && <NavLink to="/runs" className={nav}>My runs</NavLink>}
             {session && <NavLink to="/new" className={nav}>New run</NavLink>}
@@ -67,6 +72,7 @@ export default function App() {
           <Route path="/sample" element={<Sample />} />
           <Route path="/check" element={<NewRun guest />} />
           <Route path="/lessons" element={<Lessons />} />
+          <Route path="/play" element={<Play />} />
           <Route path="/shared/:token" element={<Shared />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/runs" element={<RequireAuth><MyRuns /></RequireAuth>} />
@@ -84,6 +90,8 @@ export default function App() {
         </div>
       </footer>
       <Neon />
+      <CommandBar />
     </div>
+    </ToastProvider>
   )
 }

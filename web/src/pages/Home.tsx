@@ -89,7 +89,7 @@ export default function Home() {
             <Link to="/sample" className="btn btn-primary">Try the sample result</Link>
             {session ? <Link to="/new" className="btn">Start a new run</Link> : <Link to="/check" className="btn">Check your data, free</Link>}
           </div>
-          <p className="hero-note">The sample needs no account. It includes a made-up example with known answers and <Link to="/sample?example=home">five real e-commerce brands</Link>.</p>
+          <p className="hero-note">The sample needs no account. It includes a made-up example with known answers and <Link to="/sample?example=home">five real e-commerce brands</Link>. Or <Link to="/play">see if you can beat the model</Link> at splitting a budget.</p>
         </div>
       </section>
 

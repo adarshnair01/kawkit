@@ -56,6 +56,24 @@ try {
   await page.keyboard.press('Escape')
   ok('Esc closes the tour', (await page.getByRole('region', { name: 'Guided tour' }).count()) === 0)
 
+  // glossary: a dotted term explains itself and hands over to Neon
+  await page.getByRole('tab', { name: 'Fit' }).click()
+  await page.getByRole('button', { name: 'R-hat', exact: true }).first().click()
+  await page.getByText('A check that the model’s separate calculations agree').waitFor()
+  await axe('glossary popover open')
+  await page.getByRole('button', { name: 'Tell me more in Neon →' }).click()
+  const neonAsk = page.getByRole('dialog', { name: /Neon/ })
+  await neonAsk.getByText(/converge/i).first().waitFor({ timeout: 15000 })
+  ok('a glossary term opens Neon with the full answer', true)
+  await page.keyboard.press('Escape')
+  await neonAsk.waitFor({ state: 'detached' })
+
+  // the sample page invites guests to move the budget without an account
+  await page.getByRole('button', { name: 'Try moving the budget' }).click()
+  await page.getByRole('heading', { name: 'Try your own split' }).waitFor()
+  ok('"Try moving the budget" opens the planner for a guest', true)
+  await page.getByRole('tab', { name: 'Fit' }).click()
+
   // keyboard only: move through the tabs with arrow keys
   await page.getByRole('tab', { name: 'Fit' }).focus()
   for (const [name, check] of [
@@ -100,6 +118,25 @@ try {
   ok('target mode says when a target is out of reach', true)
   await axe('sample planners')
 
+  // drag a slider: with the total fixed, the other channels give way
+  await page.getByRole('tab', { name: 'Optimise budget' }).click()
+  const slider = page.getByLabel(/^Drag .* weekly spend$/).first()
+  const lastBefore = await page.getByLabel(/^Drag .* weekly spend$/).last().inputValue()
+  const max = Number(await slider.getAttribute('max'))
+  await slider.fill(String(Math.round(max * 0.9)))
+  const lastAfter = await page.getByLabel(/^Drag .* weekly spend$/).last().inputValue()
+  ok('dragging one channel moves money out of the others while the total stays fixed', lastBefore !== lastAfter && (await page.getByText('Change a number to see what happens.').count()) === 0)
+  await axe('sample sliders')
+
+  // the response curve explorer
+  await page.getByRole('tab', { name: 'Response curves' }).click()
+  const tryBox = page.getByLabel(/^Try a weekly spend/).first()
+  await tryBox.fill(String(Math.round(Number(await tryBox.getAttribute('max')) * 0.8)))
+  await page.getByText(/Expect about/).first().waitFor()
+  ok('the response curve explorer reports revenue at a chosen spend', true)
+  await axe('sample curve explorer')
+  await page.getByRole('tab', { name: 'Optimise budget' }).click()
+
   const dl = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Download recommended split (CSV)' }).click()
   ok('recommended split downloads as CSV', (await (await dl).suggestedFilename()).endsWith('.csv'))
@@ -139,11 +176,34 @@ try {
   ok('lessons page shows the per-brand accuracy table', (await page.getByRole('row').count()) === 6)
   await axe('lessons')
 
+  // jump bar and shortcut list
+  await page.keyboard.press('Control+k')
+  await page.getByRole('dialog', { name: /Jump to/ }).waitFor()
+  await page.getByRole('combobox', { name: 'Jump to' }).fill('check my')
+  await page.keyboard.press('Enter')
+  await page.getByRole('heading', { name: 'Check your data' }).waitFor()
+  ok('Ctrl+K jumps to a page from the keyboard', true)
+  await page.keyboard.press('?')
+  await page.getByRole('dialog', { name: 'Keyboard shortcuts' }).waitFor()
+  await axe('shortcuts dialog')
+  await page.keyboard.press('Escape')
+  ok('? opens the shortcut list and Esc closes it', (await page.getByRole('dialog', { name: 'Keyboard shortcuts' }).count()) === 0)
+
+  // Beat the model
+  await go('/play')
+  await page.getByRole('heading', { name: /^Split .* a week across/ }).waitFor({ timeout: 20000 })
+  await axe('play')
+  await page.getByRole('button', { name: 'Lock it in' }).click()
+  await page.getByText('You captured').waitFor()
+  ok('the game scores a split against the model', (await page.getByText('Your score').count()) === 1)
+  await axe('play result')
+
   // ---------------------------------------------------------------- Neon, the help chat
   const launcher = page.locator('.neon-launcher')
   await launcher.click()
   const neon = page.getByRole('dialog', { name: /Neon/ })
   await neon.waitFor()
+  await neon.getByRole('button', { name: 'Clear the conversation' }).click()
   await neon.getByRole('button', { name: 'Browse all topics' }).first().waitFor()
   ok('Neon opens with suggested questions', true)
   await neon.getByLabel('Ask Neon a question').fill('how much data do i need')
@@ -187,6 +247,8 @@ try {
   await page.keyboard.press('Enter')
   await page.getByRole('heading', { name: 'My runs' }).waitFor({ timeout: 20000 })
   ok('account created and signed in', true)
+  await page.getByRole('heading', { name: 'Let’s get your first model cooking' }).waitFor({ timeout: 20000 })
+  ok('the empty My runs page welcomes a new user with three steps', (await page.getByRole('heading', { name: 'Let’s get your first model cooking' }).count()) === 1 && (await page.getByRole('link', { name: 'Try a real brand' }).count()) === 1)
   await axe('my runs (empty)')
 
   // ---------------------------------------------------------------- bad file, then the sample
@@ -196,6 +258,25 @@ try {
   await page.getByText('Date is not YYYY-MM-DD in row 3').waitFor()
   ok('bad file is rejected with row numbers', (await page.getByRole('button', { name: 'Continue' }).count()) === 0)
   await axe('new run (errors)')
+  // one-click repairs: day-first dates and blank spend are fixed in the browser copy
+  {
+    const rows = ['date,revenue,spend_tv,spend_search']
+    for (let i = 0; i < 60; i++) {
+      const d = new Date(Date.UTC(2023, 0, 2 + 7 * i))
+      rows.push(`${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()},${50000 + 700 * (i % 9)},${i === 7 ? '' : 1000 + 300 * (i % 5)},${800 + 90 * (i % 7)}`)
+    }
+    await page.getByLabel('Choose a CSV file').setInputFiles({ name: 'dmy.csv', mimeType: 'text/csv', buffer: Buffer.from(rows.join('\n')) })
+    await page.getByRole('button', { name: 'Convert the dates' }).waitFor()
+    await axe('new run (fixable errors)')
+    await page.getByRole('button', { name: 'Convert the dates' }).click()
+    await page.getByRole('button', { name: 'Treat blank spend and control cells as 0' }).click()
+    await page.getByRole('heading', { name: /dmy.csv looks good/ }).waitFor()
+    ok('two one-click fixes turn a rejected file into a runnable one', true)
+  }
+  await page.getByRole('button', { name: 'Home decor brand' }).click()
+  await page.getByRole('heading', { name: /Home decor brand \(real example\).csv looks good/ }).waitFor({ timeout: 20000 })
+  ok('"No data yet?" loads a real brand that passes the checks', true)
+
   // ---------------------------------------------------------------- connectors
   // a spreadsheet with its own column names and day-first dates goes through the column mapper
   const messy = ['Week commencing,Sales,TV cost,Paid Search Spend,Promo running,Notes']
@@ -254,6 +335,7 @@ try {
   await axe('new run (priors)')
   await page.getByRole('button', { name: 'Submit run' }).click()
   await page.getByRole('heading', { name: /Waiting in the queue|Fitting the model/ }).waitFor({ timeout: 30000 })
+  if ((await page.getByRole('heading', { name: 'Fitting the model' }).count()) === 1) ok('the waiting screen names the stages and gives a tip', (await page.getByRole('list', { name: 'Stages' }).count()) === 1 && (await page.getByText('While you wait').count()) === 1)
   ok('run submitted and status shown', true)
   await axe('run status')
 
@@ -307,6 +389,7 @@ try {
   await page.getByLabel(/Tags, separated by commas/).fill('client-a, q3, client-a')
   await page.getByRole('button', { name: 'Save notes' }).click()
   await page.getByRole('region', { name: 'Notes on this run' }).waitFor({ timeout: 20000 })
+  ok('a confirmation toast appears when notes are saved', (await page.locator('.toast', { hasText: 'Notes saved' }).count()) >= 1)
   const tagCounts = [await page.locator('.badge', { hasText: 'client-a' }).count(), await page.locator('.badge', { hasText: 'q3' }).count()]
   ok('notes and de-duplicated tags are saved on the run', tagCounts.join() === '1,1', `counts ${tagCounts.join(',')}`)
   await go('/runs')
@@ -367,7 +450,8 @@ try {
   ok('no theme switch in the header', (await page.getByRole('button', { name: /theme/i }).count()) === 0)
   ok('no uncaught page errors', consoleErrors.length === 0, consoleErrors.join(' | '))
 } catch (e) {
-  ok(`flow stopped: ${String(e).split('\n')[0]}`, false)
+  ok(`flow stopped: ${String(e).split("\n")[0]}`, false)
+  console.log(String(e.stack).split("\n").filter((l) => l.includes("flow.mjs")).join("\n"))
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/failure.png`, fullPage: true })
 } finally {
   await browser.close()

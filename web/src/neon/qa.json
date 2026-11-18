@@ -4153,6 +4153,194 @@
    ]
   },
   {
+   "id": "one-click-fix",
+   "level": "new",
+   "category": "Your data",
+   "q": "Can Kawkit fix problems in my file for me?",
+   "alt": [
+    "auto fix my csv",
+    "fix the dates for me",
+    "fix errors automatically",
+    "blank cells in my file",
+    "remove duplicate rows"
+   ],
+   "keywords": [
+    "fix",
+    "repair",
+    "auto"
+   ],
+   "a": "Often, yes. When the check finds a common problem, a \"We can fix some of this for you\" box offers one-click repairs:\n- Convert dates such as 31/12/2024 or 12 Dec 2024 to the format the model needs.\n- Keep the first row when a date appears twice.\n- Treat blank or \"n/a\" spend and control cells as 0.\n- Set negative spend, such as a refund, to 0.\n\nYour original file is not changed. The fix applies to the copy in your browser, and the check runs again straight away. Revenue is never filled in for you, because inventing it would make the results meaningless.",
+   "links": [
+    {
+     "label": "Check my data",
+     "to": "/check"
+    }
+   ],
+   "related": [
+    "validation-errors",
+    "error-bad-date"
+   ]
+  },
+  {
+   "id": "no-data-yet",
+   "level": "new",
+   "category": "Getting started",
+   "q": "I don't have any data yet. Can I still try it?",
+   "alt": [
+    "no data to upload",
+    "try with example data",
+    "use a sample brand",
+    "play with real data",
+    "i want to test it first"
+   ],
+   "keywords": [
+    "no data",
+    "example",
+    "real brand"
+   ],
+   "a": "Yes. On the New run screen, choose one of the five real brands under \"No data yet?\" and run the model on it, exactly as you would with your own numbers. Or open the sample result, where finished runs are already waiting, and try moving the budget without an account.",
+   "links": [
+    {
+     "label": "Open the sample result",
+     "to": "/sample"
+    },
+    {
+     "label": "Start a new run",
+     "to": "/new"
+    }
+   ],
+   "related": [
+    "how-to-start",
+    "need-account"
+   ]
+  },
+  {
+   "id": "beat-the-model",
+   "level": "new",
+   "category": "Getting started",
+   "q": "What is the \"Beat the model\" game?",
+   "alt": [
+    "play a game",
+    "is there a game",
+    "can i compete with the model",
+    "budget game",
+    "quiz"
+   ],
+   "keywords": [
+    "game",
+    "play",
+    "beat"
+   ],
+   "a": "A short game on the Play page. You get a real brand's weekly budget and split it across its channels, within half to one and a half times each channel's current spend. When you lock it in, you see what share of the model's best gain you captured, with both splits side by side.\n\nIt's a quick way to feel diminishing returns for yourself. Your best score per brand is remembered in your browser.",
+   "links": [
+    {
+     "label": "Play",
+     "to": "/play"
+    }
+   ],
+   "related": [
+    "what-is-saturation",
+    "scenario-planner"
+   ]
+  },
+  {
+   "id": "shortcuts",
+   "level": "using",
+   "category": "Getting started",
+   "q": "Are there keyboard shortcuts?",
+   "alt": [
+    "command palette",
+    "jump to a run quickly",
+    "search shortcuts",
+    "quick navigation",
+    "hotkeys"
+   ],
+   "keywords": [
+    "shortcut",
+    "keyboard",
+    "hotkey",
+    "ctrl k"
+   ],
+   "a": "Yes:\n- Ctrl or ⌘ + K opens a jump bar for any page or run.\n- ? lists the shortcuts.\n- / jumps to the search box on My runs.\n- N starts a new run when you're signed in.\n- G then R goes to My runs.\n- Esc closes pop-ups, the tour and this chat.",
+   "links": [],
+   "related": [
+    "run-notes",
+    "take-tour"
+   ]
+  },
+  {
+   "id": "dotted-words",
+   "level": "new",
+   "category": "Reading results",
+   "q": "What are the dotted-underlined words on the results page?",
+   "alt": [
+    "hover for a definition",
+    "explain the jargon",
+    "glossary",
+    "what does this term mean",
+    "underlined terms"
+   ],
+   "keywords": [
+    "dotted",
+    "underline",
+    "glossary",
+    "definition"
+   ],
+   "a": "Terms like ROI, R-hat and convergence have a dotted underline. Hover over one, or tap it, for a one-line meaning in plain words. Choose \"Tell me more in Neon\" in that pop-up to get the full explanation here in the chat.",
+   "links": [],
+   "related": [
+    "read-results-first",
+    "what-is-roi"
+   ]
+  },
+  {
+   "id": "drag-sliders",
+   "level": "using",
+   "category": "Budget and planning",
+   "q": "Can I drag the budget around instead of typing numbers?",
+   "alt": [
+    "sliders for spend",
+    "move money between channels",
+    "drag to reallocate",
+    "slider budget",
+    "keep the total the same"
+   ],
+   "keywords": [
+    "drag",
+    "slider",
+    "reallocate"
+   ],
+   "a": "Yes. In \"Try your own split\" on the Optimise budget tab, each channel has a slider. With \"Keep the total fixed while dragging\" ticked, moving one channel up takes money from the others in proportion, like shifting money between pots. Untick it to change the total as well. The expected revenue and its 90% range update as you drag, and nothing is refitted.",
+   "links": [],
+   "related": [
+    "scenario-planner",
+    "saved-scenarios"
+   ]
+  },
+  {
+   "id": "try-spend-curve",
+   "level": "using",
+   "category": "Reading results",
+   "q": "Can I explore a response curve myself?",
+   "alt": [
+    "slider on the response curve",
+    "what happens at a different spend",
+    "try a spend on the curve",
+    "how much would extra spend add",
+    "move the dot along the curve"
+   ],
+   "keywords": [
+    "response curve",
+    "try a spend"
+   ],
+   "a": "Yes. On the Response curves tab, each channel has a \"Try a weekly spend\" slider. A marker slides along the curve and the text underneath says the expected weekly revenue at that spend, with its range, how it compares with now, and roughly what each extra unit adds. A warning appears when you go well beyond what the data has seen.",
+   "links": [],
+   "related": [
+    "response-curves",
+    "extrapolation"
+   ]
+  },
+  {
    "id": "neon-who",
    "level": "new",
    "category": "About Neon",

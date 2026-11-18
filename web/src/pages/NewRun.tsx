@@ -11,7 +11,10 @@ import { EVENTS, withEvents, type EventKey } from '../connectors/events'
 import { fetchLink, LinkError, resolveLink } from '../connectors/link'
 import { applyMapping, checkMapping, DATE_FORMATS, detectDateFormat, guessColumns, isCanonical, readSheet, type Column, type DateFormat, type Role, type Sheet } from '../connectors/mapping'
 import { fmtCompact, fmtNum, fmtPct, palette, title } from '../lib/format'
+import { availableFixes } from '../validation/fix'
 import { MAX_BYTES, validateCsv, type Validation } from '../validation/validate'
+
+const BRANDS: [string, string][] = [['home', 'Home decor brand'], ['beauty', 'Skincare brand'], ['apparel', 'Apparel brand'], ['food', 'Food and drink brand'], ['health', 'Dental care brand']]
 
 interface PriorForm {
   low: string
@@ -215,6 +218,28 @@ export default function NewRun({ guest = false }: { guest?: boolean }) {
     }
   }
 
+  const loadBrand = async (key: string, label: string) => {
+    try {
+      const r = await fetch(`${import.meta.env.BASE_URL}sample/real-${key}.csv`)
+      load(await r.text(), `${label} (real example).csv`)
+    } catch {
+      setLoadError('That example could not be loaded. Try again.')
+    }
+  }
+  const fixes = useMemo(() => (csv && validation && validation.errors.length ? availableFixes(validation.errors) : []), [csv, validation])
+  const applyFix = (apply: (t: string) => string) => {
+    if (csv) accept(apply(csv), fileName)
+  }
+
+  // "Try a real brand" links from the welcome card
+  const brandParam = params.get('brand')
+  useEffect(() => {
+    const hit = BRANDS.find(([k]) => k === brandParam)
+    if (hit && !from && !csv) loadBrand(hit[0], hit[1])
+    // only on arrival
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brandParam])
+
   // data checked as a guest is waiting here after sign-in
   useEffect(() => {
     if (guest || from) return
@@ -329,6 +354,13 @@ export default function NewRun({ guest = false }: { guest?: boolean }) {
               </div>
               <input ref={fileInput} type="file" accept=".csv,text/csv" className="sr-only" aria-label="Choose a CSV file" tabIndex={-1} onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = '' }} />
             </div>
+            <div className="grid gap-2" role="group" aria-label="No data yet? Try a real brand">
+              <p className="font-semibold">No data yet? Take a real brand for a spin</p>
+              <div className="flex flex-wrap gap-2">
+                {BRANDS.map(([k, label]) => <button key={k} type="button" className="btn btn-small" onClick={() => loadBrand(k, label)}>{label}</button>)}
+              </div>
+              <p className="text-sm muted">Real, anonymised weekly data from five online brands. Pick one, run the model on it and see what you’d get from your own numbers.</p>
+            </div>
             <form className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end" onSubmit={(e) => { e.preventDefault(); importLink() }}>
               <div>
                 <label className="field" htmlFor="link">Or import from a link: a Google Sheet, or any address that serves a CSV file</label>
@@ -408,7 +440,19 @@ export default function NewRun({ guest = false }: { guest?: boolean }) {
                 <section className="notice notice-bad" role="alert" aria-labelledby="err-h">
                   <h2 id="err-h" className="text-base">{fileName}: {validation.errors.length === 1 ? '1 problem' : `${validation.errors.length} problems`} to fix before this can run</h2>
                   <ul className="list-disc pl-5 mt-1 grid gap-1">{validation.errors.map((e, i) => <li key={i}>{e.message}</li>)}</ul>
-                  <p className="text-sm mt-2">Row numbers count the header as row 1. Fix the file and upload it again.</p>
+                  {fixes.length > 0 && (
+                    <div className="mt-3 grid gap-2" role="group" aria-label="Fixes we can make for you">
+                      <p className="font-semibold">We can fix some of this for you:</p>
+                      {fixes.map((f) => (
+                        <div key={f.id} className="flex flex-wrap items-center gap-2">
+                          <button type="button" className="btn btn-small btn-primary" onClick={() => applyFix(f.apply)}>{f.label}</button>
+                          <span className="text-sm">{f.detail}</span>
+                        </div>
+                      ))}
+                      <p className="text-sm muted">Your original file isn’t changed. The fix applies to the copy in this tab, and the check runs again straight away.</p>
+                    </div>
+                  )}
+                  <p className="text-sm mt-2">Row numbers count the header as row 1. {fixes.length ? 'Or fix' : 'Fix'} the file and upload it again.</p>
                   {mapping && <button type="button" className="btn btn-small mt-2" onClick={() => { setValidation(null); setCsv(null) }}>Change which column is which</button>}
                 </section>
               )}

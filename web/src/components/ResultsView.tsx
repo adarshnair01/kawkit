@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import type { ChannelResult, Draws, Priors, RunResult } from '../api/types'
 import { ChartFrame, DataTable } from '../charts/ChartFrame'
 import { DensityChart } from '../charts/DensityChart'
@@ -9,6 +9,9 @@ import { downloadXlsx } from '../lib/xlsx'
 import { downloadCsv, fmtCompact, fmtNum, fmtPct, fmtRange, fmtRoi, palette, title } from '../lib/format'
 import { exportPlan, Optimise } from './Optimise'
 import { Summary } from './Summary'
+import { CurveExplorer } from './CurveExplorer'
+import { Term } from './Term'
+import { useToast } from './Toast'
 import { Tabs } from './Tabs'
 
 const VERDICT = {
@@ -23,7 +26,7 @@ export function VerdictBadge({ verdict }: { verdict: string | undefined }) {
   return <span className={`badge ${v.badge}`}>{verdict === 'pass' ? '✓' : verdict === 'caution' ? '!' : '✕'} {v.label}</span>
 }
 
-function Tile({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function Tile({ label, value, sub }: { label: ReactNode; value: string; sub?: string }) {
   return (
     <div className="card" style={{ padding: '0.8rem 1rem' }}>
       <div className="text-sm muted">{label}</div>
@@ -138,7 +141,7 @@ function ChannelCard({ c, i }: { c: ChannelResult; i: number }) {
         <span className={`badge ${CONF[c.roi.confidence]}`}>{title(c.roi.confidence)} confidence</span>
       </div>
       <p className="text-sm mt-1 num">
-        ROI <strong>{fmtRoi(c.roi.median)}</strong> <span className="muted">(90% range {fmtRange(c.roi.low, c.roi.high)})</span> · {fmtPct(c.roi.p_above_1)} chance it is above 1
+        <Term k="roi">ROI</Term> <strong>{fmtRoi(c.roi.median)}</strong> <span className="muted">(90% range {fmtRange(c.roi.low, c.roi.high)})</span> · {fmtPct(c.roi.p_above_1)} chance it is above 1
       </p>
       <div className="mt-2">
         {table ? (
@@ -182,7 +185,33 @@ interface Props {
 }
 
 export function ResultsView({ name, result, draws, drawsError, shared, runId }: Props) {
-  const [tab, setTab] = useState('overview')
+  const toast = useToast()
+  // the open tab is remembered per page, so a refresh keeps your place (a convenience only: storage may be unavailable)
+  const tabKey = `kawkit-tab:${window.location.hash}`
+  const [tab, setTabRaw] = useState(() => {
+    try {
+      return sessionStorage.getItem(tabKey) ?? 'overview'
+    } catch {
+      return 'overview'
+    }
+  })
+  const setTab = (id: string) => {
+    setTabRaw(id)
+    try {
+      sessionStorage.setItem(tabKey, id)
+    } catch {
+      // not remembered
+    }
+  }
+  // other parts of the site can switch tab: window.dispatchEvent(new CustomEvent('kawkit:tab', { detail: { id: 'optimise' } }))
+  useEffect(() => {
+    const on = (e: Event) => {
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id
+      if (id) setTabRaw(id)
+    }
+    window.addEventListener('kawkit:tab', on)
+    return () => window.removeEventListener('kawkit:tab', on)
+  }, [])
   const [reveal, setReveal] = useState(false)
   const [report, setReport] = useState(false)
   const show = (id: string) => (report ? id !== 'optimise' && id !== 'download' : tab === id)
@@ -196,12 +225,12 @@ export function ResultsView({ name, result, draws, drawsError, shared, runId }: 
   const convergence = (
     <section className={`notice ${v.cls}`} aria-labelledby="conv-h">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 id="conv-h" className="text-base">Convergence check</h2>
+        <h2 id="conv-h" className="text-base"><Term k="convergence">Convergence</Term> check</h2>
         <VerdictBadge verdict={d.verdict} />
       </div>
       <p className="mt-1">{v.text}</p>
       <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 mt-2 text-sm num">
-        <div><dt className="muted">Worst R-hat</dt><dd><strong>{d.max_rhat.toFixed(3)}</strong> (want ≤ 1.01)</dd></div>
+        <div><dt className="muted">Worst <Term k="rhat">R-hat</Term></dt><dd><strong>{d.max_rhat.toFixed(3)}</strong> (want ≤ 1.01)</dd></div>
         <div><dt className="muted">Smallest effective sample</dt><dd><strong>{fmtNum(d.min_ess_bulk)}</strong> (want ≥ 400)</dd></div>
         <div><dt className="muted">Divergent draws</dt><dd><strong>{d.divergences}</strong> ({d.divergence_pct}%; want &lt; 0.1%)</dd></div>
         <div><dt className="muted">Sampling</dt><dd>{d.chains} chains × {fmtNum(d.draws)} draws{d.retried ? ', retried with longer warm-up' : ''}</dd></div>
@@ -240,15 +269,15 @@ export function ResultsView({ name, result, draws, drawsError, shared, runId }: 
           <div className="grid gap-4">
             {report && <h2>Fit</h2>}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <Tile label="Variation explained (R²)" value={fmtPct(f.r2, 1)} sub={`${f.weeks} weeks`} />
+              <Tile label={<>Variation explained (<Term k="r2">R²</Term>)</>} value={fmtPct(f.r2, 1)} sub={`${f.weeks} weeks`} />
               {f.holdout?.wape !== undefined && f.holdout.benchmark ? (
                 <>
-                  <Tile label="Unseen quarter: total off by" value={`${Math.abs(f.holdout.total_error_pct).toFixed(1)}%`} sub={`simple forecast: ${Math.abs(f.holdout.benchmark.total_error_pct).toFixed(1)}%`} />
-                  <Tile label="Unseen weeks: typical miss" value={`${f.holdout.wape.toFixed(1)}%`} sub={`simple forecast: ${f.holdout.benchmark.wape.toFixed(1)}%`} />
+                  <Tile label={<><Term k="holdout">Unseen quarter</Term>: total off by</>} value={`${Math.abs(f.holdout.total_error_pct).toFixed(1)}%`} sub={`simple forecast: ${Math.abs(f.holdout.benchmark.total_error_pct).toFixed(1)}%`} />
+                  <Tile label={<><Term k="holdout">Unseen weeks</Term>: typical miss</>} value={`${f.holdout.wape.toFixed(1)}%`} sub={`simple forecast: ${f.holdout.benchmark.wape.toFixed(1)}%`} />
                 </>
               ) : (
                 <>
-                  <Tile label="Typical error, in sample" value={`${f.mape.toFixed(1)}%`} sub="mean absolute % error" />
+                  <Tile label={<>Typical <Term k="mape">error</Term>, in sample</>} value={`${f.mape.toFixed(1)}%`} sub="mean absolute % error" />
                   <Tile label="Typical error, unseen weeks" value={f.holdout_mape === null ? 'n/a' : `${f.holdout_mape.toFixed(1)}%`} sub={f.holdout_mape === null ? 'too few weeks to hold any out' : `last ${f.holdout_weeks} weeks held out`} />
                 </>
               )}
@@ -393,14 +422,7 @@ export function ResultsView({ name, result, draws, drawsError, shared, runId }: 
                 note="Weekly revenue from the channel at a steady weekly spend."
                 table={{ caption: `Response curve for ${c.name}`, header: ['Weekly spend', 'Revenue (median)', '90% low', '90% high'], rows: c.spend.map((s, k) => [fmtNum(s), fmtNum(c.median[k]), fmtNum(c.low[k]), fmtNum(c.high[k])]) }}
               >
-                <LineChart
-                  ariaLabel={`Response curve for ${c.name}: revenue against weekly spend, with 90% band; current spend ${fmtCompact(c.current)}`}
-                  x={c.spend}
-                  height={240}
-                  xLabel="Weekly spend"
-                  series={[{ label: 'Expected weekly revenue', values: c.median, color: palette(i), band: { low: c.low, high: c.high } }]}
-                  markers={[{ x: c.current, label: `current ${fmtCompact(c.current)}` }, { x: c.max_weekly, label: `highest week ${fmtCompact(c.max_weekly)}`, color: 'var(--muted)' }]}
-                />
+                <CurveExplorer c={c} i={i} />
               </ChartFrame>
             ))}
           </div>
@@ -428,7 +450,7 @@ export function ResultsView({ name, result, draws, drawsError, shared, runId }: 
           <div className="card grid gap-3">
             <h3>Download</h3>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="btn btn-primary" onClick={() => exportWorkbook(result, name)}>Excel workbook (everything)</button>
+              <button type="button" className="btn btn-primary" onClick={() => { exportWorkbook(result, name); toast('Workbook downloaded') }}>Excel workbook (everything)</button>
               <button type="button" className="btn" onClick={() => exportResults(result, name)}>Channel results</button>
               <button type="button" className="btn" onClick={() => exportFit(result, name)}>Weekly fit and contributions</button>
               <button type="button" className="btn" disabled={!result.default_plan} onClick={() => result.default_plan && exportPlan(result.default_plan, name)}>Recommended split (default limits)</button>

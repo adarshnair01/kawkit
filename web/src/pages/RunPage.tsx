@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../api/auth'
 import { cancelRun, createShare, friendlyError, getDraws, getResult, getShare, queuePosition, renameRun, revokeShare, setRunNotes, SECONDS_PER_RUN, shareUrl, useRuns, useServerStatus, type Share } from '../api/runs'
 import type { Draws, RunResult } from '../api/types'
 import { ResultsView } from '../components/ResultsView'
+import { Confetti } from '../components/Confetti'
+import { Skeleton } from '../components/Skeleton'
+import { useToast } from '../components/Toast'
+import { RunProgress } from '../components/RunProgress'
 import { NotifyMe } from '../components/NotifyMe'
 import { ServerNotice } from '../components/ServerNotice'
-import { fmtDate, fmtDuration, fmtPct, title } from '../lib/format'
+import { fmtDate, fmtDuration, title } from '../lib/format'
 import { StatusBadge } from './MyRuns'
 
 export default function RunPage() {
@@ -24,6 +28,20 @@ export default function RunPage() {
   const [editing, setEditing] = useState(false)
   const [newName, setNewName] = useState('')
   const status = run?.status
+  const toast = useToast()
+  const lastStatus = useRef<string | undefined>(undefined)
+  const [party, setParty] = useState(false)
+  // celebrate when a run we were watching finishes (not when opening one that is already done)
+  useEffect(() => {
+    const before = lastStatus.current
+    lastStatus.current = status
+    if (status === 'finished' && (before === 'queued' || before === 'running')) {
+      setParty(true)
+      toast('Your model is done. Start with the “In short” box.')
+      const t = setTimeout(() => setParty(false), 4000)
+      return () => clearTimeout(t)
+    }
+  }, [status, toast])
   const [share, setShare] = useState<Share | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
   const [shareBusy, setShareBusy] = useState(false)
@@ -68,7 +86,7 @@ export default function RunPage() {
   }, [status, id])
 
   if (error) return <div className="notice notice-bad" role="alert">{error}</div>
-  if (!runs) return <p className="muted" role="status">Loading…</p>
+  if (!runs) return <Skeleton rows={3} />
   if (!run)
     return (
       <div className="card">
@@ -121,6 +139,7 @@ export default function RunPage() {
     try {
       await navigator.clipboard.writeText(shareUrl(share.token))
       setCopied(true)
+      toast('Link copied')
       setTimeout(() => setCopied(false), 2500)
     } catch {
       document.getElementById('share-url')?.focus()
@@ -140,6 +159,7 @@ export default function RunPage() {
       await setRunNotes(run.id, noteText.trim(), tagText.split(',').map((t) => t.trim()).filter(Boolean))
       await refresh()
       setNoteOpen(false)
+      toast('Notes saved')
     } catch (e) {
       setActionError(friendlyError(e))
     }
@@ -150,6 +170,7 @@ export default function RunPage() {
 
   return (
     <div className="grid gap-4">
+      {party && <Confetti />}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm"><Link to="/runs">← My runs</Link></p>
@@ -231,10 +252,7 @@ export default function RunPage() {
             ) : (
               <>
                 <h2 id="status-h">{run.cancel_requested ? 'Cancelling…' : 'Fitting the model'}</h2>
-                <div className="progress" role="progressbar" aria-label="Model fitting progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(run.progress * 100)}>
-                  <div style={{ width: `${Math.max(2, run.progress * 100)}%` }} />
-                </div>
-                <p className="num">{fmtPct(run.progress)} · {run.progress < 0.75 ? 'sampling the main model' : run.progress < 0.94 ? 'checking error on held-out weeks' : 'summarising results'}{run.attempts > 1 ? ` · attempt ${run.attempts} (the server was interrupted and retried)` : ''}</p>
+                <RunProgress progress={run.progress} startedAt={run.started_at} attempt={run.attempts} />
               </>
             )}
             <p className="text-sm muted">You can close this tab; the run continues and will be in My runs when you come back.</p>
@@ -257,7 +275,7 @@ export default function RunPage() {
           <p className="mt-1">It will be deleted after 7 days. <Link to={`/new?from=${run.id}`}>Run it again</Link>.</p>
         </section>
       )}
-      {run.status === 'finished' && (result ? <ResultsView name={run.name} result={result} draws={draws} drawsError={drawsError} runId={run.id} /> : <p className={drawsError ? 'notice notice-bad' : 'muted'} role="status">{drawsError ?? 'Loading results…'}</p>)}
+      {run.status === 'finished' && (result ? <ResultsView name={run.name} result={result} draws={draws} drawsError={drawsError} runId={run.id} /> : drawsError ? <p className="notice notice-bad" role="status">{drawsError}</p> : <Skeleton rows={4} label="Loading results…" />)}
     </div>
   )
 }

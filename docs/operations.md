@@ -144,6 +144,27 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
   `select question, asked, last_at from public.neon_misses order by asked desc limit 50;`
   then add answers to `web/src/neon/qa.json`.
 
+### Friendlier and more interactive (second round)
+
+- **First run:** an empty My runs page shows a three-step welcome; "Try a real brand" opens New run with one of the
+  five real brands already loaded (`/new?brand=home`). New run also lists the brands under "No data yet?".
+- **One-click fixes** (`validation/fix.ts`): day-first or written dates, repeated dates, blank or "n/a" spend and
+  control cells (set to 0, never revenue) and negative spend. They change the browser copy only and re-run the check.
+- **Waiting screen** (`components/RunProgress.tsx`): named stages, elapsed time and a rotating tip. The tip list
+  is `TIPS` in that file.
+- **Glossary** (`lib/glossary.ts`, `components/Term.tsx`): dotted terms with a hover or tap definition and a
+  "Tell me more in Neon" link. Anything can ask Neon a question with
+  `window.dispatchEvent(new CustomEvent('neon:ask', { detail: { id: '<qa id>' } }))`.
+- **Drag sliders** in "Try your own split" (total can be kept fixed) and a **try-a-spend slider** on each response curve.
+- **Beat the model** (`/play`, `lib/game.ts`): score = share of the optimiser's expected gain captured at the same
+  total spend, each channel limited to 50% to 150% of now. Best scores are kept in the browser (localStorage).
+- **Sample page:** "Try moving the budget" switches to the planner for guests (`kawkit:tab` event); the open tab is
+  remembered per page for the session.
+- **Toasts, confetti, skeletons:** confirmations for copy/save/download, a short confetti burst when a run you were
+  watching finishes (off for reduced motion), and grey placeholders while pages load.
+- **Jump bar and shortcuts** (`components/CommandBar.tsx`): Ctrl/⌘+K, ?, /, N, G then R. My runs gets a search box
+  once there are three or more runs.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

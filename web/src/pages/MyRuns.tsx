@@ -4,6 +4,7 @@ import { useAuth } from '../api/auth'
 import { getVerdicts, MAX_FINISHED, useRuns } from '../api/runs'
 import type { Run } from '../api/types'
 import { VerdictBadge } from '../components/ResultsView'
+import { Skeleton } from '../components/Skeleton'
 import { NotifyMe } from '../components/NotifyMe'
 import { ServerNotice } from '../components/ServerNotice'
 import { fmtDate, fmtPct } from '../lib/format'
@@ -28,10 +29,14 @@ export default function MyRuns() {
   useEffect(() => {
     getVerdicts().then(setVerdicts).catch(() => undefined)
   }, [finishedCount])
-  const active = runs?.filter((r) => r.status === 'queued' || r.status === 'running') ?? []
-  const finished = runs?.filter((r) => r.status === 'finished') ?? []
-  const other = runs?.filter((r) => r.status === 'failed' || r.status === 'cancelled') ?? []
-  const oldest = finished[finished.length - 1]
+  const [query, setQuery] = useState('')
+  const needle = query.trim().toLowerCase()
+  const shown = runs?.filter((r) => !needle || `${r.name} ${r.notes ?? ''} ${(r.tags ?? []).join(' ')}`.toLowerCase().includes(needle))
+  const active = shown?.filter((r) => r.status === 'queued' || r.status === 'running') ?? []
+  const finished = shown?.filter((r) => r.status === 'finished') ?? []
+  const other = shown?.filter((r) => r.status === 'failed' || r.status === 'cancelled') ?? []
+  const allFinished = runs?.filter((r) => r.status === 'finished') ?? []
+  const oldest = allFinished[allFinished.length - 1]
 
   const table = (rows: Run[], caption: string) => (
     <div className="overflow-x-auto">
@@ -57,19 +62,49 @@ export default function MyRuns() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1>My runs</h1>
         <div className="flex flex-wrap gap-2">
-          {finished.length >= 2 && <Link to="/compare" className="btn">Compare two runs</Link>}
+          {allFinished.length >= 2 && <Link to="/compare" className="btn">Compare two runs</Link>}
           <Link to="/new" className="btn btn-primary">New run</Link>
         </div>
       </div>
       <ServerNotice waiting={active.length > 0} />
       {error && <div className="notice notice-bad" role="alert">{error}</div>}
-      {!runs && !error && <p className="muted" role="status">Loading your runs…</p>}
-      {runs && runs.length === 0 && (
-        <div className="card">
-          <h2>No runs yet</h2>
-          <p className="mt-1 muted">Upload your weekly spend and revenue, or start from the sample dataset.</p>
-          <Link to="/new" className="btn btn-primary mt-3">Start your first run</Link>
+      {!runs && !error && <Skeleton rows={3} label="Loading your runs…" />}
+      {runs && runs.length > 2 && (
+        <div>
+          <label className="field" htmlFor="runs-search">Search your runs <span className="muted">(press / to jump here)</span></label>
+          <input id="runs-search" className="input" type="search" style={{ maxWidth: '24rem' }} placeholder="Name, note or tag" value={query} onChange={(e) => setQuery(e.target.value)} />
+          {needle && shown && shown.length === 0 && <p className="text-sm muted mt-2" role="status">No runs match “{query}”.</p>}
         </div>
+      )}
+      {runs && runs.length === 0 && (
+        <section className="card grid gap-3" aria-labelledby="welcome-h">
+          <div>
+            <h2 id="welcome-h">Let’s get your first model cooking</h2>
+            <p className="mt-1 muted">Three steps, about ten minutes of your time. The model does the heavy lifting.</p>
+          </div>
+          <ol className="steps3">
+            <li>
+              <span className="step-num" aria-hidden="true">1</span>
+              <div>
+                <strong>Pick some data</strong>
+                <p className="text-sm muted">Weekly spend per channel and revenue, one row per week. No data yet? Borrow a real brand.</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <Link to="/new" className="btn btn-small btn-primary">Use my own file</Link>
+                  <Link to="/new?brand=home" className="btn btn-small">Try a real brand</Link>
+                </div>
+              </div>
+            </li>
+            <li>
+              <span className="step-num" aria-hidden="true">2</span>
+              <div><strong>We check it</strong><p className="text-sm muted">Problems get explained in plain words, and the common ones can be fixed with one click.</p></div>
+            </li>
+            <li>
+              <span className="step-num" aria-hidden="true">3</span>
+              <div><strong>Run it and read the “In short” box</strong><p className="text-sm muted">A few minutes later you get a recommended split, with every number shown as a range.</p></div>
+            </li>
+          </ol>
+          <p className="text-sm muted">Want to look around first? <Link to="/sample">Open the sample result</Link> or take its 1-minute tour.</p>
+        </section>
       )}
       {active.length > 0 && (
         <section className="card" aria-labelledby="active-h">
@@ -80,8 +115,8 @@ export default function MyRuns() {
       )}
       {finished.length > 0 && (
         <section className="card" aria-labelledby="finished-h">
-          <h2 id="finished-h">Finished ({finished.length} of {MAX_FINISHED} kept)</h2>
-          {finished.length >= MAX_FINISHED && oldest && (
+          <h2 id="finished-h">Finished ({allFinished.length} of {MAX_FINISHED} kept)</h2>
+          {allFinished.length >= MAX_FINISHED && oldest && (
             <p className="notice notice-warn my-2">You have {MAX_FINISHED} finished runs. When your next run finishes, the oldest, “{oldest.name}”, will be deleted. Download anything you need from it first.</p>
           )}
           <div className="mt-2">{table(finished, 'Finished runs')}</div>

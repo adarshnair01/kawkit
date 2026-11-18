@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useToast } from './Toast'
 import { deleteScenario, friendlyError, listScenarios, saveScenario } from '../api/runs'
 import type { Draws, Scenario } from '../api/types'
 import { fmtCompact, fmtNum, fmtPct, title } from '../lib/format'
@@ -21,6 +22,22 @@ export function ScenarioPlanner({ draws, runId }: { draws: Draws; runId?: string
   const total = current.reduce((a, b) => a + b, 0)
   const unchanged = x.every((v, i) => Math.abs(v - current[i]) < 0.5)
   const scale = (f: number) => setRows(current.map((v) => String(Math.round(v * f))))
+  const [keepTotal, setKeepTotal] = useState(true)
+  const sliderMax = current.map((v) => Math.max(v * 3, 1))
+  /** Drag one channel; with "keep total fixed" the others shrink or grow in proportion, like moving money between pots. */
+  const drag = (i: number, v: number) => {
+    const next = [...x]
+    next[i] = v
+    if (keepTotal) {
+      const target = x.reduce((a, b) => a + b, 0)
+      const others = x.reduce((a, b, j) => (j === i ? a : a + b), 0)
+      const room = Math.max(target - v, 0)
+      x.forEach((val, j) => {
+        if (j !== i) next[j] = others > 0 ? (val / others) * room : room / (x.length - 1 || 1)
+      })
+    }
+    setRows(next.map((n) => String(Math.round(n))))
+  }
   return (
     <>
     <section className="card grid gap-3" aria-labelledby="scn-h">
@@ -33,13 +50,14 @@ export function ScenarioPlanner({ draws, runId }: { draws: Draws; runId?: string
           <div className="overflow-x-auto">
             <table className="data num">
               <caption className="sr-only">Your scenario: weekly spend per channel</caption>
-              <thead><tr><th scope="col">Channel</th><th scope="col">Now</th><th scope="col">Your scenario</th></tr></thead>
+              <thead><tr><th scope="col">Channel</th><th scope="col">Now</th><th scope="col">Your scenario</th><th scope="col">Drag</th></tr></thead>
               <tbody>
                 {draws.channels.map((c, i) => (
                   <tr key={c}>
                     <th scope="row" style={{ fontWeight: 500 }}>{title(c)}</th>
                     <td>{fmtCompact(current[i])}</td>
                     <td><input className="input num" style={{ minWidth: '6rem', minHeight: '2rem' }} inputMode="decimal" aria-label={`${title(c)} weekly spend in your scenario`} value={rows[i]} onChange={(ev) => setRows((r) => r.map((v, j) => (j === i ? ev.target.value : v)))} /></td>
+                    <td style={{ minWidth: '8rem' }}><input type="range" className="slider" aria-label={`Drag ${title(c)} weekly spend`} min={0} max={Math.round(sliderMax[i])} step={Math.max(1, Math.round(sliderMax[i] / 200))} value={Math.min(Math.round(x[i]), Math.round(sliderMax[i]))} onChange={(ev) => drag(i, Number(ev.target.value))} aria-valuetext={`${fmtCompact(x[i])} a week`} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -49,6 +67,7 @@ export function ScenarioPlanner({ draws, runId }: { draws: Draws; runId?: string
             <button type="button" className="btn btn-small" onClick={() => scale(0.8)}>Cut everything 20%</button>
             <button type="button" className="btn btn-small" onClick={() => scale(1.2)}>Raise everything 20%</button>
             <button type="button" className="btn btn-small" onClick={() => scale(1)}>Back to now</button>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={keepTotal} onChange={(ev) => setKeepTotal(ev.target.checked)} /> Keep the total fixed while dragging</label>
           </div>
         </div>
         <div aria-live="polite" className="grid gap-3 content-start">
@@ -93,6 +112,7 @@ export function ScenarioPlanner({ draws, runId }: { draws: Draws; runId?: string
 /** Named what-if splits kept with the run, shown side by side. */
 function SavedScenarios({ runId, draws, x, valid, onLoad }: { runId: string; draws: Draws; x: number[]; valid: boolean; onLoad: (spend: Record<string, number>) => void }) {
   const [items, setItems] = useState<Scenario[] | null>(null)
+  const toast = useToast()
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -118,6 +138,7 @@ function SavedScenarios({ runId, draws, x, valid, onLoad }: { runId: string; dra
       const sc = await saveScenario(runId, name.trim(), Object.fromEntries(draws.channels.map((c, i) => [c, Math.round(x[i] * 100) / 100])))
       setItems((all) => [...(all ?? []), sc])
       setName('')
+      toast('Scenario saved')
     } catch (e) {
       setError(friendlyError(e))
     } finally {
@@ -128,6 +149,7 @@ function SavedScenarios({ runId, draws, x, valid, onLoad }: { runId: string; dra
     try {
       await deleteScenario(id)
       setItems((all) => (all ?? []).filter((s) => s.id !== id))
+      toast('Scenario deleted')
     } catch (e) {
       setError(friendlyError(e))
     }
