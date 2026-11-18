@@ -36,13 +36,22 @@ def load_service_key() -> str:
         ) from e
 
 
+def auth_headers(key: str) -> dict[str, str]:
+    """Legacy service_role keys are JWTs and go in both headers. New sb_secret_ keys are not JWTs and
+    must go in `apikey` only: sent as a Bearer token they are read as no login (the anon role)."""
+    headers = {"apikey": key}
+    if key.count(".") == 2:
+        headers["Authorization"] = f"Bearer {key}"
+    return headers
+
+
 class Supa:
     def __init__(self, url: str | None = None, key: str | None = None):
         self.url = (url or os.environ["KAWKIT_SUPABASE_URL"]).rstrip("/")
         self.key = key or load_service_key()
         self.http = httpx.Client(
             timeout=httpx.Timeout(60.0, connect=15.0),
-            headers={"apikey": self.key, "Authorization": f"Bearer {self.key}"},
+            headers=auth_headers(self.key),
         )
 
     def _check(self, r: httpx.Response) -> httpx.Response:
