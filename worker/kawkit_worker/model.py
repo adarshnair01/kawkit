@@ -371,16 +371,17 @@ def diagnose(trace, names: list[str]) -> dict:
 def sample(design: Design, priors: dict[str, dict], *, seed: int, chains: int = 4, draws: int = 1000,
            tune: int = 1000, cores: int | None = None,
            on_progress: Callable[[float], None] | None = None,
-           should_stop: Callable[[], bool] | None = None):
+           should_stop: Callable[[], bool] | None = None, builder: Callable | None = None,
+           target_accept: float = 0.9):
     """Sample with nutpie in the background so progress can be reported and the run cancelled."""
     import nutpie
 
-    model = build_model(design, priors)
+    model = (builder or build_model)(design, priors)
     compiled = nutpie.compile_pymc_model(model)
     total = chains * (draws + tune)
     sampler = nutpie.sample(
         compiled, draws=draws, tune=tune, chains=chains, cores=cores or chains, seed=seed,
-        target_accept=0.9, progress_bar=False, blocking=False, save_warmup=False,
+        target_accept=target_accept, progress_bar=False, blocking=False, save_warmup=False,
     )
     started = time.time()
     try:
@@ -410,17 +411,18 @@ def sample(design: Design, priors: dict[str, dict], *, seed: int, chains: int = 
 def fit(design: Design, priors: dict[str, dict], *, seed: int, chains: int = 4, draws: int = 1000,
         tune: int = 1000, cores: int | None = None, retry_on_caution: bool = True,
         on_progress: Callable[[float], None] | None = None,
-        should_stop: Callable[[], bool] | None = None) -> Fit:
+        should_stop: Callable[[], bool] | None = None, builder: Callable | None = None,
+        extra_names: list[str] | None = None, target_accept: float = 0.9) -> Fit:
     started = time.time()
-    names = [p for p in PARAMS]
+    names = [*PARAMS, *(extra_names or [])]
     trace = sample(design, priors, seed=seed, chains=chains, draws=draws, tune=tune, cores=cores,
-                   on_progress=on_progress, should_stop=should_stop)
+                   on_progress=on_progress, should_stop=should_stop, builder=builder, target_accept=target_accept)
     diag = diagnose(trace, names)
     diag["tune"] = tune
     diag["retried"] = False
     if diag["verdict"] != "pass" and retry_on_caution:
         trace2 = sample(design, priors, seed=seed + 1, chains=chains, draws=draws, tune=2 * tune, cores=cores,
-                        on_progress=on_progress, should_stop=should_stop)
+                        on_progress=on_progress, should_stop=should_stop, builder=builder, target_accept=target_accept)
         diag2 = diagnose(trace2, names)
         order = {"pass": 0, "caution": 1, "fail": 2}
         if (order[diag2["verdict"]], diag2["max_rhat"]) <= (order[diag["verdict"]], diag["max_rhat"]):

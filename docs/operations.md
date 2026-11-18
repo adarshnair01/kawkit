@@ -165,6 +165,37 @@ Timing so far is from a 4-core cloud machine, not the Mac mini: the 156-week, 5-
 - **Jump bar and shortcuts** (`components/CommandBar.tsx`): Ctrl/⌘+K, ?, /, N, G then R. My runs gets a search box
   once there are three or more runs.
 
+### Breakdown (hierarchical) model: step 1, measured
+
+Code: `worker/kawkit_worker/hier.py` (model), `synth.make_hier_dataset` (known-truth data), `worker/scripts/hier_bench.py`
+(study), `worker/tests/test_hier.py`. Not yet wired into runs, the file format or the optimiser.
+
+Design: each item's scale = channel scale x exp(sum of per-dimension effects). Effects are partially pooled
+(sum-to-zero, tau ~ HalfNormal(0.5), non-centred). Items in a channel share carry-over and saturation speed.
+Dimensions combine additively. Sampled with target_accept 0.98, because the pooling can form a funnel when the
+data cannot separate items (0.9 gave divergences in that case, and one failing run in 78).
+
+Measured on made-up data with known answers, 6 seeds per scenario, 156 weeks, 5 channels (4 cores):
+
+| Scenario | item 90% ranges holding the truth | channel ranges: breakdown vs channel-only | holdout error: breakdown vs channel-only | time: breakdown vs channel-only |
+|---|---|---|---|---|
+| A: 3 separable platforms | 14/18 | 26/30 vs 23/30 | 1.59% vs 2.01% | 25s vs 16s |
+| B: 2 items, constant mix (cannot be separated) | 10/12 | 29/30 vs 28/30 | 1.96% vs 2.07% | 24s vs 16s |
+| C: platform x region, additive | 19/24 | 24/30 vs 25/30 | 1.98% vs 2.07% | 27s vs 15s |
+| D: all 5 channels split, 15 items | 78/90 | 28/30 vs 18/30 | 2.10% vs 3.67% | 46s vs 15s |
+| E: items have different saturation speeds (assumption broken) | 14/18 | 26/30 vs 25/30 | 1.79% vs 1.90% | 25s vs 16s |
+
+- Inseparable items are not ranked confidently: P(best item beats worst) averaged 0.47 in B, against 0.84 to 0.87
+  when the items can be separated. The channel total stays right either way.
+- Item ranges are mildly overconfident: 135/162 (83%) hold the truth against a nominal 90%. Channel ranges:
+  133/150 (89%). A looser pooling prior (tau 0.8) did not fix it; a tighter one (0.25) made the inseparable case
+  confidently wrong. Before this is shown to users, item ranges need either a calibrated widening (a larger
+  study should fix the factor) or a label saying they are optimistic.
+- When the data was generated with item-level structure, the channel-only model was the worse one (D: 18/30 channel
+  ranges). When it wasn't (A, C, E), the two are close.
+- Time is 1.5x to 3x, and not yet measured on the Mac mini.
+- Run the study with `uv run python -m scripts.hier_bench [scenario ...]`; slow tests with `uv run pytest -m slow tests/test_hier.py`.
+
 ## Different from the design, on purpose
 
 - **Sign-in is email and password**, with an emailed link as a second option. Google sign-in was dropped on

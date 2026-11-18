@@ -77,3 +77,106 @@ def make_dataset(seed: int = 7, weeks: int = 156, n_channels: int = 5, noise: fl
     )
     assert L_MAX == 8
     return "\n".join(lines) + "\n", truth
+
+
+@dataclass
+class HierTruth:
+    item_names: list[str]
+    item_roi: dict[str, float]
+    channel_roi: dict[str, float]
+
+
+def make_hier_dataset(seed: int = 11, weeks: int = 156, noise: float = 0.02, base_level: float = 600_000.0,
+                      breakdowns: dict | None = None, lam_spread: float = 0.0):
+    """Five channels where some are split into items with different true ROIs. Returns (Dataset, Items, truth).
+
+    breakdowns: channel -> {"mix": "varied" | "fixed", "dims": [dim names], "items": [(level per dim..., roi)]}.
+    Carry-over and saturation speed are shared by a channel's items, as in the model. 'varied' gives each item
+    its own spend pattern so the items can be told apart; 'fixed' keeps the mix of spend constant, so they cannot.
+    lam_spread > 0 breaks the model's assumption by giving each item its own saturation speed (log-sd lam_spread).
+    """
+    from .hier import Group, Items
+    from .validate import Dataset
+
+    names = ["tv", "search", "social", "display", "email"]
+    rng = np.random.default_rng(seed)
+    breakdowns = breakdowns or {}
+    t = np.arange(weeks)
+    C = len(names)
+
+    chan_spend = np.zeros((weeks, C))
+    for c in range(C):
+        walk = np.exp(np.cumsum(rng.normal(0, 0.12, weeks)))
+        walk /= walk.mean()
+        x = rng.uniform(15_000, 45_000) * walk * rng.lognormal(0, 0.3, weeks)
+        chan_spend[:, c] = np.round(x, 0)
+    alpha = rng.uniform(0.1, 0.6, C)
+    lam = rng.uniform(1.5, 4.5, C)
+    default_roi = rng.uniform(0.8, 2.6, C)
+    xmax = chan_spend.max(axis=0)
+
+    item_names: list[str] = []
+    item_chan: list[int] = []
+    item_contrib_total: list[float] = []
+    cols: list[np.ndarray] = []
+    groups: list[Group] = []
+    level_of: list[list[tuple[int, int]]] = []
+    true_roi: list[float] = []
+    contrib_total = np.zeros(weeks)
+    col0 = 0
+    for c, ch in enumerate(names):
+        spec = breakdowns.get(ch)
+        if not spec:
+            shape = saturation_np(adstock_np(chan_spend[:, c] / xmax[c], alpha[c]), lam[c])
+            beta = default_roi[c] * chan_spend[:, c].sum() / shape.sum()
+            contrib_total += beta * shape
+            item_contrib_total.append(float((beta * shape).sum()))
+            item_names.append(ch)
+            item_chan.append(c)
+            cols.append(chan_spend[:, c])
+            level_of.append([])
+            true_roi.append(float(default_roi[c]))
+            continue
+        items = spec["items"]
+        S = len(items)
+        if spec.get("mix", "varied") == "varied":
+            g = np.cumsum(rng.normal(0, 0.35, (weeks, S)), axis=0) + rng.normal(0, 0.5, (weeks, S))
+        else:
+            g = np.tile(rng.normal(0, 0.6, S), (weeks, 1)) + rng.normal(0, 0.004, (weeks, S))
+        share = np.exp(g) / np.exp(g).sum(axis=1, keepdims=True)
+        spend = np.round(chan_spend[:, c, None] * share, 0)
+        dims = spec["dims"]
+        gstart = len(groups)
+        for d, dim in enumerate(dims):
+            levels = list(dict.fromkeys(it[d] for it in items))
+            groups.append(Group(channel=c, dim=dim, levels=levels, col0=col0))
+            col0 += len(levels)
+        for s, it in enumerate(items):
+            roi = it[-1]
+            shape = saturation_np(adstock_np(spend[:, s] / xmax[c], alpha[c]), lam[c] * float(np.exp(rng.normal(0, lam_spread))) if lam_spread else lam[c])
+            beta = roi * spend[:, s].sum() / shape.sum()
+            contrib_total += beta * shape
+            item_contrib_total.append(float((beta * shape).sum()))
+            item_names.append(f"{ch} / " + " / ".join(it[:-1]))
+            item_chan.append(c)
+            cols.append(spend[:, s])
+            level_of.append([(gstart + d, groups[gstart + d].levels.index(it[d])) for d in range(len(dims))])
+            true_roi.append(float(roi))
+        chan_spend[:, c] = spend.sum(axis=1)
+
+    trend = 60_000.0 * t / weeks
+    season = 45_000.0 * np.sin(2 * np.pi * t / 52 + 0.6) + 18_000.0 * np.cos(4 * np.pi * t / 52)
+    promo = (rng.random(weeks) < 0.12).astype(float)
+    y = (base_level + trend + season + 40_000.0 * promo + contrib_total) * (1 + rng.normal(0, noise, weeks))
+    start = date(2023, 1, 2)
+    ds = Dataset(
+        dates=[(start + timedelta(days=7 * i)).isoformat() for i in range(weeks)], y=np.round(y, 0), spend=chan_spend,
+        controls=promo[:, None], channels=names, control_names=["promo"],
+    )
+    items_obj = Items(names=item_names, channel=np.array(item_chan), spend=np.stack(cols, axis=1), groups=groups, level_of=level_of)
+    chan_roi = {}
+    for c, ch in enumerate(names):
+        idx = [i for i, cc in enumerate(item_chan) if cc == c]
+        chan_roi[ch] = float(sum(item_contrib_total[i] for i in idx) / sum(items_obj.spend[:, i].sum() for i in idx))
+    truth = HierTruth(item_names=item_names, item_roi=dict(zip(item_names, true_roi)), channel_roi=chan_roi)
+    return ds, items_obj, truth
